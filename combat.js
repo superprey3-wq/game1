@@ -10,8 +10,12 @@ export function weaponChoices(combat,lang='en'){
   const pool=WEAPONS.filter(w=>(combat.levels[w.id]||0)<w.max);
   return pool.sort(()=>Math.random()-.5).slice(0,3).map(w=>({id:w.id,title:w.name[lang]||w.name.en,desc:(combat.levels[w.id]||0)===0?(lang==='ru'?'Новое оружие':'New weapon'):(lang==='ru'?`Уровень ${(combat.levels[w.id]||0)+1}`:`Level ${(combat.levels[w.id]||0)+1}`)}));
 }
-export function upgradeWeapon(combat,id){combat.levels[id]=(combat.levels[id]||0)+1;checkEvolution(combat,id)}
-function checkEvolution(combat,id){const evo=EVOLUTIONS.find(e=>e.weapon===id&&e.requires===combat.petId);const w=WEAPONS.find(x=>x.id===id);if(evo&&w&&combat.levels[id]>=w.max)combat.evolved.add(id)}
+export function upgradeWeapon(combat,id){
+  combat.levels[id]=(combat.levels[id]||0)+1;
+  const evolved=checkEvolution(combat,id);
+  try{window.dispatchEvent(new CustomEvent('arena:weaponUpgrade',{detail:{id,level:combat.levels[id],evolved}}))}catch{}
+}
+function checkEvolution(combat,id){const evo=EVOLUTIONS.find(e=>e.weapon===id&&e.requires===combat.petId);const w=WEAPONS.find(x=>x.id===id);if(evo&&w&&combat.levels[id]>=w.max){const fresh=!combat.evolved.has(id);combat.evolved.add(id);return fresh}return false}
 function hitEnemiesRadius(enemies,x,y,r,damage,onHit){for(const e of enemies){const d=Math.hypot(e.x-x,e.y-y);if(d<r+e.r){e.hp-=damage;e.hit=.09;onHit?.(e)}}}
 function projectile(out,x,y,a,speed,damage,size,color,pierce=0){out.push({x,y,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,r:size,damage,life:1.6,pierce,color})}
 
@@ -28,6 +32,7 @@ function nearest(enemies,x,y,range){let b=null,bd=range*range;for(const e of ene
 export function updateBossAI(combat,dt,boss,player){
  if(!boss)return;combat.bossClock+=dt;boss.skill=(Number.isFinite(boss.skill)?boss.skill:1.4)-dt;const def=BOSSES[boss.type];if(!def||boss.skill>0)return;
  const cooldown={slam:3.2,charge:3.8,spiral:3.0,teleport:4.2}[def.pattern]||3.5;boss.skill=cooldown;const a=Math.atan2(player.y-boss.y,player.x-boss.x);
+ try{window.dispatchEvent(new CustomEvent('arena:bossSkill',{detail:{type:boss.type,pattern:def.pattern,color:def.telegraph||def.color}}))}catch{}
  if(def.pattern==='slam'||def.pattern==='shockwave'){for(let i=0;i<12;i++)enemyShot(combat,boss,i*Math.PI/6,165,12,'#c7ff82')}
  if(def.pattern==='charge'){boss.x+=Math.cos(a)*135;boss.y+=Math.sin(a)*135;for(let i=-2;i<=2;i++)enemyShot(combat,boss,a+i*.15,240,10,'#ffd07b')}
  if(def.pattern==='spiral'){for(let i=0;i<10;i++)enemyShot(combat,boss,a+i*.63+combat.bossClock,200,11,'#8fe5ff')}
