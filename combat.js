@@ -1,42 +1,12 @@
 import {WEAPONS,EVOLUTIONS,BOSSES} from './content.js';
-
-export function createCombat(petId='fox'){
-  const levels={arc:1,orbit:0,nova:0,blades:0,storm:0,flame:0};
-  const timers={orbit:0,nova:2,blades:1.2,storm:2.4,flame:1.7};
-  const evolved=new Set();
-  return {petId,levels,timers,evolved,enemyShots:[],hazards:[],bossClock:0};
-}
-export function weaponChoices(combat,lang='en'){
-  const pool=WEAPONS.filter(w=>(combat.levels[w.id]||0)<w.max);
-  return pool.sort(()=>Math.random()-.5).slice(0,3).map(w=>({id:w.id,title:w.name[lang]||w.name.en,desc:(combat.levels[w.id]||0)===0?(lang==='ru'?'Новое оружие':'New weapon'):(lang==='ru'?`Уровень ${(combat.levels[w.id]||0)+1}`:`Level ${(combat.levels[w.id]||0)+1}`)}));
-}
-export function upgradeWeapon(combat,id){
-  combat.levels[id]=(combat.levels[id]||0)+1;
-  const evolved=checkEvolution(combat,id);
-  try{window.dispatchEvent(new CustomEvent('arena:weaponUpgrade',{detail:{id,level:combat.levels[id],evolved}}))}catch{}
-}
-function checkEvolution(combat,id){const evo=EVOLUTIONS.find(e=>e.weapon===id&&e.requires===combat.petId);const w=WEAPONS.find(x=>x.id===id);if(evo&&w&&combat.levels[id]>=w.max){const fresh=!combat.evolved.has(id);combat.evolved.add(id);return fresh}return false}
-function hitEnemiesRadius(enemies,x,y,r,damage,onHit){for(const e of enemies){const d=Math.hypot(e.x-x,e.y-y);if(d<r+e.r){e.hp-=damage;e.hit=.09;onHit?.(e)}}}
-function projectile(out,x,y,a,speed,damage,size,color,pierce=0){out.push({x,y,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,r:size,damage,life:1.6,pierce,color})}
-
-export function updateWeapons(combat,dt,player,enemies,bullets,fx){
-  const now=performance.now()/1000,dmg=player.damage;
-  if(combat.levels.orbit){combat.timers.orbit+=dt;const lvl=combat.levels.orbit,n=2+Math.floor(lvl/2),rad=62+lvl*5;for(let i=0;i<n;i++){const a=now*(1.4+lvl*.08)+i*Math.PI*2/n,x=player.x+Math.cos(a)*rad,y=player.y+Math.sin(a)*rad;fx.orbs.push({x,y,r:7+lvl});hitEnemiesRadius(enemies,x,y,8+lvl,dmg*(combat.evolved.has('orbit')?.42:.26)*dt*6)}}
-  combat.timers.nova-=dt;if(combat.levels.nova&&combat.timers.nova<=0){const lvl=combat.levels.nova,r=115+lvl*18,damage=dmg*(1.5+lvl*.45)*(combat.evolved.has('nova')?1.45:1);hitEnemiesRadius(enemies,player.x,player.y,r,damage);fx.rings.push({x:player.x,y:player.y,r,life:.35,color:'#73d8ff'});combat.timers.nova=Math.max(2.4-lvl*.22,.9)}
-  combat.timers.blades-=dt;if(combat.levels.blades&&combat.timers.blades<=0){const lvl=combat.levels.blades,n=2+lvl;for(let i=0;i<n;i++){const a=i*Math.PI*2/n+now*.3;projectile(bullets,player.x,player.y,a,520,dmg*(.55+lvl*.14),4+lvl*.5,'#dba7ff',combat.evolved.has('blades')?2:0)}combat.timers.blades=Math.max(1.5-lvl*.12,.6)}
-  combat.timers.storm-=dt;if(combat.levels.storm&&combat.timers.storm<=0&&enemies.length){const lvl=combat.levels.storm,e=enemies[Math.floor(Math.random()*enemies.length)],r=70+lvl*8;hitEnemiesRadius(enemies,e.x,e.y,r,dmg*(1.2+lvl*.35));fx.rings.push({x:e.x,y:e.y,r,life:.28,color:'#ffe36d'});combat.timers.storm=Math.max(2.8-lvl*.22,1.1)}
-  combat.timers.flame-=dt;if(combat.levels.flame&&combat.timers.flame<=0){const lvl=combat.levels.flame,n=5+lvl*2,target=nearest(enemies,player.x,player.y,500);if(target){const base=Math.atan2(target.y-player.y,target.x-player.x);for(let i=0;i<n;i++){const spread=(i-(n-1)/2)*.08;projectile(bullets,player.x,player.y,base+spread,430,dmg*(.32+lvl*.08)*(combat.evolved.has('flame')?1.5:1),5,'#ff8b4f',1)}}combat.timers.flame=Math.max(1.8-lvl*.12,.75)}
-}
+export function createCombat(petId='fox'){const levels={arc:1,orbit:0,nova:0,blades:0,storm:0,flame:0};const timers={orbit:0,nova:2,blades:1.2,storm:2.4,flame:1.7};return {petId,levels,timers,evolved:new Set(),enemyShots:[],hazards:[],bossClock:0}}
+export function weaponChoices(combat,lang='en'){return WEAPONS.filter(w=>(combat.levels[w.id]||0)<w.max).sort(()=>Math.random()-.5).slice(0,3).map(w=>({id:w.id,title:w.name[lang]||w.name.en,desc:(combat.levels[w.id]||0)===0?(lang==='ru'?'Новое оружие':'New weapon'):(lang==='ru'?`Уровень ${(combat.levels[w.id]||0)+1}`:`Level ${(combat.levels[w.id]||0)+1}`)}))}
+export function upgradeWeapon(combat,id){combat.levels[id]=(combat.levels[id]||0)+1;const evolved=checkEvolution(combat,id);try{window.dispatchEvent(new CustomEvent('arena:weaponUpgrade',{detail:{id,level:combat.levels[id],evolved}}))}catch{}}
+function checkEvolution(combat,id){const evo=EVOLUTIONS.find(e=>e.weapon===id&&e.requires===combat.petId),w=WEAPONS.find(x=>x.id===id);if(evo&&w&&combat.levels[id]>=w.max){const fresh=!combat.evolved.has(id);combat.evolved.add(id);return fresh}return false}
+function reportHit(e,damage,kind='weapon',crit=false){try{window.dispatchEvent(new CustomEvent('arena:combatHit',{detail:{x:e.x,y:e.y-e.r,damage,kind,crit,color:e.color}}))}catch{}}
+function hitEnemiesRadius(enemies,x,y,r,damage,onHit,kind='weapon'){for(const e of enemies){if(Math.hypot(e.x-x,e.y-y)<r+e.r){e.hp-=damage;e.hit=.09;reportHit(e,damage,kind,false);onHit?.(e)}}}
+function projectile(out,x,y,a,speed,damage,size,color,pierce=0,kind='weapon'){out.push({x,y,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,r:size,damage,life:1.6,pierce,color,kind,crit:false})}
+export function updateWeapons(combat,dt,player,enemies,bullets,fx){const now=performance.now()/1000,dmg=player.damage;if(combat.levels.orbit){combat.timers.orbit+=dt;const lvl=combat.levels.orbit,n=2+Math.floor(lvl/2),rad=62+lvl*5;for(let i=0;i<n;i++){const a=now*(1.4+lvl*.08)+i*Math.PI*2/n,x=player.x+Math.cos(a)*rad,y=player.y+Math.sin(a)*rad;fx.orbs.push({x,y,r:7+lvl});hitEnemiesRadius(enemies,x,y,8+lvl,dmg*(combat.evolved.has('orbit')?.42:.26)*dt*6,null,'orbit')}}combat.timers.nova-=dt;if(combat.levels.nova&&combat.timers.nova<=0){const lvl=combat.levels.nova,r=115+lvl*18,damage=dmg*(1.5+lvl*.45)*(combat.evolved.has('nova')?1.45:1);hitEnemiesRadius(enemies,player.x,player.y,r,damage,null,'nova');fx.rings.push({x:player.x,y:player.y,r,life:.35,color:'#73d8ff'});combat.timers.nova=Math.max(2.4-lvl*.22,.9)}combat.timers.blades-=dt;if(combat.levels.blades&&combat.timers.blades<=0){const lvl=combat.levels.blades,n=2+lvl;for(let i=0;i<n;i++)projectile(bullets,player.x,player.y,i*Math.PI*2/n+now*.3,520,dmg*(.55+lvl*.14),4+lvl*.5,'#dba7ff',combat.evolved.has('blades')?2:0,'blades');combat.timers.blades=Math.max(1.5-lvl*.12,.6)}combat.timers.storm-=dt;if(combat.levels.storm&&combat.timers.storm<=0&&enemies.length){const lvl=combat.levels.storm,e=enemies[Math.floor(Math.random()*enemies.length)],r=70+lvl*8;hitEnemiesRadius(enemies,e.x,e.y,r,dmg*(1.2+lvl*.35),null,'storm');fx.rings.push({x:e.x,y:e.y,r,life:.28,color:'#ffe36d'});combat.timers.storm=Math.max(2.8-lvl*.22,1.1)}combat.timers.flame-=dt;if(combat.levels.flame&&combat.timers.flame<=0){const lvl=combat.levels.flame,n=5+lvl*2,target=nearest(enemies,player.x,player.y,500);if(target){const base=Math.atan2(target.y-player.y,target.x-player.x);for(let i=0;i<n;i++)projectile(bullets,player.x,player.y,base+(i-(n-1)/2)*.08,430,dmg*(.32+lvl*.08)*(combat.evolved.has('flame')?1.5:1),5,'#ff8b4f',1,'flame')}combat.timers.flame=Math.max(1.8-lvl*.12,.75)}}
 function nearest(enemies,x,y,range){let b=null,bd=range*range;for(const e of enemies){const dx=e.x-x,dy=e.y-y,d=dx*dx+dy*dy;if(d<bd){bd=d;b=e}}return b}
-
-export function updateBossAI(combat,dt,boss,player){
- if(!boss)return;combat.bossClock+=dt;boss.skill=(Number.isFinite(boss.skill)?boss.skill:1.4)-dt;const def=BOSSES[boss.type];if(!def||boss.skill>0)return;
- const cooldown={slam:3.2,charge:3.8,spiral:3.0,teleport:4.2}[def.pattern]||3.5;boss.skill=cooldown;const a=Math.atan2(player.y-boss.y,player.x-boss.x);
- try{window.dispatchEvent(new CustomEvent('arena:bossSkill',{detail:{type:boss.type,pattern:def.pattern,color:def.telegraph||def.color}}))}catch{}
- if(def.pattern==='slam'||def.pattern==='shockwave'){for(let i=0;i<12;i++)enemyShot(combat,boss,i*Math.PI/6,165,12,'#c7ff82')}
- if(def.pattern==='charge'){boss.x+=Math.cos(a)*135;boss.y+=Math.sin(a)*135;for(let i=-2;i<=2;i++)enemyShot(combat,boss,a+i*.15,240,10,'#ffd07b')}
- if(def.pattern==='spiral'){for(let i=0;i<10;i++)enemyShot(combat,boss,a+i*.63+combat.bossClock,200,11,'#8fe5ff')}
- if(def.pattern==='teleport'){boss.x=player.x+Math.cos(a+Math.PI)*(210+Math.random()*80);boss.y=player.y+Math.sin(a+Math.PI)*(210+Math.random()*80);for(let i=0;i<16;i++)enemyShot(combat,boss,i*Math.PI/8,220,13,'#d59aff')}
-}
-function enemyShot(combat,boss,a,speed,damage,color){combat.enemyShots.push({x:boss.x,y:boss.y,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,r:6,damage,color,life:4})}
-export function updateEnemyShots(combat,dt,player,onDamage){for(let i=combat.enemyShots.length-1;i>=0;i--){const s=combat.enemyShots[i];s.x+=s.vx*dt;s.y+=s.vy*dt;s.life-=dt;if(Math.hypot(s.x-player.x,s.y-player.y)<s.r+player.r){onDamage(s.damage);combat.enemyShots.splice(i,1);continue}if(s.life<=0)combat.enemyShots.splice(i,1)}}
+export function updateBossAI(combat,dt,boss,player){if(!boss)return;combat.bossClock+=dt;boss.skill=(Number.isFinite(boss.skill)?boss.skill:1.4)-dt;const def=BOSSES[boss.type];if(!def||boss.skill>0)return;boss.skill={slam:3.2,shockwave:3.2,charge:3.8,spiral:3,teleport:4.2}[def.pattern]||3.5;const a=Math.atan2(player.y-boss.y,player.x-boss.x);try{window.dispatchEvent(new CustomEvent('arena:bossSkill',{detail:{type:boss.type,pattern:def.pattern,color:def.telegraph||def.color}}))}catch{}if(def.pattern==='slam'||def.pattern==='shockwave')for(let i=0;i<12;i++)enemyShot(combat,boss,i*Math.PI/6,165,12,'#c7ff82');if(def.pattern==='charge'){boss.x+=Math.cos(a)*135;boss.y+=Math.sin(a)*135;for(let i=-2;i<=2;i++)enemyShot(combat,boss,a+i*.15,240,10,'#ffd07b')}if(def.pattern==='spiral')for(let i=0;i<10;i++)enemyShot(combat,boss,a+i*.63+combat.bossClock,200,11,'#8fe5ff');if(def.pattern==='teleport'){boss.x=player.x+Math.cos(a+Math.PI)*(210+Math.random()*80);boss.y=player.y+Math.sin(a+Math.PI)*(210+Math.random()*80);for(let i=0;i<16;i++)enemyShot(combat,boss,i*Math.PI/8,220,13,'#d59aff')}}
+function enemyShot(combat,boss,a,speed,damage,color){combat.enemyShots.push({x:boss.x,y:boss.y,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,r:6,damage,color,life:4})}export function updateEnemyShots(combat,dt,player,onDamage){for(let i=combat.enemyShots.length-1;i>=0;i--){const s=combat.enemyShots[i];s.x+=s.vx*dt;s.y+=s.vy*dt;s.life-=dt;if(Math.hypot(s.x-player.x,s.y-player.y)<s.r+player.r){onDamage(s.damage);combat.enemyShots.splice(i,1);continue}if(s.life<=0)combat.enemyShots.splice(i,1)}}
