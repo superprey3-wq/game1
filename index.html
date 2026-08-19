@@ -11,64 +11,27 @@
 <body>
   <div id="app">
     <canvas id="game"></canvas>
-
     <div id="hud" class="hidden">
-      <div class="topbar">
-        <div id="hpText">❤ 100</div>
-        <div id="lvlText">LV. 1</div>
-        <div id="timeText">00:00</div>
-        <button id="pauseBtn" aria-label="Pause">Ⅱ</button>
-      </div>
+      <div class="topbar"><div id="hpText">❤ 100</div><div id="lvlText">LV. 1</div><div id="timeText">00:00</div><button id="pauseBtn" aria-label="Pause">Ⅱ</button></div>
       <div class="xp"><div id="xpFill"></div></div>
     </div>
-
     <section id="menu" class="panel heroPanel">
       <button id="langBtn" class="langBtn">EN</button>
       <div class="logo" data-i18n="title">АРЕНА СПУТНИКОВ</div>
       <p class="tagline" data-i18n="subtitle">Выживай · Прокачивайся · Собирай команду</p>
-      <button id="playBtn" class="primary" data-i18n="play">Играть</button>
-      <button id="howBtn" data-i18n="how">Как играть</button>
-      <div id="bestText" class="small"></div>
+      <button id="playBtn" class="primary" data-i18n="play">Играть</button><button id="howBtn" data-i18n="how">Как играть</button><div id="bestText" class="small"></div>
     </section>
-
     <section id="select" class="panel hidden selectPanel">
-      <h2 data-i18n="chooseHero">Выбор героя</h2>
-      <div id="heroes" class="cards"></div>
-      <h2 data-i18n="choosePet">Выбор питомца</h2>
-      <div id="pets" class="cards smallcards"></div>
-      <h2 data-i18n="chooseWorld">Выбор мира</h2>
-      <div id="worlds" class="worlds"></div>
-      <button id="startBtn" class="primary" data-i18n="start">Старт</button>
-      <button id="backBtn" data-i18n="back">Назад</button>
+      <h2 data-i18n="chooseHero">Выбор героя</h2><div id="heroes" class="cards"></div>
+      <h3 data-i18n="chooseSkin">Выбор скина</h3><div id="skins" class="skinRow"></div>
+      <h2 data-i18n="choosePet">Выбор питомца</h2><div id="pets" class="cards smallcards"></div>
+      <h2 data-i18n="chooseWorld">Выбор мира</h2><div id="worlds" class="worlds"></div>
+      <button id="startBtn" class="primary" data-i18n="start">Старт</button><button id="backBtn" data-i18n="back">Назад</button>
     </section>
-
-    <section id="upgrade" class="panel hidden">
-      <h2 data-i18n="newLevel">Новый уровень</h2>
-      <p data-i18n="selectUpgrade">Выберите улучшение</p>
-      <div id="upgradeCards" class="upgradeCards"></div>
-    </section>
-
-    <section id="pause" class="panel hidden">
-      <h2 data-i18n="pause">Пауза</h2>
-      <button id="resumeBtn" class="primary" data-i18n="resume">Продолжить</button>
-      <button id="quitBtn" data-i18n="quit">В меню</button>
-    </section>
-
-    <section id="result" class="panel hidden">
-      <h2 id="resultTitle" data-i18n="defeat">Забег окончен</h2>
-      <div id="resultStats"></div>
-      <button id="retryBtn" class="primary" data-i18n="retry">Ещё раз</button>
-      <button id="resultMenuBtn" data-i18n="quit">В меню</button>
-    </section>
-
-    <section id="help" class="panel hidden">
-      <h2 data-i18n="how">Как играть</h2>
-      <p data-i18n="help1">ПК: WASD или стрелки. Телефон: веди пальцем по экрану.</p>
-      <p data-i18n="help2">Герой и питомец атакуют автоматически. Собирай кристаллы опыта и выбирай усиления.</p>
-      <p data-i18n="help3">Боссы приходят каждые 2 минуты. Побеждай, чтобы открывать новые миры.</p>
-      <button id="helpBackBtn" class="primary" data-i18n="understood">Понятно</button>
-    </section>
-
+    <section id="upgrade" class="panel hidden"><h2 data-i18n="newLevel">Новый уровень</h2><p data-i18n="selectUpgrade">Выберите улучшение</p><div id="upgradeCards" class="upgradeCards"></div></section>
+    <section id="pause" class="panel hidden"><h2 data-i18n="pause">Пауза</h2><button id="resumeBtn" class="primary" data-i18n="resume">Продолжить</button><button id="quitBtn" data-i18n="quit">В меню</button></section>
+    <section id="result" class="panel hidden"><h2 id="resultTitle" data-i18n="defeat">Забег окончен</h2><div id="resultStats"></div><button id="retryBtn" class="primary" data-i18n="retry">Ещё раз</button><button id="resultMenuBtn" data-i18n="quit">В меню</button></section>
+    <section id="help" class="panel hidden"><h2 data-i18n="how">Как играть</h2><p data-i18n="help1">ПК: WASD или стрелки. Телефон: веди пальцем по экрану.</p><p data-i18n="help2">Герой и питомец атакуют автоматически. Собирай кристаллы опыта и выбирай усиления.</p><p data-i18n="help3">Боссы приходят каждые 2 минуты. Побеждай, чтобы открывать новые миры.</p><button id="helpBackBtn" class="primary" data-i18n="understood">Понятно</button></section>
     <div id="joystick" class="hidden"><div id="stick"></div></div>
   </div>
   <script type="module" src="game.js"></script>
