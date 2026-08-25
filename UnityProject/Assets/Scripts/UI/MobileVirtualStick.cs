@@ -21,6 +21,15 @@ namespace ArenaSatellites.UI
             if (knob != null) knob.anchoredPosition = Vector2.zero;
         }
 
+        public void Configure(VirtualStickMode stickMode, RectTransform stickKnob, PlayerController target)
+        {
+            mode = stickMode;
+            knob = stickKnob;
+            player = target;
+            rect = transform as RectTransform;
+            if (knob != null) knob.anchoredPosition = Vector2.zero;
+        }
+
         public void OnPointerDown(PointerEventData eventData) => UpdateStick(eventData);
         public void OnDrag(PointerEventData eventData) => UpdateStick(eventData);
 
