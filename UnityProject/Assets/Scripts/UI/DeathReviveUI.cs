@@ -1,4 +1,5 @@
 using ArenaSatellites.Platform;
+using ArenaSatellites.Progression;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -79,9 +80,11 @@ namespace ArenaSatellites.UI
 
         private void FinishRun()
         {
+            RunResultService.Instance?.SaveCurrentRun();
             Time.timeScale = 1f;
             if (reviveButton != null) reviveButton.interactable = false;
-            if (statusLabel != null) statusLabel.text = "РЕЗУЛЬТАТ ЗАБЕГА СОХРАНЁН";
+            if (finishButton != null) finishButton.interactable = false;
+            if (statusLabel != null) statusLabel.text = "НАГРАДЫ ЗАБЕГА СОХРАНЕНЫ";
         }
 
         private void Hide()
