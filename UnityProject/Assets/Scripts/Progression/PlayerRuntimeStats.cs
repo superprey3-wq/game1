@@ -1,4 +1,5 @@
 using ArenaSatellites.Combat;
+using ArenaSatellites.Data;
 using UnityEngine;
 
 namespace ArenaSatellites.Progression
@@ -26,12 +27,12 @@ namespace ArenaSatellites.Progression
                 if (gear == null) continue;
                 switch (gear.stat)
                 {
-                    case Data.UpgradeKind.Damage: damage += gear.value; break;
-                    case Data.UpgradeKind.FireRate: fireRate += gear.value; break;
-                    case Data.UpgradeKind.CritChance: crit += gear.value; break;
-                    case Data.UpgradeKind.MoveSpeed: move += gear.value; break;
-                    case Data.UpgradeKind.Armor: armor += gear.value; break;
-                    case Data.UpgradeKind.Cooldown: cooldown += gear.value; break;
+                    case UpgradeKind.Damage: damage += gear.value; break;
+                    case UpgradeKind.FireRate: fireRate += gear.value; break;
+                    case UpgradeKind.CritChance: crit += gear.value; break;
+                    case UpgradeKind.MoveSpeed: move += gear.value; break;
+                    case UpgradeKind.Armor: armor += gear.value; break;
+                    case UpgradeKind.Cooldown: cooldown += gear.value; break;
                 }
             }
 
