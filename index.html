@@ -12,85 +12,17 @@
 <body>
   <div id="app">
     <canvas id="game" aria-label="Игровая арена"></canvas>
-
-    <div id="hud" class="hidden">
-      <div class="topbar">
-        <div id="hpText">❤ 100</div>
-        <div id="lvlText">УР. 1</div>
-        <div id="timeText">00:00</div>
-        <div id="coinText">✦ 0</div>
-        <button id="pauseBtn" class="iconBtn" aria-label="Пауза">Ⅱ</button>
-      </div>
-      <div class="xp"><div id="xpFill"></div></div>
-      <div id="weaponStrip" class="weaponStrip"></div>
-    </div>
-
-    <section id="menu" class="panel">
-      <div class="logo">АРЕНА<br><span>СПУТНИКОВ</span></div>
-      <p id="tagline" class="tagline">Выбери героя и питомца. Выживи 10 минут.</p>
-      <button id="playBtn" class="primary">ИГРАТЬ</button>
-      <button id="metaBtn">УЛУЧШЕНИЯ</button>
-      <button id="howBtn">КАК ИГРАТЬ</button>
-      <div class="menuRow">
-        <button id="soundBtn" class="compact">🔊 ЗВУК</button>
-        <button id="langBtn" class="compact">RU / EN</button>
-      </div>
-      <div id="bestText" class="small"></div>
-      <div id="walletText" class="wallet"></div>
-    </section>
-
-    <section id="select" class="panel hidden">
-      <h2 id="heroTitle">Выбери героя</h2>
-      <div id="heroes" class="cards"></div>
-      <h2 id="petTitle">Выбери питомца</h2>
-      <div id="pets" class="cards smallcards"></div>
-      <button id="startBtn" class="primary" disabled>В БОЙ</button>
-      <button id="backBtn">НАЗАД</button>
-    </section>
-
-    <section id="upgrade" class="panel hidden">
-      <h2 id="upgradeTitle">Новый уровень</h2>
-      <p id="upgradeHint">Выбери усиление</p>
-      <div id="upgradeCards" class="upgradeCards"></div>
-    </section>
-
-    <section id="pause" class="panel hidden">
-      <h2 id="pauseTitle">Пауза</h2>
-      <button id="resumeBtn" class="primary">ПРОДОЛЖИТЬ</button>
-      <button id="pauseSoundBtn">🔊 ЗВУК</button>
-      <button id="quitBtn">В МЕНЮ</button>
-    </section>
-
-    <section id="revive" class="panel hidden">
-      <h2 id="reviveTitle">Второй шанс</h2>
-      <p id="reviveText">Посмотри короткую рекламу и вернись в бой с 55% здоровья.</p>
-      <button id="reviveBtn" class="primary">ВОСКРЕСНУТЬ</button>
-      <button id="skipReviveBtn">ЗАКОНЧИТЬ ЗАБЕГ</button>
-    </section>
-
-    <section id="result" class="panel hidden">
-      <h2 id="resultTitle">Забег окончен</h2>
-      <div id="resultStats"></div>
-      <button id="retryBtn" class="primary">ЕЩЁ РАЗ</button>
-      <button id="resultMenuBtn">В МЕНЮ</button>
-    </section>
-
-    <section id="meta" class="panel hidden">
-      <h2 id="metaTitle">Постоянные улучшения</h2>
-      <p id="metaWallet" class="wallet"></p>
-      <div id="metaGrid" class="metaGrid"></div>
-      <button id="metaBackBtn">НАЗАД</button>
-    </section>
-
-    <section id="help" class="panel hidden">
-      <h2 id="helpTitle">Как играть</h2>
-      <div id="helpBody"></div>
-      <button id="helpBackBtn" class="primary">ПОНЯТНО</button>
-    </section>
-
-    <div id="toast" class="toast hidden"></div>
-    <div id="joystick" class="hidden"><div id="stick"></div></div>
+    <div id="hud" class="hidden"><div class="topbar"><div id="hpText">❤ 100</div><div id="lvlText">УР. 1</div><div id="timeText">00:00</div><div id="coinText">✦ 0</div><button id="pauseBtn" class="iconBtn" aria-label="Пауза">Ⅱ</button></div><div class="xp"><div id="xpFill"></div></div><div id="weaponStrip" class="weaponStrip"></div></div>
+    <section id="menu" class="panel"><div class="logo">АРЕНА<br><span>СПУТНИКОВ</span></div><p id="tagline" class="tagline">Выбери героя и питомца. Выживи 10 минут.</p><button id="playBtn" class="primary">ИГРАТЬ</button><button id="metaBtn">УЛУЧШЕНИЯ</button><button id="howBtn">КАК ИГРАТЬ</button><div class="menuRow"><button id="soundBtn" class="compact">🔊 ЗВУК</button><button id="langBtn" class="compact">RU / EN</button></div><div id="bestText" class="small"></div><div id="walletText" class="wallet"></div></section>
+    <section id="select" class="panel hidden"><h2 id="heroTitle">Выбери героя</h2><div id="heroes" class="cards"></div><h2 id="petTitle">Выбери питомца</h2><div id="pets" class="cards smallcards"></div><button id="startBtn" class="primary" disabled>В БОЙ</button><button id="backBtn">НАЗАД</button></section>
+    <section id="upgrade" class="panel hidden"><h2 id="upgradeTitle">Новый уровень</h2><p id="upgradeHint">Выбери усиление</p><div id="upgradeCards" class="upgradeCards"></div></section>
+    <section id="pause" class="panel hidden"><h2 id="pauseTitle">Пауза</h2><button id="resumeBtn" class="primary">ПРОДОЛЖИТЬ</button><button id="pauseSoundBtn">🔊 ЗВУК</button><button id="quitBtn">В МЕНЮ</button></section>
+    <section id="revive" class="panel hidden"><h2 id="reviveTitle">Второй шанс</h2><p id="reviveText">Посмотри короткую рекламу и вернись в бой с 55% здоровья.</p><button id="reviveBtn" class="primary">ВОСКРЕСНУТЬ</button><button id="skipReviveBtn">ЗАКОНЧИТЬ ЗАБЕГ</button></section>
+    <section id="result" class="panel hidden"><h2 id="resultTitle">Забег окончен</h2><div id="resultStats"></div><button id="retryBtn" class="primary">ЕЩЁ РАЗ</button><button id="resultMenuBtn">В МЕНЮ</button></section>
+    <section id="meta" class="panel hidden"><h2 id="metaTitle">Постоянные улучшения</h2><p id="metaWallet" class="wallet"></p><div id="metaGrid" class="metaGrid"></div><button id="metaBackBtn">НАЗАД</button></section>
+    <section id="help" class="panel hidden"><h2 id="helpTitle">Как играть</h2><div id="helpBody"></div><button id="helpBackBtn" class="primary">ПОНЯТНО</button></section>
+    <div id="toast" class="toast hidden"></div><div id="joystick" class="hidden"><div id="stick"></div></div>
   </div>
-  <script type="module" src="game.js"></script>
+  <script type="module" src="game-v2.js"></script>
 </body>
 </html>
