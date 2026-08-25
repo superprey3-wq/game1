@@ -16,6 +16,11 @@ namespace ArenaSatellites.UI
         private PlayerHealth health;
         private RewardedReviveService ads;
 
+        private void Awake()
+        {
+            if (root == null) BuildRuntimeUI();
+        }
+
         private void Start()
         {
             health = FindFirstObjectByType<PlayerHealth>();
@@ -25,6 +30,22 @@ namespace ArenaSatellites.UI
             if (reviveButton != null) reviveButton.onClick.AddListener(WatchAd);
             if (finishButton != null) finishButton.onClick.AddListener(FinishRun);
             Hide();
+        }
+
+        private void BuildRuntimeUI()
+        {
+            var panel = new GameObject("DeathPanel", typeof(RectTransform), typeof(Image), typeof(CanvasGroup));
+            panel.transform.SetParent(transform, false);
+            var rt = panel.GetComponent<RectTransform>();
+            rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one; rt.offsetMin = rt.offsetMax = Vector2.zero;
+            panel.GetComponent<Image>().color = new Color(.015f,.02f,.03f,.94f);
+            root = panel.GetComponent<CanvasGroup>();
+
+            statusLabel = MakeText("Status", "ЗАБЕГ ОКОНЧЕН", panel.transform, 38, new Vector2(0,110), new Vector2(700,70));
+            reviveButton = MakeButton("Revive", panel.transform, new Vector2(0,10), new Vector2(430,82), out reviveLabel);
+            reviveLabel.text = "ВОЗРОДИТЬСЯ ЗА РЕКЛАМУ";
+            finishButton = MakeButton("Finish", panel.transform, new Vector2(0,-95), new Vector2(330,64), out var finishText);
+            finishText.text = "ЗАКОНЧИТЬ ЗАБЕГ";
         }
 
         private void Show()
@@ -59,7 +80,7 @@ namespace ArenaSatellites.UI
         private void FinishRun()
         {
             Time.timeScale = 1f;
-            // Run result/meta progression screen will replace this callback later.
+            if (reviveButton != null) reviveButton.interactable = false;
             if (statusLabel != null) statusLabel.text = "РЕЗУЛЬТАТ ЗАБЕГА СОХРАНЁН";
         }
 
@@ -67,6 +88,25 @@ namespace ArenaSatellites.UI
         {
             Time.timeScale = 1f;
             if (root != null) { root.alpha = 0f; root.interactable = false; root.blocksRaycasts = false; }
+        }
+
+        private static Button MakeButton(string name, Transform parent, Vector2 pos, Vector2 size, out TextMeshProUGUI label)
+        {
+            var go = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
+            go.transform.SetParent(parent, false);
+            var rt = go.GetComponent<RectTransform>(); rt.anchorMin = rt.anchorMax = new Vector2(.5f,.5f); rt.anchoredPosition = pos; rt.sizeDelta = size;
+            go.GetComponent<Image>().color = new Color(.10f,.38f,.50f,.96f);
+            var btn = go.GetComponent<Button>();
+            label = MakeText("Label", name, go.transform, 23, Vector2.zero, size - new Vector2(24,16));
+            return btn;
+        }
+
+        private static TextMeshProUGUI MakeText(string name, string value, Transform parent, float size, Vector2 pos, Vector2 box)
+        {
+            var go = new GameObject(name, typeof(RectTransform)); go.transform.SetParent(parent,false);
+            var rt = go.GetComponent<RectTransform>(); rt.anchorMin = rt.anchorMax = new Vector2(.5f,.5f); rt.anchoredPosition = pos; rt.sizeDelta = box;
+            var text = go.AddComponent<TextMeshProUGUI>(); text.text = value; text.fontSize = size; text.color = Color.white; text.alignment = TextAlignmentOptions.Center;
+            return text;
         }
 
         private void OnDestroy()
