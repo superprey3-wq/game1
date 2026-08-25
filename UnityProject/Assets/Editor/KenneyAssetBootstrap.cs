@@ -8,23 +8,18 @@ using UnityEngine;
 
 public static class KenneyAssetBootstrap
 {
-    private const string Root = "UnityProject/Assets/Art/Kenney";
+    private const string Root = "Assets/Art/Kenney";
     private const string Mirror = "https://raw.githubusercontent.com/ETdoFresh/kenney.nl/master/";
 
     private static readonly Dictionary<string,string> Files = new()
     {
-        // Captain Rain / human units
         {"Characters/CaptainRain/stand.png", "topdown-shooter/PNG/Soldier%201/soldier1_stand.png"},
         {"Characters/CaptainRain/hold.png",  "topdown-shooter/PNG/Soldier%201/soldier1_hold.png"},
         {"Characters/CaptainRain/gun.png",   "topdown-shooter/PNG/weapon_machine.png"},
-
-        // Mechanical / infected enemy placeholders for the first vertical slice
         {"Enemies/Robot/stand.png",  "topdown-shooter/PNG/Robot%201/robot1_stand.png"},
         {"Enemies/Robot/hold.png",   "topdown-shooter/PNG/Robot%201/robot1_hold.png"},
         {"Enemies/Runner/stand.png", "topdown-shooter/PNG/Zombie%201/zoimbie1_stand.png"},
         {"Enemies/Runner/hold.png",  "topdown-shooter/PNG/Zombie%201/zoimbie1_hold.png"},
-
-        // Sci-fi projectiles / impact VFX
         {"VFX/laser_blue.png",   "alien-ufo-pack/PNG/laserBlue2.png"},
         {"VFX/laser_green.png",  "alien-ufo-pack/PNG/laserGreen2.png"},
         {"VFX/laser_beige.png",  "alien-ufo-pack/PNG/laserBeige2.png"},
@@ -32,6 +27,20 @@ public static class KenneyAssetBootstrap
         {"VFX/burst_green.png",  "alien-ufo-pack/PNG/laserGreen_burst.png"},
         {"VFX/burst_beige.png",  "alien-ufo-pack/PNG/laserBeige_burst.png"},
         {"Props/ufo_dome.png",   "alien-ufo-pack/PNG/dome.png"},
+
+        // World 1 floor/wall/cover tiles. We tint and layer these in-scene to create the xeno-jungle palette.
+        {"Worlds/XenoJungle/tile_ground_01.png", "topdown-shooter/PNG/Tiles/tile_01.png"},
+        {"Worlds/XenoJungle/tile_ground_02.png", "topdown-shooter/PNG/Tiles/tile_02.png"},
+        {"Worlds/XenoJungle/tile_ground_03.png", "topdown-shooter/PNG/Tiles/tile_03.png"},
+        {"Worlds/XenoJungle/tile_ground_04.png", "topdown-shooter/PNG/Tiles/tile_04.png"},
+        {"Worlds/XenoJungle/tile_ruin_01.png",   "topdown-shooter/PNG/Tiles/tile_05.png"},
+        {"Worlds/XenoJungle/tile_ruin_02.png",   "topdown-shooter/PNG/Tiles/tile_06.png"},
+        {"Worlds/XenoJungle/tile_ruin_03.png",   "topdown-shooter/PNG/Tiles/tile_07.png"},
+        {"Worlds/XenoJungle/tile_ruin_04.png",   "topdown-shooter/PNG/Tiles/tile_08.png"},
+        {"Worlds/XenoJungle/tile_cover_01.png",  "topdown-shooter/PNG/Tiles/tile_09.png"},
+        {"Worlds/XenoJungle/tile_cover_02.png",  "topdown-shooter/PNG/Tiles/tile_10.png"},
+        {"Worlds/XenoJungle/tile_cover_03.png",  "topdown-shooter/PNG/Tiles/tile_100.png"},
+        {"Worlds/XenoJungle/tile_cover_04.png",  "topdown-shooter/PNG/Tiles/tile_101.png"},
     };
 
     [MenuItem("Arena Satellites/Art/Download CC0 Kenney Starter Set")]
@@ -57,7 +66,7 @@ public static class KenneyAssetBootstrap
         }
         AssetDatabase.Refresh();
         ConfigureSprites();
-        Debug.Log($"Arena Satellites: imported {ok}/{Files.Count} CC0 Kenney starter assets.");
+        Debug.Log($"Arena Satellites: imported {ok}/{Files.Count} CC0 Kenney assets.");
     }
 
     private static void ConfigureSprites()
@@ -72,6 +81,7 @@ public static class KenneyAssetBootstrap
             ti.mipmapEnabled = false;
             ti.filterMode = FilterMode.Bilinear;
             ti.textureCompression = TextureImporterCompression.CompressedHQ;
+            ti.spritePixelsPerUnit = 64;
             ti.SaveAndReimport();
         }
     }
