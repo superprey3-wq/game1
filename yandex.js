@@ -15,25 +15,33 @@ export class YandexBridge {
   gameplayStart(){try{this.ysdk?.features?.GameplayAPI?.start?.()}catch{}}
   gameplayStop(){try{this.ysdk?.features?.GameplayAPI?.stop?.()}catch{}}
   async save(data){
-    localStorage.setItem('arena_companions_save',JSON.stringify(data));
-    try{if(this.player)await this.player.setData({save:data},true)}catch(e){console.warn(e)}
+    try{localStorage.setItem('arena_companions_save_v2',JSON.stringify(data))}catch{}
+    try{if(this.player)await this.player.setData({save:data},true)}catch(e){console.warn('cloud save',e)}
   }
   async load(){
     try{if(this.player){const d=await this.player.getData(['save']);if(d?.save)return d.save}}catch{}
-    try{return JSON.parse(localStorage.getItem('arena_companions_save')||'null')}catch{return null}
+    try{return JSON.parse(localStorage.getItem('arena_companions_save_v2')||localStorage.getItem('arena_companions_save')||'null')}catch{return null}
   }
   async fullscreen(){
     return new Promise(resolve=>{
       if(!this.ysdk?.adv?.showFullscreenAdv)return resolve(false);
       this.gameplayStop();
-      this.ysdk.adv.showFullscreenAdv({callbacks:{onClose:()=>{this.gameplayStart();resolve(true)},onError:()=>{this.gameplayStart();resolve(false)},onOffline:()=>{this.gameplayStart();resolve(false)}}});
+      this.ysdk.adv.showFullscreenAdv({callbacks:{onClose:(wasShown)=>resolve(!!wasShown),onError:()=>resolve(false)}});
     })
   }
   async rewarded(){
     return new Promise(resolve=>{
       if(!this.ysdk?.adv?.showRewardedVideo)return resolve(false);
       let rewarded=false;this.gameplayStop();
-      this.ysdk.adv.showRewardedVideo({callbacks:{onRewarded:()=>rewarded=true,onClose:()=>{this.gameplayStart();resolve(rewarded)},onError:()=>{this.gameplayStart();resolve(false)}}});
+      this.ysdk.adv.showRewardedVideo({callbacks:{onRewarded:()=>rewarded=true,onClose:()=>resolve(rewarded),onError:()=>resolve(false)}});
     })
+  }
+  async submitScore(name,score){
+    try{
+      if(!this.ysdk?.leaderboards||!Number.isFinite(score))return false;
+      if(this.ysdk.isAvailableMethod&&!(await this.ysdk.isAvailableMethod('leaderboards.setScore')))return false;
+      await this.ysdk.leaderboards.setScore(name,Math.max(0,Math.floor(score)));
+      return true;
+    }catch(e){console.warn('leaderboard',e);return false}
   }
 }
