@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -25,8 +26,12 @@ namespace ArenaSatellites.Combat
         [SerializeField] private Sprite[] projectileSprites;
 
         private readonly Dictionary<RuntimeWeaponKind, float> timers = new();
-
         public IReadOnlyList<RuntimeWeaponState> Weapons => weapons;
+        public event Action<RuntimeWeaponKind> OnWeaponFired;
+
+        public float DamageMultiplier { get; set; } = 1f;
+        public float FireRateMultiplier { get; set; } = 1f;
+        public float CritChance { get; set; }
 
         private void Awake()
         {
@@ -47,11 +52,8 @@ namespace ArenaSatellites.Combat
             {
                 timers.TryGetValue(weapon.kind, out var timer);
                 timer -= Time.deltaTime;
-                if (timer <= 0f)
-                {
-                    Fire(weapon);
-                    timer = Mathf.Max(.08f, weapon.cooldown * Mathf.Pow(.94f, weapon.level - 1));
-                }
+                if (timer <= 0f && Fire(weapon))
+                    timer = Mathf.Max(.08f, weapon.cooldown * Mathf.Pow(.94f, weapon.level - 1) / Mathf.Max(.1f, FireRateMultiplier));
                 timers[weapon.kind] = timer;
             }
         }
@@ -68,29 +70,27 @@ namespace ArenaSatellites.Combat
             return weapon?.level ?? 0;
         }
 
-        private void Fire(RuntimeWeaponState weapon)
+        private bool Fire(RuntimeWeaponState weapon)
         {
             var target = FindNearest(weapon.range);
-            if (target == null) return;
+            if (target == null) return false;
             var dir = ((Vector2)target.transform.position - (Vector2)transform.position).normalized;
-            float damage = weapon.damage * (1f + .18f * (weapon.level - 1));
+            float damage = weapon.damage * (1f + .18f * (weapon.level - 1)) * Mathf.Max(.1f, DamageMultiplier);
+            if (UnityEngine.Random.value < Mathf.Clamp01(CritChance)) damage *= 1.75f;
 
             switch (weapon.kind)
             {
-                case RuntimeWeaponKind.PulseRifle:
-                    SpawnProjectile(dir, weapon.projectileSpeed, damage, 0); break;
-                case RuntimeWeaponKind.PlasmaCaster:
-                    SpawnProjectile(dir, weapon.projectileSpeed, damage, 1); break;
+                case RuntimeWeaponKind.PulseRifle: SpawnProjectile(dir, weapon.projectileSpeed, damage, 0); break;
+                case RuntimeWeaponKind.PlasmaCaster: SpawnProjectile(dir, weapon.projectileSpeed, damage, 1); break;
                 case RuntimeWeaponKind.RocketPod:
                     for (int i=-1;i<=1;i++) SpawnProjectile(Quaternion.Euler(0,0,i*8f)*dir, weapon.projectileSpeed, damage*.65f, 2);
                     break;
-                case RuntimeWeaponKind.PrismLaser:
-                    DamageLine(dir, weapon.range, damage, 1); break;
-                case RuntimeWeaponKind.ChainLightning:
-                    DamageChain(target.transform, damage, 3); break;
-                case RuntimeWeaponKind.FrostCannon:
-                    SpawnProjectile(dir, weapon.projectileSpeed, damage, 1, 1.35f); break;
+                case RuntimeWeaponKind.PrismLaser: DamageLine(dir, weapon.range, damage, 1); break;
+                case RuntimeWeaponKind.ChainLightning: DamageChain(target.transform, damage, 3); break;
+                case RuntimeWeaponKind.FrostCannon: SpawnProjectile(dir, weapon.projectileSpeed, damage, 1, 1.35f); break;
             }
+            OnWeaponFired?.Invoke(weapon.kind);
+            return true;
         }
 
         private Collider2D FindNearest(float range)
