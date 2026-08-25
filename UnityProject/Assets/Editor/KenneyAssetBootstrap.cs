@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
-using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
@@ -19,18 +18,19 @@ public static class KenneyAssetBootstrap
         {"Characters/CaptainRain/hold.png",  "topdown-shooter/PNG/Soldier%201/soldier1_hold.png"},
         {"Characters/CaptainRain/gun.png",   "topdown-shooter/PNG/weapon_machine.png"},
 
-        // Mechanical enemies
-        {"Enemies/Robot/stand.png", "topdown-shooter/PNG/Robot%201/robot1_stand.png"},
-        {"Enemies/Robot/hold.png",  "topdown-shooter/PNG/Robot%201/robot1_hold.png"},
+        // Mechanical / infected enemy placeholders for the first vertical slice
+        {"Enemies/Robot/stand.png",  "topdown-shooter/PNG/Robot%201/robot1_stand.png"},
+        {"Enemies/Robot/hold.png",   "topdown-shooter/PNG/Robot%201/robot1_hold.png"},
         {"Enemies/Runner/stand.png", "topdown-shooter/PNG/Zombie%201/zoimbie1_stand.png"},
+        {"Enemies/Runner/hold.png",  "topdown-shooter/PNG/Zombie%201/zoimbie1_hold.png"},
 
         // Sci-fi projectiles / impact VFX
         {"VFX/laser_blue.png",   "alien-ufo-pack/PNG/laserBlue2.png"},
         {"VFX/laser_green.png",  "alien-ufo-pack/PNG/laserGreen2.png"},
-        {"VFX/laser_orange.png", "alien-ufo-pack/PNG/laserRed2.png"},
+        {"VFX/laser_beige.png",  "alien-ufo-pack/PNG/laserBeige2.png"},
         {"VFX/burst_blue.png",   "alien-ufo-pack/PNG/laserBlue_burst.png"},
         {"VFX/burst_green.png",  "alien-ufo-pack/PNG/laserGreen_burst.png"},
-        {"VFX/burst_orange.png", "alien-ufo-pack/PNG/laserRed_burst.png"},
+        {"VFX/burst_beige.png",  "alien-ufo-pack/PNG/laserBeige_burst.png"},
         {"Props/ufo_dome.png",   "alien-ufo-pack/PNG/dome.png"},
     };
 
