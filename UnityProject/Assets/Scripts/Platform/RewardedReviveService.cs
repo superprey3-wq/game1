@@ -12,25 +12,27 @@ namespace ArenaSatellites.Platform
         public event Action OnRewardUnavailable;
 
         private bool waiting;
+        private float previousTimeScale = 1f;
+        private bool previousAudioPause;
 
 #if UNITY_WEBGL && !UNITY_EDITOR
         [DllImport("__Internal")]
         private static extern void ArenaShowRewardedRevive(string gameObjectName);
 #endif
 
-        private void Awake()
-        {
-            Instance = this;
-        }
+        private void Awake() => Instance = this;
 
         public void ShowReviveAd()
         {
             if (waiting) return;
             waiting = true;
+            previousTimeScale = Time.timeScale;
+            previousAudioPause = AudioListener.pause;
+            Time.timeScale = 0f;
+            AudioListener.pause = true;
 #if UNITY_WEBGL && !UNITY_EDITOR
             ArenaShowRewardedRevive(gameObject.name);
 #else
-            // Editor/dev fallback: emulate a completed rewarded ad so the revive loop can be tested.
             Invoke(nameof(EditorGrant), .25f);
 #endif
         }
@@ -39,6 +41,7 @@ namespace ArenaSatellites.Platform
         {
             if (!waiting) return;
             waiting = false;
+            RestoreAfterAd();
             OnRewardGranted?.Invoke();
         }
 
@@ -46,6 +49,7 @@ namespace ArenaSatellites.Platform
         {
             if (!waiting) return;
             waiting = false;
+            RestoreAfterAd();
             OnRewardUnavailable?.Invoke();
         }
 
@@ -53,7 +57,14 @@ namespace ArenaSatellites.Platform
         {
             if (!waiting) return;
             waiting = false;
+            RestoreAfterAd();
             OnRewardUnavailable?.Invoke();
+        }
+
+        private void RestoreAfterAd()
+        {
+            AudioListener.pause = previousAudioPause;
+            Time.timeScale = previousTimeScale;
         }
 
 #if !UNITY_WEBGL || UNITY_EDITOR
@@ -62,6 +73,7 @@ namespace ArenaSatellites.Platform
 
         private void OnDestroy()
         {
+            if (waiting) RestoreAfterAd();
             if (Instance == this) Instance = null;
         }
     }
