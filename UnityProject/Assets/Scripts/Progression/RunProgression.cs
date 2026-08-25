@@ -15,11 +15,13 @@ namespace ArenaSatellites.Progression
         public event Action OnChanged;
 
         [SerializeField] private WeaponLoadout loadout;
+        [SerializeField] private UpgradeChoiceController upgradeChoices;
 
         private void Awake()
         {
             Instance = this;
             if (loadout == null) loadout = FindFirstObjectByType<WeaponLoadout>();
+            if (upgradeChoices == null) upgradeChoices = FindFirstObjectByType<UpgradeChoiceController>();
         }
 
         public void AddXP(float value)
@@ -30,8 +32,10 @@ namespace ArenaSatellites.Progression
                 XP -= XPToNext;
                 Level++;
                 XPToNext = Mathf.Round(XPToNext * 1.22f + 6f);
-                AutoPickUpgrade();
+                if (upgradeChoices != null) upgradeChoices.OpenChoice();
+                else FallbackUpgrade();
                 OnLevelUp?.Invoke(Level);
+                break;
             }
             OnChanged?.Invoke();
         }
@@ -42,7 +46,7 @@ namespace ArenaSatellites.Progression
             OnChanged?.Invoke();
         }
 
-        private void AutoPickUpgrade()
+        private void FallbackUpgrade()
         {
             if (loadout == null) return;
             var values = (RuntimeWeaponKind[])Enum.GetValues(typeof(RuntimeWeaponKind));
