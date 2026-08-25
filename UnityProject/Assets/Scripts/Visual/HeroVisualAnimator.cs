@@ -1,3 +1,4 @@
+using ArenaSatellites.Combat;
 using UnityEngine;
 
 namespace ArenaSatellites.Visual
@@ -9,6 +10,7 @@ namespace ArenaSatellites.Visual
         [SerializeField] private Sprite movingSprite;
         [SerializeField] private Sprite firingSprite;
         [SerializeField] private Rigidbody2D body;
+        [SerializeField] private WeaponLoadout loadout;
         [SerializeField] private float firePoseTime = .10f;
         private SpriteRenderer sr;
         private float fireUntil;
@@ -17,8 +19,20 @@ namespace ArenaSatellites.Visual
         {
             sr = GetComponent<SpriteRenderer>();
             if (body == null) body = GetComponent<Rigidbody2D>();
+            if (loadout == null) loadout = GetComponent<WeaponLoadout>();
         }
 
+        private void OnEnable()
+        {
+            if (loadout != null) loadout.OnWeaponFired += OnWeaponFired;
+        }
+
+        private void OnDisable()
+        {
+            if (loadout != null) loadout.OnWeaponFired -= OnWeaponFired;
+        }
+
+        private void OnWeaponFired(RuntimeWeaponKind kind) => PulseFirePose();
         public void PulseFirePose() => fireUntil = Time.time + firePoseTime;
 
         private void LateUpdate()
