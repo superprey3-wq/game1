@@ -27,10 +27,13 @@ namespace ArenaSatellites
 
         Collider2D FindNearest()
         {
-            var hits = Physics2D.OverlapCircleAll(transform.position, acquireRadius, enemyMask);
+            var hits = enemyMask.value == 0
+                ? Physics2D.OverlapCircleAll(transform.position, acquireRadius)
+                : Physics2D.OverlapCircleAll(transform.position, acquireRadius, enemyMask);
             Collider2D best = null; float bestD = float.MaxValue;
             foreach (var h in hits)
             {
+                if (!h.TryGetComponent<EnemyHealth>(out _)) continue;
                 float d = (h.transform.position - transform.position).sqrMagnitude;
                 if (d < bestD) { bestD = d; best = h; }
             }
@@ -40,6 +43,7 @@ namespace ArenaSatellites
         void Fire(Vector2 dir)
         {
             var shot = Instantiate(projectilePrefab, muzzle.position, Quaternion.FromToRotation(Vector3.right, dir));
+            shot.gameObject.SetActive(true);
             shot.Launch(dir, projectileSpeed, damage);
             if (muzzleFx != null) muzzleFx.Play();
             CombatFeedback.Instance?.Kick(.08f, .08f);
