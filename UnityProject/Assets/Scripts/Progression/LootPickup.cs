@@ -1,3 +1,4 @@
+using ArenaSatellites.Data;
 using UnityEngine;
 
 namespace ArenaSatellites.Progression
@@ -35,11 +36,17 @@ namespace ArenaSatellites.Progression
         private void OnTriggerEnter2D(Collider2D other)
         {
             if (other.GetComponent<ArenaSatellites.PlayerController>() == null) return;
-            if (RunProgression.Instance != null)
+            if (kind == LootKind.XP) RunProgression.Instance?.AddXP(xp);
+            else if (kind == LootKind.Crystal) RunProgression.Instance?.AddCrystals(crystals);
+            else
             {
-                if (kind == LootKind.XP) RunProgression.Instance.AddXP(xp);
-                else if (kind == LootKind.Crystal) RunProgression.Instance.AddCrystals(crystals);
-                else RunProgression.Instance.AddCrystals(5);
+                var inventory = FindFirstObjectByType<EquipmentInventory>();
+                if (inventory != null)
+                {
+                    var slots = (GearSlot[])System.Enum.GetValues(typeof(GearSlot));
+                    inventory.EquipRandomDrop(slots[Random.Range(0, slots.Length)]);
+                }
+                RunProgression.Instance?.AddCrystals(2);
             }
             Destroy(gameObject);
         }
