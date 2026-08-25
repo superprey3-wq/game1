@@ -12,8 +12,13 @@ namespace ArenaSatellites
 
         Rigidbody2D body;
         Vector2 input;
+        Vector2 mobileMove;
+        Vector2 mobileAim;
+        bool mobileAimActive;
+
         public Vector2 Facing { get; private set; } = Vector2.right;
         public float SpeedNormalized => input.magnitude;
+        public float MoveSpeedMultiplier { get; set; } = 1f;
 
         void Awake()
         {
@@ -21,16 +26,32 @@ namespace ArenaSatellites
             if (worldCamera == null) worldCamera = Camera.main;
         }
 
+        public void SetMobileMove(Vector2 value) => mobileMove = Vector2.ClampMagnitude(value, 1f);
+        public void SetMobileAim(Vector2 value)
+        {
+            mobileAim = Vector2.ClampMagnitude(value, 1f);
+            mobileAimActive = mobileAim.sqrMagnitude > .04f;
+        }
+
         void Update()
         {
-            input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized;
-            if (worldCamera != null)
+            var keyboard = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+            input = (keyboard.sqrMagnitude > .01f ? keyboard : mobileMove).normalized;
+
+            if (mobileAimActive)
+            {
+                Facing = mobileAim.normalized;
+            }
+            else if (worldCamera != null && Input.mousePresent)
             {
                 Vector3 mouse = worldCamera.ScreenToWorldPoint(Input.mousePosition);
                 Vector2 aim = mouse - transform.position;
                 if (aim.sqrMagnitude > .01f) Facing = aim.normalized;
             }
-            else if (input.sqrMagnitude > .01f) Facing = input;
+            else if (input.sqrMagnitude > .01f)
+            {
+                Facing = input;
+            }
 
             if (weaponPivot != null) weaponPivot.right = Facing;
             if (animator != null)
@@ -41,6 +62,6 @@ namespace ArenaSatellites
             }
         }
 
-        void FixedUpdate() => body.velocity = input * moveSpeed;
+        void FixedUpdate() => body.velocity = input * moveSpeed * Mathf.Max(.1f, MoveSpeedMultiplier);
     }
 }
