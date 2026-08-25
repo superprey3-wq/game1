@@ -19,8 +19,14 @@ namespace ArenaSatellites.Progression
     {
         public event Action OnChanged;
         private readonly Dictionary<GearSlot, RuntimeGear> equipped = new();
+        [SerializeField] private PlayerRuntimeStats statTarget;
 
         public IReadOnlyDictionary<GearSlot, RuntimeGear> Equipped => equipped;
+
+        private void Awake()
+        {
+            if (statTarget == null) statTarget = FindFirstObjectByType<PlayerRuntimeStats>();
+        }
 
         public RuntimeGear EquipRandomDrop(GearSlot slot)
         {
@@ -51,6 +57,7 @@ namespace ArenaSatellites.Progression
                 value = value
             };
             equipped[slot] = gear;
+            statTarget?.Apply(this);
             OnChanged?.Invoke();
             return gear;
         }
