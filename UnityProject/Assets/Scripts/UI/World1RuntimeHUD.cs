@@ -71,25 +71,21 @@ namespace ArenaSatellites.UI
         private void CreateStick(string name,Vector2 anchor,VirtualStickMode mode,PlayerController player)
         {
             var baseGo=Panel(name,transform,anchor,new Vector2(160,160));
-            var image=baseGo.GetComponent<Image>(); image.color=new Color(1,1,1,.12f);
+            baseGo.GetComponent<Image>().color=new Color(1,1,1,.12f);
             var knob=Panel("Knob",baseGo.transform,new Vector2(.5f,.5f),new Vector2(68,68));
             knob.GetComponent<Image>().color=new Color(1,1,1,.32f);
             var stick=baseGo.AddComponent<MobileVirtualStick>();
-            var so=new UnityEngine.Serialization.FormerlySerializedAsAttribute("unused");
-            var serialized=new UnityEditor.SerializedObject(stick);
-            serialized.FindProperty("mode").enumValueIndex=(int)mode;
-            serialized.FindProperty("knob").objectReferenceValue=knob.GetComponent<RectTransform>();
-            serialized.FindProperty("player").objectReferenceValue=player;
-            serialized.ApplyModifiedPropertiesWithoutUndo();
+            stick.Configure(mode,knob.GetComponent<RectTransform>(),player);
         }
 
         private void ShowChoices(IReadOnlyList<RuntimeWeaponKind> list)
         {
             var cg=upgradePanel.GetComponent<CanvasGroup>(); cg.alpha=1; cg.blocksRaycasts=true; cg.interactable=true;
+            var loadout=FindFirstObjectByType<WeaponLoadout>();
             for(int i=0;i<upgradeButtons.Count;i++)
             {
                 var label=upgradeButtons[i].GetComponentInChildren<TextMeshProUGUI>();
-                if(i<list.Count) label.text=WeaponName(list[i])+"\n<size=16>Уровень "+(FindFirstObjectByType<WeaponLoadout>()?.GetLevel(list[i]) ?? 0)+" → выше</size>";
+                if(i<list.Count) label.text=WeaponName(list[i])+"\n<size=16>Уровень "+(loadout?.GetLevel(list[i]) ?? 0)+" → выше</size>";
             }
         }
 
