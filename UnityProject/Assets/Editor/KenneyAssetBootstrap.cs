@@ -16,10 +16,20 @@ public static class KenneyAssetBootstrap
         {"Characters/CaptainRain/stand.png", "topdown-shooter/PNG/Soldier%201/soldier1_stand.png"},
         {"Characters/CaptainRain/hold.png",  "topdown-shooter/PNG/Soldier%201/soldier1_hold.png"},
         {"Characters/CaptainRain/gun.png",   "topdown-shooter/PNG/weapon_machine.png"},
-        {"Enemies/Robot/stand.png",  "topdown-shooter/PNG/Robot%201/robot1_stand.png"},
-        {"Enemies/Robot/hold.png",   "topdown-shooter/PNG/Robot%201/robot1_hold.png"},
-        {"Enemies/Runner/stand.png", "topdown-shooter/PNG/Zombie%201/zoimbie1_stand.png"},
-        {"Enemies/Runner/hold.png",  "topdown-shooter/PNG/Zombie%201/zoimbie1_hold.png"},
+
+        // Distinct World 1 enemy silhouettes. Alien variants are from Kenney More Enemies Animations (CC0).
+        {"Enemies/Runner/stand.png",   "moreenemiesanimations/Alien%20sprites/alienGreen_stand.png"},
+        {"Enemies/Runner/walk1.png",   "moreenemiesanimations/Alien%20sprites/alienGreen_walk1.png"},
+        {"Enemies/Runner/walk2.png",   "moreenemiesanimations/Alien%20sprites/alienGreen_walk2.png"},
+        {"Enemies/Spitter/stand.png",  "moreenemiesanimations/Alien%20sprites/alienPink_stand.png"},
+        {"Enemies/Spitter/walk1.png",  "moreenemiesanimations/Alien%20sprites/alienPink_walk1.png"},
+        {"Enemies/Summoner/stand.png", "moreenemiesanimations/Alien%20sprites/alienBeige_stand.png"},
+        {"Enemies/Summoner/hurt.png",  "moreenemiesanimations/Alien%20sprites/alienBeige_hurt.png"},
+        {"Enemies/Robot/stand.png",     "topdown-shooter/PNG/Robot%201/robot1_stand.png"},
+        {"Enemies/Robot/hold.png",      "topdown-shooter/PNG/Robot%201/robot1_hold.png"},
+        {"Enemies/Robot/gun.png",       "topdown-shooter/PNG/Robot%201/robot1_gun.png"},
+
+        // Sci-fi projectiles / impact VFX.
         {"VFX/laser_blue.png",   "alien-ufo-pack/PNG/laserBlue2.png"},
         {"VFX/laser_green.png",  "alien-ufo-pack/PNG/laserGreen2.png"},
         {"VFX/laser_beige.png",  "alien-ufo-pack/PNG/laserBeige2.png"},
@@ -28,7 +38,7 @@ public static class KenneyAssetBootstrap
         {"VFX/burst_beige.png",  "alien-ufo-pack/PNG/laserBeige_burst.png"},
         {"Props/ufo_dome.png",   "alien-ufo-pack/PNG/dome.png"},
 
-        // World 1 floor/wall/cover tiles. We tint and layer these in-scene to create the xeno-jungle palette.
+        // World 1 floor/wall/cover tiles. Tinting/layering creates the xeno-jungle palette.
         {"Worlds/XenoJungle/tile_ground_01.png", "topdown-shooter/PNG/Tiles/tile_01.png"},
         {"Worlds/XenoJungle/tile_ground_02.png", "topdown-shooter/PNG/Tiles/tile_02.png"},
         {"Worlds/XenoJungle/tile_ground_03.png", "topdown-shooter/PNG/Tiles/tile_03.png"},
