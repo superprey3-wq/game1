@@ -26,6 +26,8 @@ namespace ArenaSatellites.Combat
 
         private readonly Dictionary<RuntimeWeaponKind, float> timers = new();
 
+        public IReadOnlyList<RuntimeWeaponState> Weapons => weapons;
+
         private void Awake()
         {
             if (weapons.Count == 0)
@@ -58,6 +60,12 @@ namespace ArenaSatellites.Combat
         {
             var weapon = weapons.Find(w => w.kind == kind);
             if (weapon != null) weapon.level = Mathf.Min(6, weapon.level + 1);
+        }
+
+        public int GetLevel(RuntimeWeaponKind kind)
+        {
+            var weapon = weapons.Find(w => w.kind == kind);
+            return weapon?.level ?? 0;
         }
 
         private void Fire(RuntimeWeaponState weapon)
@@ -115,7 +123,7 @@ namespace ArenaSatellites.Combat
             foreach (var hit in hits)
             {
                 var hp = hit.collider.GetComponent<ArenaSatellites.EnemyHealth>();
-                hp?.TakeDamage(damage);
+                if (hp != null) hp.TakeDamage(damage);
                 if (++count > pierce) break;
             }
             ArenaSatellites.CombatFeedback.Instance?.Kick(.12f,.09f);
