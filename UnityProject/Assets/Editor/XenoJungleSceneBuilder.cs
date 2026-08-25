@@ -37,7 +37,7 @@ public static class XenoJungleSceneBuilder
         CreateQueen(hero.transform, lootPrefab);
         CreateRunSystems(hero);
         CreateHud();
-        CreateFeedback(camera);
+        CreateFeedback(camera, hero.transform);
 
         EditorSceneManager.SaveScene(scene, ScenePath);
         AssetDatabase.SaveAssets();
@@ -51,7 +51,7 @@ public static class XenoJungleSceneBuilder
         var cam = go.AddComponent<Camera>(); cam.orthographic = true; cam.orthographicSize = 7.2f;
         cam.backgroundColor = new Color(.015f,.045f,.035f); go.transform.position = new Vector3(0,0,-10);
         go.AddComponent<AudioListener>();
-        var follow = go.AddComponent<CameraFollow>();
+        go.AddComponent<SmoothCameraFollow>();
         return cam;
     }
 
@@ -152,10 +152,11 @@ public static class XenoJungleSceneBuilder
         var so=new SerializedObject(progression); so.FindProperty("loadout").objectReferenceValue=hero.GetComponent<WeaponLoadout>(); so.ApplyModifiedPropertiesWithoutUndo();
     }
 
-    static void CreateFeedback(Camera camera)
+    static void CreateFeedback(Camera camera, Transform hero)
     {
-        var go=new GameObject("Combat Feedback"); var feedback=go.AddComponent<CombatFeedback>();
-        var follow=camera.GetComponent<CameraFollow>(); if(follow!=null){var so=new SerializedObject(follow);so.FindProperty("target").objectReferenceValue=FindFirstObjectByType<PlayerController>()?.transform;so.ApplyModifiedPropertiesWithoutUndo();}
+        var go=new GameObject("Combat Feedback"); go.AddComponent<CombatFeedback>();
+        var follow=camera.GetComponent<SmoothCameraFollow>();
+        if(follow!=null) follow.SetTarget(hero);
     }
 
     static void CreateHud()
