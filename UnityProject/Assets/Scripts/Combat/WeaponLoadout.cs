@@ -115,7 +115,7 @@ namespace ArenaSatellites.Combat
             foreach (var hit in hits)
             {
                 var hp = hit.collider.GetComponent<ArenaSatellites.EnemyHealth>();
-                if (hp != null) hp.Damage(damage);
+                hp?.TakeDamage(damage);
                 if (++count > pierce) break;
             }
             ArenaSatellites.CombatFeedback.Instance?.Kick(.12f,.09f);
@@ -128,7 +128,7 @@ namespace ArenaSatellites.Combat
             for(int i=0;i<jumps && current!=null;i++)
             {
                 visited.Add(current);
-                current.GetComponent<ArenaSatellites.EnemyHealth>()?.Damage(damage * Mathf.Pow(.82f,i));
+                current.GetComponent<ArenaSatellites.EnemyHealth>()?.TakeDamage(damage * Mathf.Pow(.82f,i));
                 Collider2D next = null; float best = 16f;
                 foreach(var h in Physics2D.OverlapCircleAll(current.position,4f,enemyMask))
                 {
