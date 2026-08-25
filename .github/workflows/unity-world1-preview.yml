@@ -1,0 +1,79 @@
+name: Build World 1 Unity Preview
+
+on:
+  push:
+    branches: [unity-rebuild]
+    paths:
+      - 'UnityProject/**'
+      - '.github/workflows/unity-world1-preview.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: world1-preview-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout unity rebuild
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Cache Unity Library
+        uses: actions/cache@v4
+        with:
+          path: UnityProject/Library
+          key: Library-World1-WebGL-${{ hashFiles('UnityProject/Packages/**', 'UnityProject/ProjectSettings/ProjectVersion.txt') }}
+          restore-keys: |
+            Library-World1-WebGL-
+
+      - name: Build WebGL
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          projectPath: UnityProject
+          unityVersion: 6000.0.40f1
+          targetPlatform: WebGL
+          buildMethod: World1WebGLBuild.Build
+
+      - name: Verify build output
+        run: |
+          test -f UnityProject/Build/WebGL/index.html
+          find UnityProject/Build/WebGL -maxdepth 2 -type f | sort | head -80
+
+      - name: Assemble preview site without replacing current root game
+        run: |
+          rm -rf _main _site
+          git worktree add --detach _main origin/main
+          mkdir -p _site
+          rsync -a --exclude='.git' --exclude='UnityProject' _main/ _site/
+          rm -rf _site/world1
+          mkdir -p _site/world1
+          cp -R UnityProject/Build/WebGL/. _site/world1/
+          touch _site/.nojekyll
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}world1/
+    steps:
+      - name: Deploy preview
+        id: deployment
+        uses: actions/deploy-pages@v4
