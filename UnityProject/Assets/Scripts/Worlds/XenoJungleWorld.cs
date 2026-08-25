@@ -20,6 +20,8 @@ namespace ArenaSatellites.Worlds
 
         private void Awake()
         {
+            if (GetComponent<World1RunBootstrap>() == null)
+                gameObject.AddComponent<World1RunBootstrap>();
             Build();
         }
 
@@ -34,7 +36,10 @@ namespace ArenaSatellites.Worlds
             }
 
             for (int i = decorationRoot.childCount - 1; i >= 0; i--)
-                DestroyImmediate(decorationRoot.GetChild(i).gameObject);
+            {
+                var child = decorationRoot.GetChild(i).gameObject;
+                if (Application.isPlaying) Destroy(child); else DestroyImmediate(child);
+            }
 
             Random.InitState(seed);
             if (groundPrefab != null)
