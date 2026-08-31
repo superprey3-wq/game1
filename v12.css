@@ -1,0 +1,4 @@
+/* v12: darker glass HUD, readable combat hierarchy */
+#hud .topbar{background:linear-gradient(180deg,#07111ee8,#0a1627c7);border:1px solid #4edcff55;box-shadow:0 8px 30px #0008,inset 0 1px #bff7ff33;border-radius:0 0 18px 18px;padding:10px 14px;font-weight:800;text-shadow:0 2px 4px #000}
+#hpText{color:#ff6b78}#lvlText{color:#8cecff}#timeText{font-size:22px;letter-spacing:2px}#coinText{color:#ffd76b}.xp{height:7px;background:#07111e;border-bottom:1px solid #48dfff55}.xp>div{box-shadow:0 0 12px #42dfff;background:linear-gradient(90deg,#37bfff,#8cf6ff)}
+#menu{background:radial-gradient(circle at 50% 20%,#173e5de8,#07111ef2 55%,#040912f8);border:1px solid #66e5ff55;box-shadow:0 24px 80px #000b,inset 0 0 50px #2bbcff0d}.logo{text-shadow:0 0 24px #42dfff88,0 4px 0 #06101b}.logo span{color:#7cecff}.primary{box-shadow:0 8px 24px #00b7ff2b,inset 0 1px #fff5}.weaponStrip{filter:drop-shadow(0 5px 8px #0008)}
