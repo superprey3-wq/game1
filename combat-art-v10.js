@@ -2,7 +2,7 @@ const app=document.getElementById('app');
 const game=document.getElementById('game');
 const hud=document.getElementById('hud');
 const layer=document.createElement('canvas');
-layer.id='combatArtV10'; layer.setAttribute('aria-hidden','true'); app.insertBefore(layer,hud);
+layer.id='combatArtV10'; layer.setAttribute('aria-hidden','true'); layer.style.cssText='position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1'; app.insertBefore(layer,hud);
 const x=layer.getContext('2d'); let W=0,H=0,D=1,t=0,last=performance.now(),face=0,hero='rain',pet='orb';
 function resize(){D=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;layer.width=W*D;layer.height=H*D;layer.style.width=W+'px';layer.style.height=H+'px';x.setTransform(D,0,0,D,0,0);x.imageSmoothingEnabled=false}addEventListener('resize',resize);resize();
 addEventListener('keydown',e=>{if(e.code==='KeyA'||e.code==='ArrowLeft')face=Math.PI;if(e.code==='KeyD'||e.code==='ArrowRight')face=0;if(e.code==='KeyW'||e.code==='ArrowUp')face=-Math.PI/2;if(e.code==='KeyS'||e.code==='ArrowDown')face=Math.PI/2});
