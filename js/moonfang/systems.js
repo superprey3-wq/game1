@@ -1,0 +1,14 @@
+// Moonfang shared runtime systems. MIT © 2026 Raiyan Yahya
+const particles=[];
+function spawnParticle(x,y,vx,vy,color,life,grav){if(particles.length>450)particles.shift();particles.push({x,y,vx,vy,color,life,t:0,grav:grav||0})}
+function burst(x,y,colors,n,spread,grav){for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,s=.4+Math.random()*(spread||1.6);spawnParticle(x,y,Math.cos(a)*s,Math.sin(a)*s-.6,colors[(Math.random()*colors.length)|0],20+Math.random()*20,grav===undefined?.06:grav)}}
+function flameBurst(x,y){burst(x,y,['#ff9020','#ffd858','#e04040','#f8f8ff'],14,1.4,-.02);for(let i=0;i<5;i++)spawnParticle(x+(Math.random()-.5)*10,y+(Math.random()-.5)*8,(Math.random()-.5)*.4,-.4-Math.random()*.5,'#3a3644',40,-.005)}
+const BLOOD_RED=['#8a1622','#5e0f18','#c02535'],BLOOD_GREEN=['#3f7a34','#2a5424','#5aa04a'];
+function bloodBurst(x,y,dir,colors){colors=colors||BLOOD_RED;for(let i=0;i<7;i++)spawnParticle(x,y,dir*(.4+Math.random()*1.6)+(Math.random()-.5)*.6,-.5-Math.random()*1.4,colors[(Math.random()*colors.length)|0],24+Math.random()*14,.14)}
+function burstRing(x,y,color){for(let i=0;i<16;i++){const a=i/16*Math.PI*2;spawnParticle(x+Math.cos(a)*5,y+Math.sin(a)*5,Math.cos(a)*1.9,Math.sin(a)*1.9,color||'#c07af0',18,0)}}
+function dustPuff(x,y,n){for(let i=0;i<(n||3);i++)spawnParticle(x+(Math.random()-.5)*6,y-Math.random()*2,(Math.random()-.5)*.7,-.2-Math.random()*.3,'#57536e',14+Math.random()*8,-.01)}
+function fireHit(x,y){burst(x,y,['#ff9020','#ffd858','#e04040'],6,1,-.03)}function frostHit(x,y){burst(x,y,['#a8e8ff','#f0fbff'],10,1,.02)}function voidHit(x,y){burst(x,y,['#7a5ac0','#4a3880','#c0a8f0'],10,1.3,.03)}function holyHit(x,y){burstRing(x,y,'#ffe080');burst(x,y,['#ffe080','#fff8e0','#ffd858'],6,.8,-.02)}function venomHit(x,y){burst(x,y,['#5aa04a','#3a8a2a','#2a6420'],9,1,.08)}function shockHit(x,y){burstRing(x,y,'#c07af0')}
+function updateParticles(){for(let i=particles.length-1;i>=0;i--){const p=particles[i];p.t++;p.x+=p.vx;p.y+=p.vy;p.vy+=p.grav;if(p.t>=p.life)particles.splice(i,1)}}
+function drawParticles(g,camX,camY){for(const p of particles){g.fillStyle=p.color;const s=p.t>p.life*.6?1:2;g.fillRect(Math.floor(p.x-camX),Math.floor(p.y-camY),s,s)}}
+const floaters=[];function spawnFloater(x,y,txt,color){floaters.push({x,y,txt,color:color||'#f0f0ff',t:0})}function updateFloaters(){for(let i=floaters.length-1;i>=0;i--){const f=floaters[i];f.t++;f.y-=.4;if(f.t>42)floaters.splice(i,1)}}function drawFloaters(g,camX,camY){for(const f of floaters){if(f.t>32&&(f.t&2))continue;drawTextShadow(g,f.txt,Math.floor(f.x-camX-textWidth(f.txt,1)/2),Math.floor(f.y-camY),f.color,1)}}
+function hexRgb(hex){const n=parseInt(hex.slice(1),16);return((n>>16)&255)+','+((n>>8)&255)+','+(n&255)}function dangerAt(x){const z=typeof zoneAt==='function'?zoneAt(x):null;return z?(z.danger||0):0}function scaleHp(base,d){return Math.round(base*(1+.28*(d||0)))}function scaleDmg(base,d){return base+Math.floor((d||0)/3)}
