@@ -1,0 +1,44 @@
+name: Import complete Moonfang upstream
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout game1
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Checkout Moonfang
+        uses: actions/checkout@v4
+        with:
+          repository: raiyanyahya/moonfang
+          ref: master
+          path: _moonfang_source
+
+      - name: Copy complete upstream game
+        run: |
+          rm -rf moonfang-upstream
+          mkdir -p moonfang-upstream
+          rsync -a --delete \
+            --exclude='.git/' \
+            _moonfang_source/ moonfang-upstream/
+          rm -rf _moonfang_source
+
+      - name: Commit imported game
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add moonfang-upstream
+          if git diff --cached --quiet; then
+            echo "Moonfang upstream already fully imported."
+            exit 0
+          fi
+          git commit -m "Import complete Moonfang game and assets"
+          git push
