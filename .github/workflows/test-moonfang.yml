@@ -17,10 +17,13 @@ jobs:
       - name: JavaScript syntax check
         run: |
           for f in js/*.js; do node --check "$f"; done
-      - name: Prepare upstream test path
+      - name: Make upstream tests portable
         run: |
-          mkdir -p /home/dev/Downloads/code
-          ln -sfn "$GITHUB_WORKSPACE/moonfang-upstream" /home/dev/Downloads/code/ctl
+          sed -i "s#/home/dev/Downloads/code/ctl/#$GITHUB_WORKSPACE/moonfang-upstream/#g" tools/smoke.js tools/audit.js tools/design.js
+          if grep -R -n '/home/dev/Downloads/code/ctl' tools/smoke.js tools/audit.js tools/design.js; then
+            echo 'Absolute upstream path still present'
+            exit 1
+          fi
       - name: Moonfang smoke test
         run: node tools/smoke.js
       - name: Moonfang audit
