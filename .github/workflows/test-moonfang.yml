@@ -1,0 +1,35 @@
+name: Moonfang Yandex QA
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: moonfang-upstream
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: JavaScript syntax check
+        run: |
+          for f in js/*.js; do node --check "$f"; done
+      - name: Moonfang smoke test
+        run: node tools/smoke.js
+      - name: Moonfang audit
+        run: node tools/audit.js
+      - name: Moonfang design checks
+        run: node tools/design.js
+      - name: Yandex integration checks
+        run: |
+          grep -q 'src="/sdk.js"' index.html
+          grep -q 'yandex-preflight.js' index.html
+          grep -q 'yandex-save.js' index.html
+          grep -q 'yandex-ads.js' index.html
+          grep -q 'rewarded-ui.js' index.html
+          grep -q 'LoadingAPI' js/game1-patch.js
+          grep -q 'showFullscreenAdv' js/yandex-ads.js
+          grep -q 'showRewardedVideo' js/yandex-ads.js
