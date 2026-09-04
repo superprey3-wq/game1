@@ -17,6 +17,10 @@ jobs:
       - name: JavaScript syntax check
         run: |
           for f in js/*.js; do node --check "$f"; done
+      - name: Prepare upstream test path
+        run: |
+          mkdir -p /home/dev/Downloads/code
+          ln -sfn "$GITHUB_WORKSPACE/moonfang-upstream" /home/dev/Downloads/code/ctl
       - name: Moonfang smoke test
         run: node tools/smoke.js
       - name: Moonfang audit
@@ -33,3 +37,7 @@ jobs:
           grep -q 'LoadingAPI' js/game1-patch.js
           grep -q 'showFullscreenAdv' js/yandex-ads.js
           grep -q 'showRewardedVideo' js/yandex-ads.js
+          grep -q 'getPlayer' js/yandex-save.js
+          grep -q 'environment.i18n.lang' js/game1-patch.js
+          grep -q 'visibilitychange' js/game1-patch.js
+          grep -q 'contextmenu' js/game1-patch.js
