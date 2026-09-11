@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: couple-relay
+    runtime: node
+    rootDir: couple-relay
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
