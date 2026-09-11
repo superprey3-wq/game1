@@ -1,47 +1,80 @@
-// v15 cloud transport: Supabase Realtime with race-safe presence + fallback handshake
+// v16 cloud transport: resilient Supabase Realtime for mobile browsers
 const CLOUD_URL='https://ksnmwgsjxsdqlxvieaih.supabase.co';
 const CLOUD_KEY='sb_publishable_aHzNY3-kTSt_-GQBMCSQVg_WW0vp-1O';
 const cloudClient=window.supabase?.createClient(CLOUD_URL,CLOUD_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},realtime:{params:{eventsPerSecond:100}}});
 let cloudChannel=null,cloudReady=false,cloudClientId=(crypto.randomUUID?.()||Math.random().toString(36).slice(2));
-let cloudHelloTimer=0,cloudJoinTimer=0,cloudDisconnectTimer=0,cloudSawPartner=false,cloudPartnerId='',cloudPartnerName='',cloudPresenceWelcomedFor='',cloudClosing=false;
+let cloudHelloTimer=0,cloudJoinTimer=0,cloudDisconnectTimer=0,cloudBeaconTimer=0,cloudWatchdogTimer=0,cloudReopenTimer=0;
+let cloudSawPartner=false,cloudPartnerId='',cloudPartnerName='',cloudClosing=false,cloudOpening=false,cloudGeneration=0,cloudLastWelcomeAt=0;
 const _cloudRenderLobby=renderLobby;
 
-function cloudClearTimers(){
- clearInterval(cloudHelloTimer);clearTimeout(cloudJoinTimer);clearTimeout(cloudDisconnectTimer);
- cloudHelloTimer=cloudJoinTimer=cloudDisconnectTimer=0;
+function cloudClearSessionTimers(){
+ clearInterval(cloudHelloTimer);clearTimeout(cloudJoinTimer);clearTimeout(cloudDisconnectTimer);clearInterval(cloudBeaconTimer);
+ cloudHelloTimer=cloudJoinTimer=cloudDisconnectTimer=cloudBeaconTimer=0;
+}
+function cloudClearAllTimers(){
+ cloudClearSessionTimers();clearInterval(cloudWatchdogTimer);clearTimeout(cloudReopenTimer);cloudWatchdogTimer=cloudReopenTimer=0;
 }
 function cloudCleanup(){
- cloudClearTimers();cloudReady=false;cloudSawPartner=false;cloudPartnerId='';cloudPartnerName='';cloudPresenceWelcomedFor='';
- if(cloudChannel&&cloudClient){try{cloudClient.removeChannel(cloudChannel)}catch(e){}}
- cloudChannel=null;connected=false;
+ cloudClearAllTimers();cloudReady=false;cloudOpening=false;cloudSawPartner=false;cloudPartnerId='';cloudPartnerName='';cloudLastWelcomeAt=0;
+ const old=cloudChannel;cloudChannel=null;cloudGeneration++;
+ if(old&&cloudClient){try{cloudClient.removeChannel(old)}catch(e){}}
+ connected=false;
 }
 function cloudSend(data,to){
  if(!cloudChannel||!cloudReady)return false;
- try{const r=cloudChannel.send({type:'broadcast',event:'room-msg',payload:{from:cloudClientId,to:to||((role==='host')?'guest':'host'),data,ts:Date.now()}});r?.catch?.(()=>{});return true}catch(e){return false}
+ try{
+   const r=cloudChannel.send({type:'broadcast',event:'room-msg',payload:{from:cloudClientId,to:to||((role==='host')?'guest':'host'),data,ts:Date.now()}});
+   r?.catch?.(()=>{});return true
+ }catch(e){return false}
 }
 function send(o){return cloudSend(o)}
 if(typeof direct!=='undefined')direct=function(o){return cloudSend(o)};
-
-// Compatibility for older game code that still checks conn.open / conn.send.
 try{conn={get open(){return !!(cloudReady&&connected)},send:o=>cloudSend(o),close:()=>cloudCleanup(),on:()=>{}}}catch(e){}
 
 function cloudMarkPartner(id,name){
  if(id)cloudPartnerId=String(id);if(name)cloudPartnerName=String(name).slice(0,24);
  cloudSawPartner=true;clearTimeout(cloudDisconnectTimer);cloudDisconnectTimer=0;
 }
+function cloudHostAccept(name,id,force=false){
+ if(role!=='host')return;
+ const now=Date.now(),partnerName=String(name||cloudPartnerName||'Игрок 2').slice(0,24),partnerId=String(id||cloudPartnerId||'');
+ cloudMarkPartner(partnerId,partnerName);otherName=partnerName;
+ const first=!connected;connected=true;
+ if(first)renderLobby();
+ if(force||first||partnerId!==cloudPartnerId||now-cloudLastWelcomeAt>2500){
+   cloudLastWelcomeAt=now;
+   cloudSend({t:'welcome',hostName:myName,guestName:otherName,roomCode},'guest');
+   try{sync()}catch(e){}
+   if(first){try{renderFromState()}catch(e){show('menuScreen');renderMenu()}}
+ }
+}
+function cloudGuestAccept(m){
+ if(role!=='guest')return;
+ connected=true;cloudMarkPartner(cloudPartnerId,m?.hostName||cloudPartnerName||'Игрок 1');
+ if(m?.hostName)otherName=String(m.hostName).slice(0,24);
+ clearInterval(cloudHelloTimer);clearTimeout(cloudJoinTimer);cloudHelloTimer=cloudJoinTimer=0;
+ renderLobby();
+ try{renderFromState()}catch(e){show('menuScreen');renderMenu()}
+}
 function cloudIncoming(env){
  if(!env||env.from===cloudClientId)return;
  if(env.to&&env.to!=='all'&&env.to!==role)return;
  const m=env.data;if(!m||typeof m!=='object')return;
+ if(m.role&&m.role===role)return;
  cloudMarkPartner(env.from,m.name||m.hostName||m.guestName||'');
+ if(m.t==='cloudBeacon'){
+   if(m.name)otherName=String(m.name).slice(0,24);
+   if(role==='host'&&m.role==='guest')cloudHostAccept(m.name,env.from);
+   else if(role==='guest'&&m.role==='host'&&!connected)cloudSend({t:'hello',name:myName},'host');
+   return;
+ }
  if(role==='host'&&m.t==='hello'){
-   connected=true;otherName=String(m.name||cloudPartnerName||'Игрок 2').slice(0,24);renderLobby();
+   cloudHostAccept(m.name,env.from,true);return;
  }
  if(role==='guest'&&m.t==='welcome'){
-   connected=true;clearInterval(cloudHelloTimer);clearTimeout(cloudJoinTimer);cloudHelloTimer=cloudJoinTimer=0;
-   if(m.hostName)otherName=String(m.hostName).slice(0,24);renderLobby();
+   cloudGuestAccept(m);return;
  }
- // Always resolve the latest global handler so upgrade scripts can receive messages.
+ // Resolve the latest global handler so all game-upgrade scripts receive their messages.
  handleMessage(m);
 }
 function cloudFindPartner(){
@@ -57,63 +90,93 @@ function cloudPresenceSync(){
  if(partner){
    cloudMarkPartner(partner.id,partner.name);
    if(partner.name)otherName=String(partner.name).slice(0,24);
-   if(role==='guest'){
-     // Presence itself proves the host exists; repeat hello until welcome arrives.
-     if(!connected)cloudSend({t:'hello',name:myName},'host');
-   }else if(role==='host'&&!connected){
-     // Fallback handshake: do not rely on the very first broadcast arriving.
-     connected=true;renderLobby();
-     if(cloudPresenceWelcomedFor!==String(partner.id||'')){
-       cloudPresenceWelcomedFor=String(partner.id||'');
-       handleMessage({t:'hello',name:String(partner.name||'Игрок 2').slice(0,24)});
-     }
-   }
+   if(role==='host')cloudHostAccept(partner.name,partner.id);
+   else if(role==='guest'&&!connected)cloudSend({t:'hello',name:myName},'host');
    return;
  }
- // Presence can briefly report only yourself while peers are joining/reconnecting.
- // Never disconnect immediately; confirm the absence after a grace period.
  if(cloudSawPartner&&connected&&!cloudDisconnectTimer){
    cloudDisconnectTimer=setTimeout(()=>{
      cloudDisconnectTimer=0;
-     const stillMissing=!cloudFindPartner();
-     if(stillMissing&&connected){connected=false;renderLobby();toast('Связь со вторым игроком потеряна — ждём переподключение')}
-   },5000);
+     if(!cloudFindPartner()&&connected){connected=false;renderLobby();toast('Связь со вторым игроком потеряна — переподключаемся')}
+   },7000);
  }
 }
-function cloudOpen(code,onReady){
- cloudCleanup();cloudClosing=false;
- if(!cloudClient){status('Не загрузился облачный модуль соединения. Обнови страницу.','bad');return}
- cloudChannel=cloudClient.channel('couple:'+code,{config:{broadcast:{self:false,ack:false},presence:{key:cloudClientId}}});
- cloudChannel.on('broadcast',{event:'room-msg'},({payload})=>cloudIncoming(payload));
- cloudChannel.on('presence',{event:'sync'},cloudPresenceSync);
- cloudChannel.subscribe(async st=>{
+function cloudStartHello(){
+ clearInterval(cloudHelloTimer);clearTimeout(cloudJoinTimer);
+ const hello=()=>{if(role==='guest'&&!connected&&cloudReady)cloudSend({t:'hello',name:myName},'host')};
+ hello();cloudHelloTimer=setInterval(hello,850);
+ cloudJoinTimer=setTimeout(()=>{
+   if(!connected){let h=$('lobbyHint');if(h)h.textContent='Создатель комнаты пока не в сети. Оставь эту страницу открытой — подключение произойдёт автоматически, когда он вернётся.'}
+ },12000);
+}
+function cloudStartBeacon(){
+ clearInterval(cloudBeaconTimer);
+ const beat=()=>{if(cloudReady&&roomCode&&role)cloudSend({t:'cloudBeacon',role,name:myName,roomCode},'all')};
+ beat();cloudBeaconTimer=setInterval(beat,1000);
+}
+function cloudChannelState(){return String(cloudChannel?.state||'').toLowerCase()}
+function cloudStartWatchdog(){
+ clearInterval(cloudWatchdogTimer);
+ cloudWatchdogTimer=setInterval(()=>{
+   if(cloudClosing||!roomCode||!role||document.visibilityState==='hidden')return;
+   const st=cloudChannelState();
+   if(!cloudChannel||!cloudReady||st==='closed'||st==='errored')cloudScheduleReopen(150);
+   else{
+     try{cloudChannel.track({id:cloudClientId,role,name:myName,at:Date.now()})}catch(e){}
+     cloudSend({t:'cloudBeacon',role,name:myName,roomCode},'all');cloudPresenceSync();
+   }
+ },2500);
+}
+function cloudScheduleReopen(delay=250){
+ if(cloudClosing||cloudOpening||!roomCode||!role)return;
+ clearTimeout(cloudReopenTimer);
+ cloudReopenTimer=setTimeout(()=>{
+   cloudReopenTimer=0;if(cloudClosing||cloudOpening)return;
+   const st=cloudChannelState();
+   if(cloudChannel&&cloudReady&&(st==='joined'||st==='joining')){
+     try{cloudChannel.track({id:cloudClientId,role,name:myName,at:Date.now()})}catch(e){}
+     cloudStartBeacon();if(role==='guest'&&!connected)cloudStartHello();cloudPresenceSync();return;
+   }
+   cloudOpen(roomCode,()=>{
+     if(role==='guest'&&!connected)cloudStartHello();
+     cloudStartBeacon();cloudStartWatchdog();renderLobby();
+   },true);
+ },delay);
+}
+function cloudOpen(code,onReady,resume=false){
+ const old=cloudChannel,gen=++cloudGeneration;
+ cloudOpening=true;cloudReady=false;clearTimeout(cloudDisconnectTimer);cloudDisconnectTimer=0;
+ if(old&&cloudClient){try{cloudClient.removeChannel(old)}catch(e){}}
+ cloudChannel=null;
+ if(!cloudClient){cloudOpening=false;status('Не загрузился облачный модуль соединения. Обнови страницу.','bad');return}
+ const ch=cloudClient.channel('couple:'+code,{config:{broadcast:{self:false,ack:false},presence:{key:cloudClientId}}});cloudChannel=ch;
+ ch.on('broadcast',{event:'room-msg'},({payload})=>{if(gen===cloudGeneration&&ch===cloudChannel)cloudIncoming(payload)});
+ ch.on('presence',{event:'sync'},()=>{if(gen===cloudGeneration&&ch===cloudChannel)cloudPresenceSync()});
+ ch.subscribe(async st=>{
+   if(gen!==cloudGeneration||ch!==cloudChannel)return;
    if(st==='SUBSCRIBED'){
-     cloudReady=true;
-     try{await cloudChannel.track({id:cloudClientId,role,name:myName,at:Date.now()})}catch(e){}
-     onReady?.();
-     // One extra presence check after track closes the subscribe/track race.
-     setTimeout(cloudPresenceSync,120);
-   } else if(st==='CHANNEL_ERROR'||st==='TIMED_OUT'){
-     status('Не удалось подключиться к облачной комнате. Повторите через секунду или обновите страницу.','bad');
-   } else if(st==='CLOSED'&&!cloudClosing){
-     cloudReady=false;connected=false;renderLobby();status('Связь с облачной комнатой прервалась. Обнови страницу.','bad');
+     cloudOpening=false;cloudReady=true;
+     try{await ch.track({id:cloudClientId,role,name:myName,at:Date.now()})}catch(e){}
+     cloudStartBeacon();cloudStartWatchdog();onReady?.();setTimeout(cloudPresenceSync,150);
+   }else if(st==='CHANNEL_ERROR'||st==='TIMED_OUT'){
+     cloudOpening=false;cloudReady=false;
+     if(!resume)status('Не удалось подключиться к облачной комнате. Переподключаемся…','bad');
+     cloudScheduleReopen(700);
+   }else if(st==='CLOSED'&&!cloudClosing){
+     cloudOpening=false;cloudReady=false;connected=false;renderLobby();cloudScheduleReopen(350);
    }
  });
 }
 
 createRoom=function(){
- myName=$('nameInput').value.trim()||'Игрок 1';role='host';roomCode=makeCode();otherName='';connected=false;
+ myName=$('nameInput').value.trim()||'Игрок 1';role='host';roomCode=makeCode();otherName='';connected=false;cloudSawPartner=false;
  status('Создаём облачную комнату…');
  cloudOpen(roomCode,()=>{show('lobbyScreen');renderLobby();status('Комната готова. Отправь ссылку второму человеку.','good')});
 };
 joinRoom=function(){
  myName=$('nameInput').value.trim()||'Игрок 2';roomCode=cleanCode($('roomInput').value);if(roomCode.length!==6)return status('Введите 6-значный код комнаты.','bad');
- role='guest';otherName='';connected=false;status('Подключаемся к облачной комнате…');
- cloudOpen(roomCode,()=>{
-   show('lobbyScreen');renderLobby();
-   const hello=()=>{if(!connected)cloudSend({t:'hello',name:myName},'host')};hello();cloudHelloTimer=setInterval(hello,700);
-   cloudJoinTimer=setTimeout(()=>{if(!connected){clearInterval(cloudHelloTimer);cloudHelloTimer=0;let h=$('lobbyHint');if(h)h.textContent='Комната пока не отвечает. Убедитесь, что создатель держит страницу открытой, и попробуйте ещё раз.'}},20000);
- });
+ role='guest';otherName='';connected=false;cloudSawPartner=false;status('Подключаемся к облачной комнате…');
+ cloudOpen(roomCode,()=>{show('lobbyScreen');renderLobby();cloudStartHello()});
 };
 renderLobby=function(){
  _cloudRenderLobby();let h=$('lobbyHint');if(!h)return;
@@ -122,11 +185,12 @@ renderLobby=function(){
  else if(cloudReady&&role==='guest')h.textContent='Ищем создателя комнаты через облачный сервер…';
 };
 
-document.addEventListener('visibilitychange',()=>{
- if(document.visibilityState==='visible'&&cloudChannel&&cloudReady){
-   try{cloudChannel.track({id:cloudClientId,role,name:myName,at:Date.now()})}catch(e){}
-   if(role==='guest'&&!connected)cloudSend({t:'hello',name:myName},'host');
-   setTimeout(cloudPresenceSync,100);
- }
-});
+function cloudWake(){
+ if(cloudClosing||!roomCode||!role)return;
+ if(document.visibilityState!=='hidden')cloudScheduleReopen(80);
+}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')cloudWake()});
+window.addEventListener('focus',cloudWake);
+window.addEventListener('pageshow',cloudWake);
+window.addEventListener('online',cloudWake);
 window.addEventListener('beforeunload',()=>{cloudClosing=true;try{cloudChannel?.untrack()}catch(e){};cloudCleanup()});
