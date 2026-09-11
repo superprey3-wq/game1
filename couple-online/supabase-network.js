@@ -3,7 +3,7 @@ const CLOUD_URL='https://ksnmwgsjxsdqlxvieaih.supabase.co';
 const CLOUD_KEY='sb_publishable_aHzNY3-kTSt_-GQBMCSQVg_WW0vp-1O';
 const cloudClient=window.supabase?.createClient(CLOUD_URL,CLOUD_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},realtime:{params:{eventsPerSecond:100}}});
 let cloudChannel=null,cloudReady=false,cloudClientId=(crypto.randomUUID?.()||Math.random().toString(36).slice(2)),cloudHelloTimer=0,cloudJoinTimer=0;
-const _cloudHandle=handleMessage,_cloudRenderLobby=renderLobby;
+const _cloudRenderLobby=renderLobby;
 
 function cloudCleanup(){
  clearInterval(cloudHelloTimer);clearTimeout(cloudJoinTimer);cloudHelloTimer=cloudJoinTimer=0;cloudReady=false;
@@ -28,7 +28,9 @@ function cloudIncoming(env){
  if(role==='guest'&&m.t==='welcome'){
    connected=true;clearInterval(cloudHelloTimer);clearTimeout(cloudJoinTimer);renderLobby();
  }
- _cloudHandle(m);
+ // Resolve the latest global handler so gameplay upgrade scripts loaded after
+ // this transport can receive their own realtime message types.
+ handleMessage(m);
 }
 function cloudPresenceSync(){
  if(!cloudChannel)return;
@@ -76,5 +78,5 @@ renderLobby=function(){
  else if(cloudReady&&role==='guest')h.textContent='Ищем создателя комнаты через облачный сервер…';
 };
 
-// PeerJS is no longer used for room traffic in v9.
+// PeerJS is no longer used for room traffic in v9+.
 window.addEventListener('beforeunload',()=>{try{cloudChannel?.untrack()}catch(e){};cloudCleanup()});
