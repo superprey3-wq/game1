@@ -1,0 +1,50 @@
+const _rtApply=applyAction,_rtRender=renderGame,_rtHandle=handleMessage,_rtBack=backMenu;
+let secretWord='',lastGuess='',drawCtx=null,drawActive=false,drawLast=null;
+let air=null,airAnim=0,airLastSend=0,airCanvas=null,airCtx=null,airLatest=null;
+function direct(o){if(conn?.open)conn.send(o)}
+function normWord(s){return String(s||'').toLowerCase().replace(/ё/g,'е').replace(/[^а-яa-z0-9]/g,'')}
+function chooseCrocSecret(){if(role!=='host')return;let w=DRAW_WORDS[Math.floor(Math.random()*DRAW_WORDS.length)];secretWord=state.drawer==='host'?w:'';if(state.drawer==='guest')direct({t:'secret',word:w});direct({t:'clearDraw'});lastGuess=''}
+applyAction=function(a,v,who){
+ if(a==='game'&&v==='crocodile'){state={screen:'game',type:'crocodile',idx:0,drawer:'host',status:'drawing'};chooseCrocSecret();sync();renderFromState();return}
+ if(state.type==='crocodile'&&a==='croc_correct'&&who===state.drawer){state.status='won';sync();renderFromState();return}
+ if(state.type==='crocodile'&&a==='next'){state.idx++;state.drawer=state.drawer==='host'?'guest':'host';state.status='drawing';chooseCrocSecret();sync();renderFromState();return}
+ if(a==='game'&&v==='air'){state={screen:'game',type:'air',idx:0};stopAir();sync();renderFromState();return}
+ if(state.type==='air'&&a==='air_restart'){if(role==='host'){resetAirSim();direct({t:'airReset'})}renderFromState();return}
+ _rtApply(a,v,who);
+};
+renderGame=function(){if(state.type==='crocodile')return renderCrocodile();if(state.type==='air')return renderAir();return _rtRender()};
+handleMessage=function(m){
+ if(m&&m.t==='secret'){secretWord=String(m.word||'');lastGuess='';if(state.type==='crocodile')renderCrocodile();return}
+ if(m&&m.t==='draw'){receiveDraw(m);return}
+ if(m&&m.t==='clearDraw'){clearDrawCanvas();return}
+ if(m&&m.t==='guess'){lastGuess=String(m.guess||'').slice(0,60);let el=document.getElementById('guessSeen');if(el)el.textContent='Последняя попытка: '+lastGuess;if(actor()===state.drawer&&secretWord&&normWord(lastGuess)===normWord(secretWord))dispatch('croc_correct');return}
+ if(m&&m.t==='airInput'&&role==='host'&&air){air.guest.x=Math.max(30,Math.min(690,Number(m.x)||360));air.guest.y=Math.max(30,Math.min(220,Number(m.y)||80));return}
+ if(m&&m.t==='airSnap'&&role==='guest'){airLatest=m.s;drawAirSnapshot(airLatest);return}
+ if(m&&m.t==='airReset'&&role==='guest'){airLatest=null;return}
+ _rtHandle(m);
+};
+backMenu=function(){stopAir();secretWord='';_rtBack()};
+function renderCrocodile(){
+ $('roundPill').textContent=`Раунд ${state.idx+1}`;$('bar').style.width=state.status==='won'?'100%':'55%';let mine=actor()===state.drawer,drawerName=state.drawer==='host'?hostName():guestName();
+ if(state.status==='won'){$('gameCard').innerHTML=`<div class="bigemoji">🎉</div><div class="question">Угадано!</div><div class="muted">В следующем раунде рисует другой игрок.</div><div class="actions"><button class="btn" onclick="dispatch('next')">Поменяться ролями</button></div>`;return}
+ $('gameCard').innerHTML=`<div class="eyebrow">${mine?'Твоя очередь рисовать':'Рисует '+esc(drawerName)}</div>${mine?`<div class="secretword">Нарисуй: <b>${esc(secretWord||'получаем слово…')}</b></div>`:`<div class="question smallq">Угадай рисунок</div>`}<canvas id="drawCanvas" class="drawcanvas"></canvas>${mine?`<div id="guessSeen" class="muted">${lastGuess?'Последняя попытка: '+esc(lastGuess):'Ждём попытку партнёра…'}</div><div class="actions"><button class="ghost" onclick="clearAndSend()">Очистить</button><button class="btn" onclick="dispatch('croc_correct')">Угадал(а)!</button></div>`:`<div class="guessrow"><input id="guessInput" maxlength="60" placeholder="Напиши догадку"><button class="btn" onclick="sendGuess()">Угадать</button></div><div class="muted">Можно также угадывать голосом.</div>`}`;
+ requestAnimationFrame(()=>initDrawCanvas(mine));
+}
+function initDrawCanvas(canDraw){let c=$('drawCanvas');if(!c)return;let r=c.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);c.width=Math.max(1,Math.round(r.width*d));c.height=Math.max(1,Math.round(r.width*.58*d));c.style.height=(r.width*.58)+'px';drawCtx=c.getContext('2d');drawCtx.scale(d,d);drawCtx.lineCap='round';drawCtx.lineJoin='round';drawCtx.lineWidth=5;drawCtx.strokeStyle='#fff7fb';drawCtx.fillStyle='#17101e';drawCtx.fillRect(0,0,r.width,r.width*.58);if(!canDraw)return;const pos=e=>{let b=c.getBoundingClientRect();return{x:(e.clientX-b.left)/b.width,y:(e.clientY-b.top)/b.height}};c.onpointerdown=e=>{e.preventDefault();c.setPointerCapture?.(e.pointerId);drawActive=true;drawLast=pos(e);drawSegment(drawLast,drawLast);direct({t:'draw',k:'s',...drawLast})};c.onpointermove=e=>{if(!drawActive)return;let p=pos(e);drawSegment(drawLast,p);direct({t:'draw',k:'m',...p});drawLast=p};let end=e=>{if(!drawActive)return;drawActive=false;direct({t:'draw',k:'e'})};c.onpointerup=end;c.onpointercancel=end}
+function drawSegment(a,b){let c=$('drawCanvas');if(!drawCtx||!c||!a||!b)return;let r=c.getBoundingClientRect();drawCtx.beginPath();drawCtx.moveTo(a.x*r.width,a.y*r.height);drawCtx.lineTo(b.x*r.width,b.y*r.height);drawCtx.stroke()}
+let remoteLast=null;
+function receiveDraw(m){if(state.type!=='crocodile')return;if(m.k==='s'){remoteLast={x:m.x,y:m.y};drawSegment(remoteLast,remoteLast)}else if(m.k==='m'){let p={x:m.x,y:m.y};drawSegment(remoteLast,p);remoteLast=p}else remoteLast=null}
+function clearDrawCanvas(){let c=$('drawCanvas');if(!c||!drawCtx)return;let r=c.getBoundingClientRect();drawCtx.fillStyle='#17101e';drawCtx.fillRect(0,0,r.width,r.height);remoteLast=null}
+function clearAndSend(){clearDrawCanvas();direct({t:'clearDraw'})}
+function sendGuess(){let i=$('guessInput');if(!i||!i.value.trim())return;direct({t:'guess',guess:i.value.trim()});toast('Попытка отправлена');i.value=''}
+function renderAir(){
+ $('roundPill').textContent='До 5 голов';$('bar').style.width='100%';$('gameCard').innerHTML=`<div class="airscore"><b id="airHostScore">0</b><span>${esc(hostName())} · ${esc(guestName())}</span><b id="airGuestScore">0</b></div><canvas id="airCanvas" class="aircanvas"></canvas><div class="muted">${role==='host'?'Ты играешь снизу.':'Ты играешь сверху.'} Води пальцем по своей половине поля.</div><div class="actions"><button class="ghost" onclick="dispatch('air_restart')">Новый матч</button></div>`;requestAnimationFrame(initAirCanvas)
+}
+function resetAirSim(){air={puck:{x:360,y:240,vx:(Math.random()>.5?1:-1)*190,vy:(Math.random()>.5?1:-1)*180},host:{x:360,y:400},guest:{x:360,y:80},scoreH:0,scoreG:0,over:false,last:performance.now()}}
+function initAirCanvas(){let c=$('airCanvas');if(!c)return;airCanvas=c;let r=c.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);c.width=Math.round(r.width*d);c.height=Math.round(r.width*(2/3)*d);c.style.height=(r.width*(2/3))+'px';airCtx=c.getContext('2d');airCtx.setTransform(c.width/720,0,0,c.height/480,0,0);const move=e=>{e.preventDefault();let b=c.getBoundingClientRect(),x=(e.clientX-b.left)/b.width*720,y=(e.clientY-b.top)/b.height*480;if(role==='host'){if(!air)return;air.host.x=Math.max(30,Math.min(690,x));air.host.y=Math.max(260,Math.min(450,y))}else direct({t:'airInput',x:Math.max(30,Math.min(690,x)),y:Math.max(30,Math.min(220,y))})};c.onpointerdown=e=>{c.setPointerCapture?.(e.pointerId);move(e)};c.onpointermove=e=>{if(e.buttons||e.pressure>0)move(e)};if(role==='host'){if(!air)resetAirSim();cancelAnimationFrame(airAnim);air.last=performance.now();airLoop()}else if(airLatest)drawAirSnapshot(airLatest);else drawAirSnapshot({p:{x:360,y:240},h:{x:360,y:400},g:{x:360,y:80},sh:0,sg:0,over:false})}
+function stopAir(){cancelAnimationFrame(airAnim);airAnim=0;air=null;airCanvas=null;airCtx=null;airLatest=null}
+function airLoop(t=performance.now()){if(role!=='host'||state.type!=='air'||!air)return;let dt=Math.min(.03,(t-air.last)/1000||.016);air.last=t;if(!air.over)stepAir(dt);let s={p:{x:air.puck.x,y:air.puck.y},h:{x:air.host.x,y:air.host.y},g:{x:air.guest.x,y:air.guest.y},sh:air.scoreH,sg:air.scoreG,over:air.over};drawAirSnapshot(s);if(t-airLastSend>33){direct({t:'airSnap',s});airLastSend=t}airAnim=requestAnimationFrame(airLoop)}
+function stepAir(dt){let p=air.puck;p.x+=p.vx*dt;p.y+=p.vy*dt;if(p.x<15){p.x=15;p.vx=Math.abs(p.vx)}if(p.x>705){p.x=705;p.vx=-Math.abs(p.vx)};collidePaddle(p,air.host);collidePaddle(p,air.guest);let goal=p.x>270&&p.x<450;if(p.y<15){if(goal){air.scoreH++;serveAir(1)}else{p.y=15;p.vy=Math.abs(p.vy)}}if(p.y>465){if(goal){air.scoreG++;serveAir(-1)}else{p.y=465;p.vy=-Math.abs(p.vy)}}if(air.scoreH>=5||air.scoreG>=5)air.over=true}
+function collidePaddle(p,d){let dx=p.x-d.x,dy=p.y-d.y,dist=Math.hypot(dx,dy),min=43;if(dist>0&&dist<min){let nx=dx/dist,ny=dy/dist;p.x=d.x+nx*min;p.y=d.y+ny*min;let speed=Math.max(260,Math.hypot(p.vx,p.vy));p.vx=nx*speed;p.vy=ny*speed}}
+function serveAir(dir){air.puck.x=360;air.puck.y=240;air.puck.vx=(Math.random()-.5)*260;air.puck.vy=dir*190}
+function drawAirSnapshot(s){let c=$('airCanvas');if(!c||!airCtx||!s)return;let x=airCtx;x.clearRect(0,0,720,480);x.fillStyle='#15101d';x.fillRect(0,0,720,480);x.strokeStyle='#ffffff33';x.lineWidth=4;x.strokeRect(2,2,716,476);x.beginPath();x.moveTo(0,240);x.lineTo(720,240);x.stroke();x.beginPath();x.arc(360,240,62,0,Math.PI*2);x.stroke();x.fillStyle='#ff6fae';x.fillRect(270,0,180,9);x.fillStyle='#9879ff';x.fillRect(270,471,180,9);x.fillStyle='#ff7fbb';x.beginPath();x.arc(s.h.x,s.h.y,28,0,Math.PI*2);x.fill();x.fillStyle='#a792ff';x.beginPath();x.arc(s.g.x,s.g.y,28,0,Math.PI*2);x.fill();x.fillStyle='#fff';x.beginPath();x.arc(s.p.x,s.p.y,15,0,Math.PI*2);x.fill();let hs=$('airHostScore'),gs=$('airGuestScore');if(hs)hs.textContent=s.sh||0;if(gs)gs.textContent=s.sg||0;if(s.over){x.fillStyle='#000a';x.fillRect(0,0,720,480);x.fillStyle='#fff';x.font='bold 42px system-ui';x.textAlign='center';x.fillText((s.sh>s.sg?hostName():guestName())+' победил(а)!',360,235);x.font='24px system-ui';x.fillText((s.sh||0)+' : '+(s.sg||0),360,275)}}
