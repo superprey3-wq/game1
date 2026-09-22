@@ -1,7 +1,16 @@
-# MLBB Chaos Roulette
+# Рулетка MLBB
 
-Static fan site for Mobile Legends: Bang Bang. Includes 133 heroes, lane-aware roulette, full-chaos mode, build archetypes, spells, emblems, challenges, locks, search and local history.
+Русскоязычная фан-рулетка для Mobile Legends: Bang Bang.
 
-Open index.html locally, or serve this folder with GitHub Pages. In this repository the intended path is /mlbb-roulette/.
+## Как работает
 
-Hero/lane data checked against Liquipedia MLBB Hero portal, Patch 2.2.16, on 2026-09-22. Unofficial fan project; not affiliated with MOONTON.
+1. Крутится отдельная рулетка из 133 героев с портретами.
+2. Затем крутится отдельная рулетка линии: Линия опыта, Лес, Линия золота, Роум или Мид.
+3. Затем выпадает случайная сборка из 6 слотов: одни ботинки и пять законченных предметов.
+4. В конце выпадает весёлое задание на эту катку.
+
+Ниже на странице есть русский каталог всех 109 записей предметов из используемой базы с иконками и ценами.
+
+Данные героев и предметов сохранены локально в папке `data/`. Портреты и иконки загружаются из открытого репозитория Ceplin03/database-mlbb.Mobile-Legends-Bang-Bang.
+
+Неофициальный фан-проект; не связан с MOONTON.
