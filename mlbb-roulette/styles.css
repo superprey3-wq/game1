@@ -538,3 +538,32 @@ footer{text-align:center;color:#65718d;font-size:11px;line-height:1.55;margin-to
   #laneSection .lineResultTitle{min-width:0;margin-bottom:5px}
   #laneSection .lineResultTitle strong{font-size:24px}
 }
+
+
+.buildContext{
+  margin:0 0 14px;
+  padding:13px 15px;
+  border:1px solid #31506a;
+  border-radius:15px;
+  background:linear-gradient(135deg,#0d1a2b,#10162a);
+}
+.buildContext small{
+  display:block;
+  color:var(--cyan);
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.14em;
+}
+.buildContext strong{
+  display:block;
+  margin-top:4px;
+  font-size:18px;
+  line-height:1.15;
+}
+.buildContext span{
+  display:block;
+  margin-top:5px;
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.45;
+}
