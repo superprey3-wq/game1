@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b1020">
+<title>MLBB Chaos Roulette</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main class="wrap">
+<header><div><h1>MLBB Chaos Roulette</h1><p>133 героя · линии · сборки · спеллы · эмблемы · задания</p></div><span>Fan project</span></header>
+<section class="grid top">
+<div class="panel wheel" id="wheel"><div class="ring"></div><div class="center"><small>ТВОЙ ГЕРОЙ</small><strong id="hero">Нажми «Крутить»</strong><em id="heroLanes">—</em></div></div>
+<div class="panel controls">
+<h2>Настройки</h2>
+<label>Режим<select id="mode"><option value="smart">Герой под линию</option><option value="hero">Сначала герой</option><option value="chaos">Полный хаос</option></select></label>
+<label>Линия<select id="forcedLane"><option value="">🎲 Случайная</option><option>EXP Lane</option><option>Jungle</option><option>Mid Lane</option><option>Gold Lane</option><option>Roam</option></select></label>
+<label class="check"><input id="noRepeat" type="checkbox" checked> Не повторять недавних героев</label>
+<label class="check"><input id="hard" type="checkbox"> Добавить безумные задания</label>
+<button class="main" id="spin">🎰 Крутить полный раунд</button>
+<div class="twins"><button id="rerollHero">🎲 Только герой</button><button id="rerollTask">⚔️ Только задание</button></div>
+<div class="twins"><button id="copy">📋 Скопировать</button><button id="unlock">🔓 Снять блокировки</button></div>
+</div>
+</section>
+<section class="cards" id="cards">
+<article class="panel"><small>ЛИНИЯ</small><b id="lane">—</b><i id="laneNote">—</i><button class="lock" data-lock="lane">🔓</button></article>
+<article class="panel"><small>СБОРКА</small><b id="build">—</b><i id="buildNote">—</i><button class="lock" data-lock="build">🔓</button></article>
+<article class="panel"><small>СПЕЛЛ</small><b id="spell">—</b><i>рандом для челленджа</i><button class="lock" data-lock="spell">🔓</button></article>
+<article class="panel"><small>ЭМБЛЕМА</small><b id="emblem">—</b><i>случайная категория</i><button class="lock" data-lock="emblem">🔓</button></article>
+<article class="panel wide"><small>ЗАДАНИЕ</small><b id="task">—</b><i>выполни в одном матче</i><button class="lock" data-lock="task">🔓</button></article>
+<article class="panel"><small>БОНУС</small><b id="bonus">—</b><i>модификатор раунда</i><button class="lock" data-lock="bonus">🔓</button></article>
+</section>
+<section class="panel catalog">
+<div class="catalogHead"><h2>Все герои</h2><input id="search" placeholder="Поиск героя…"></div>
+<div class="filters" id="filters"></div><div id="count"></div><div class="heroes" id="heroes"></div>
+</section>
+<section class="panel history"><div class="catalogHead"><h2>Последние раунды</h2><button id="clearHistory">Очистить</button></div><div id="history"></div></section>
+<footer>Герои и рекомендованные линии сверены по Liquipedia MLBB, Patch 2.2.16. Неофициальный фан-проект, не связан с MOONTON. Случайные сборки — не мета-рекомендации.</footer>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
