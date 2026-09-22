@@ -137,3 +137,22 @@ footer{padding:24px 10px 0;color:#7f728b;font-size:.76rem;line-height:1.55;text-
   .info-grid .mini-card:last-child{grid-column:1/-1}
   .actions>*{width:100%}
 }
+.reference-wrap{
+  width:100%;min-height:255px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;padding:14px
+}
+.reference-img{
+  width:auto;max-width:92%;max-height:215px;object-fit:contain;border-radius:18px;background:#fff;
+  box-shadow:0 12px 30px rgba(0,0,0,.25)
+}
+.reference-map{
+  width:min(92%,340px);height:210px;border-radius:18px;background-color:#fff;
+  background-image:url("https://upload.wikimedia.org/wikipedia/commons/f/fd/Sex_positions_diagram.png");
+  background-repeat:no-repeat;background-size:205% auto;
+  box-shadow:0 12px 30px rgba(0,0,0,.25)
+}
+.reference-map.ref-front{background-position:25% 68%}
+.reference-map.ref-side{background-position:49% 49%}
+.reference-map.ref-back{background-position:81% 68%}
+.reference-note{font-size:.72rem;line-height:1.35;color:#bbaec8;text-align:center;max-width:340px}
+.reference-credit{font-size:.68rem;color:#cdb8ff;text-decoration:none;border-bottom:1px dotted rgba(205,184,255,.55)}
+.reference-credit:hover{color:#fff}
