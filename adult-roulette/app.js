@@ -69,53 +69,53 @@ const base = {
 
 const sourceLinks = {
   vaginal: {
-    face:["The Eagle","https://educacionsexual.org/en/sex-positions/the-eagle/"],
-    side:["The Crab","https://educacionsexual.org/en/sex-positions/the-crab/"],
-    sideBack:["The Doggy Style","https://educacionsexual.org/en/sex-positions/the-doggy-style/"],
-    seat:["The Lotus Flower","https://educacionsexual.org/en/sex-positions/the-lotus-flower/"],
-    edge:["Advanced Edge Doggy Style","https://educacionsexual.org/en/sex-positions/advanced-edge-doggy-style/"],
-    recline:["With Ergonomic Wedge","https://educacionsexual.org/en/sex-positions/with-ergonomic-wedge/"],
-    stand:["The Column","https://educacionsexual.org/en/sex-positions/the-column/"],
-    lean:["The Doggy Style","https://educacionsexual.org/en/sex-positions/the-doggy-style/"],
-    kneel:["Depth","https://educacionsexual.org/en/sex-positions/depth/"],
-    edge2:["Advanced Edge Doggy Style","https://educacionsexual.org/en/sex-positions/advanced-edge-doggy-style/"],
-    seatHug:["The Lotus Flower","https://educacionsexual.org/en/sex-positions/the-lotus-flower/"],
-    support:["With Ergonomic Wedge","https://educacionsexual.org/en/sex-positions/with-ergonomic-wedge/"]
+    face:["Face to Face — пошаговая настройка","https://bestsexypositions.com/positions/face-to-face/kneeling/"],
+    side:["Side positions — варианты на боку","https://bestsexypositions.com/positions/side/"],
+    sideBack:["Spooning — пошаговая инструкция","https://bestsexypositions.com/positions/side/spooning/"],
+    seat:["Lotus — пошаговая инструкция","https://bestsexypositions.com/positions/face-to-face/lotus-position/"],
+    edge:["Face to Face у края кровати","https://bestsexypositions.com/positions/face-to-face/kneeling/"],
+    recline:["Arch — положение с опорой","https://bestsexypositions.com/positions/tantric/arch/"],
+    stand:["Standing Missionary — стоя","https://bestsexypositions.com/positions/standing/missionary-standing/"],
+    lean:["Bent Over — с опорой","https://bestsexypositions.com/positions/doggy-style/bent-over/"],
+    kneel:["Kneeling Embrace — на коленях","https://bestsexypositions.com/positions/tantric/kneeling-spooning/"],
+    edge2:["Face to Face у края кровати","https://bestsexypositions.com/positions/face-to-face/kneeling/"],
+    seatHug:["Lotus — сидя лицом к лицу","https://bestsexypositions.com/positions/face-to-face/lotus-position/"],
+    support:["Arch — с устойчивой опорой","https://bestsexypositions.com/positions/tantric/arch/"]
   },
   oral: {
-    oralSeat:["Oral Sex on the Penis","https://educacionsexual.org/en/sex-positions/oral-sex-on-the-penis-fellatio/"],
-    oralEdge:["The Gallows","https://educacionsexual.org/en/sex-positions/the-gallows/"],
-    oralLie:["Oral Sex on the Vulva","https://educacionsexual.org/en/sex-positions/oral-sex-on-the-vulva-cunnilingus/"],
-    oralSide:["Oral Sex on the Penis","https://educacionsexual.org/en/sex-positions/oral-sex-on-the-penis-fellatio/"],
-    sixtyNineSide:["The 69","https://educacionsexual.org/en/sex-positions/the-69/"],
-    sixtyNine:["The 69","https://educacionsexual.org/en/sex-positions/the-69/"],
-    oralRecline:["The Gallows","https://educacionsexual.org/en/sex-positions/the-gallows/"],
-    oralStand:["The Gallows","https://educacionsexual.org/en/sex-positions/the-gallows/"],
-    oralKneel:["Oral Sex on the Penis","https://educacionsexual.org/en/sex-positions/oral-sex-on-the-penis-fellatio/"],
-    oralCorner:["The Queen's Chair","https://educacionsexual.org/en/sex-positions/the-queen-s-chair/"],
-    oralCross:["Oral Sex on the Vulva","https://educacionsexual.org/en/sex-positions/oral-sex-on-the-vulva-cunnilingus/"],
-    oralFloor:["Oral Sex on the Penis","https://educacionsexual.org/en/sex-positions/oral-sex-on-the-penis-fellatio/"]
+    oralSeat:["Chair Blowjob — сидя","https://bestsexypositions.com/positions/oral/chair-blowjob/"],
+    oralEdge:["Chair Blowjob — край кровати/стула","https://bestsexypositions.com/positions/oral/chair-blowjob/"],
+    oralLie:["Classic Cunnilingus — лёжа","https://bestsexypositions.com/positions/oral/classic-cunnilingus/"],
+    oralSide:["Oral positions — варианты на боку","https://bestsexypositions.com/positions/oral/"],
+    sixtyNineSide:["Side 69 — на боку","https://bestsexypositions.com/positions/oral/side-69/"],
+    sixtyNine:["Classic 69 — пошаговая инструкция","https://bestsexypositions.com/positions/oral/classic-69/"],
+    oralRecline:["Classic Cunnilingus — с опорой","https://bestsexypositions.com/positions/oral/classic-cunnilingus/"],
+    oralStand:["Kneeling BJ — один стоит","https://bestsexypositions.com/positions/oral/kneeling-bj/"],
+    oralKneel:["Kneeling BJ — на коленях","https://bestsexypositions.com/positions/oral/kneeling-bj/"],
+    oralCorner:["Chair Blowjob — на диване/стуле","https://bestsexypositions.com/positions/oral/chair-blowjob/"],
+    oralCross:["Classic Cunnilingus — лёжа","https://bestsexypositions.com/positions/oral/classic-cunnilingus/"],
+    oralFloor:["Kneeling BJ — у дивана","https://bestsexypositions.com/positions/oral/kneeling-bj/"]
   },
   anal: {
-    analSide:["Anal Sex — Complete Guide","https://educacionsexual.org/en/sex-positions/anal-sex-complete-guide/"],
-    analFace:["The Eagle","https://educacionsexual.org/en/sex-positions/the-eagle/"],
-    analRecline:["The Crab","https://educacionsexual.org/en/sex-positions/the-crab/"],
-    analPillow:["The Doggy Style","https://educacionsexual.org/en/sex-positions/the-doggy-style/"],
-    analEdge:["Anal Sex — Complete Guide","https://educacionsexual.org/en/sex-positions/anal-sex-complete-guide/"],
-    analKneel:["The Doggy Style","https://educacionsexual.org/en/sex-positions/the-doggy-style/"],
-    analProne:["Anal Sex — Complete Guide","https://educacionsexual.org/en/sex-positions/anal-sex-complete-guide/"],
-    analStand:["Anal sex positions","https://educacionsexual.org/en/anal-sex-positions/"],
-    analLean:["The Doggy Style","https://educacionsexual.org/en/sex-positions/the-doggy-style/"],
-    analCurl:["Anal Sex — Complete Guide","https://educacionsexual.org/en/sex-positions/anal-sex-complete-guide/"],
-    analSeat:["Anal Sex — Complete Guide","https://educacionsexual.org/en/sex-positions/anal-sex-complete-guide/"],
-    analSupport:["Anal Sex — Complete Guide","https://educacionsexual.org/en/sex-positions/anal-sex-complete-guide/"]
+    analSide:["Anal Spooning — на боку","https://bestsexypositions.com/positions/anal/anal-spooning/"],
+    analFace:["Anal Missionary — лицом к лицу","https://bestsexypositions.com/positions/anal/missionary/"],
+    analRecline:["Anal Missionary — с опорой","https://bestsexypositions.com/positions/anal/missionary/"],
+    analPillow:["Anal Doggy Style — сзади","https://bestsexypositions.com/positions/anal/doggy-style/"],
+    analEdge:["Anal Missionary — у края","https://bestsexypositions.com/positions/anal/missionary/"],
+    analKneel:["Anal Doggy Style — на коленях","https://bestsexypositions.com/positions/anal/doggy-style/"],
+    analProne:["Anal Prone Bone — лёжа на животе","https://bestsexypositions.com/positions/anal/prone-bone-anal/"],
+    analStand:["Standing Anal — стоя","https://bestsexypositions.com/positions/anal/standing-anal/"],
+    analLean:["Anal Doggy Style — с опорой","https://bestsexypositions.com/positions/anal/doggy-style/"],
+    analCurl:["Anal Spooning — согнув ноги","https://bestsexypositions.com/positions/anal/anal-spooning/"],
+    analSeat:["Anal Cowgirl — сидя сверху","https://bestsexypositions.com/positions/anal/cowgirl/"],
+    analSupport:["Anal Missionary — с низкой опорой","https://bestsexypositions.com/positions/anal/missionary/"]
   }
 };
 
 function getSource(category,scene,variantIndex){
-  let source=sourceLinks[category]?.[scene] || ["Sex positions encyclopedia","https://educacionsexual.org/en/sex-positions/"];
-  if(category==="oral" && ["oralSeat","oralLie","oralSide","oralCross","oralFloor"].includes(scene) && variantIndex%2===1){
-    source=["Oral Sex on the Vulva","https://educacionsexual.org/en/sex-positions/oral-sex-on-the-vulva-cunnilingus/"];
+  let source=sourceLinks[category]?.[scene] || ["Каталог подробных инструкций","https://bestsexypositions.com/"];
+  if(category==="oral" && ["oralLie","oralSide","oralRecline","oralCross"].includes(scene) && variantIndex%2===1){
+    source=["Classic Blowjob — базовая инструкция","https://bestsexypositions.com/positions/oral/classic-bj/"];
   }
   return {name:source[0],url:source[1]};
 }
