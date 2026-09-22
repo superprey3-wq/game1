@@ -95,14 +95,60 @@ let currentCategory=null;
 let spinning=false;
 
 function randomIndex(length){
+  if(length<=1)return 0;
   if(window.crypto?.getRandomValues){
+    const max=0x100000000;
+    const limit=max-(max%length);
     const arr=new Uint32Array(1);
-    crypto.getRandomValues(arr);
+    do{crypto.getRandomValues(arr)}while(arr[0]>=limit);
     return arr[0]%length;
   }
   return Math.floor(Math.random()*length);
 }
-function pick(arr){return arr[randomIndex(arr.length)]}
+
+function shuffledCopy(arr){
+  const copy=[...arr];
+  for(let i=copy.length-1;i>0;i--){
+    const j=randomIndex(i+1);
+    [copy[i],copy[j]]=[copy[j],copy[i]];
+  }
+  return copy;
+}
+
+let categoryBag=[];
+let lastCategoryId=null;
+const poseBags={vaginal:[],oral:[],anal:[]};
+const lastPoseId={vaginal:null,oral:null,anal:null};
+
+function refillCategoryBag(){
+  categoryBag=shuffledCopy(categories);
+  if(lastCategoryId && categoryBag.length>1 && categoryBag[0].id===lastCategoryId){
+    const swapIndex=1+randomIndex(categoryBag.length-1);
+    [categoryBag[0],categoryBag[swapIndex]]=[categoryBag[swapIndex],categoryBag[0]];
+  }
+}
+
+function nextCategory(){
+  if(categoryBag.length===0)refillCategoryBag();
+  const chosen=categoryBag.shift();
+  lastCategoryId=chosen.id;
+  return chosen;
+}
+
+function refillPoseBag(category){
+  poseBags[category]=shuffledCopy(pools[category]);
+  if(lastPoseId[category] && poseBags[category].length>1 && poseBags[category][0].id===lastPoseId[category]){
+    const swapIndex=1+randomIndex(poseBags[category].length-1);
+    [poseBags[category][0],poseBags[category][swapIndex]]=[poseBags[category][swapIndex],poseBags[category][0]];
+  }
+}
+
+function nextPose(category){
+  if(poseBags[category].length===0)refillPoseBag(category);
+  const pose=poseBags[category].shift();
+  lastPoseId[category]=pose.id;
+  return pose;
+}
 
 const mannequinPoses = {
   stand:{head:[0,-66],shoulder:[0,-39],hip:[0,8],elbows:[[22,-12],[-20,-8]],hands:[[28,18],[-28,18]],knees:[[14,43],[-12,43]],feet:[[18,78],[-18,78]]},
@@ -235,8 +281,8 @@ function spin(){
   wheelResult.textContent="Крутим...";
   wheelResult.classList.add("rolling");
 
-  const idx=randomIndex(categories.length);
-  const chosen=categories[idx];
+  const chosen=nextCategory();
+  const idx=categories.findIndex(c=>c.id===chosen.id);
 
   // Секторы заданы conic-gradient от -60°:
   // обычный центр = 0°, оральный = 120°, анальный = 240°.
@@ -254,14 +300,14 @@ function spin(){
     wheelResult.textContent="Выпало: "+chosen.label;
     wheelResult.classList.remove("rolling");
     wheelResult.dataset.category=chosen.id;
-    render(chosen.id,pick(pools[chosen.id]));
+    render(chosen.id,nextPose(chosen.id));
     spinning=false;
     spinBtn.classList.remove("spinning");
   },3150);
 }
 function rerollPose(){
   if(!currentCategory)return;
-  render(currentCategory,pick(pools[currentCategory]));
+  render(currentCategory,nextPose(currentCategory));
 }
 
 const HISTORY_KEY="adultRouletteHistoryV1";
