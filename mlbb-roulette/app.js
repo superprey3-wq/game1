@@ -80,8 +80,38 @@ function spinHero(){
   const timer=setInterval(function(){const p=pick(pool);$("heroCenterPhoto").innerHTML='<img src="'+heroImg(p)+'" alt="">';$("heroName").textContent=hName(p);if(t%2===0)renderOrbit();if(++t>=18){clearInterval(timer);orbit.classList.remove("spinning");hero=final;recent=[final.id_hero].concat(recent.filter(id=>id!==final.id_hero)).slice(0,12);lane=null;build=[];task=null;showHero(final);$("spinHero").disabled=false;$("spinLane").disabled=false;go(2)}},85)
 }
 function spinLane(){
-  if(!hero)return;$("spinLane").disabled=true;const idx=Math.floor(Math.random()*lanes.length),final=lanes[idx],center=idx*72+36,base=Math.ceil(laneRotation/360)*360;laneRotation=base+1440+(360-center);$("laneWheel").style.transform="rotate("+laneRotation+"deg)";$("laneWheel").querySelector(".laneHub").textContent="...";
-  setTimeout(function(){lane=final;$("laneName").textContent=final.name;$("laneHint").textContent=final.hint;$("laneWheel").querySelector(".laneHub").textContent=final.short;$("spinLane").disabled=false;$("spinBuild").disabled=false;build=[];task=null;go(3)},1850)
+  if(!hero)return;
+  $("spinLane").disabled=true;
+  const idx=Math.floor(Math.random()*lanes.length),final=lanes[idx],wheel=$("laneWheel");
+  wheel.querySelectorAll(".laneMarker").forEach(el=>el.classList.remove("selected"));
+  wheel.querySelector(".laneHub span").textContent="...";
+  wheel.querySelector(".laneHub small").textContent="крутится";
+  $("laneName").textContent="Крутим...";
+  $("laneHint").textContent="Стрелка сверху остановится точно по центру выпавшего сектора.";
+
+  const stopAngle=(360-idx*72)%360;
+  const base=Math.ceil(laneRotation/360)*360;
+  laneRotation=base+1440+stopAngle;
+
+  let finished=false;
+  const finish=function(){
+    if(finished)return;
+    finished=true;
+    lane=final;
+    wheel.querySelectorAll(".laneMarker")[idx].classList.add("selected");
+    wheel.querySelector(".laneHub span").textContent=final.short;
+    wheel.querySelector(".laneHub small").textContent="выпало";
+    $("laneName").textContent=final.name;
+    $("laneHint").textContent=final.hint;
+    $("spinLane").disabled=false;
+    $("spinBuild").disabled=false;
+    build=[];task=null;
+    go(3);
+  };
+
+  wheel.addEventListener("transitionend",finish,{once:true});
+  requestAnimationFrame(()=>{wheel.style.transform="rotate("+laneRotation+"deg)"});
+  setTimeout(finish,2500);
 }
 function randomBuild(){const b=pick(boots()),rest=shuffle(finals()).filter(x=>x["name-equipment"]!==b["name-equipment"]).slice(0,5);return[b].concat(rest)}
 function itemCard(i,rolling){return'<div class="itemSlot'+(rolling?" rolling":"")+'"><img src="'+itemImg(i)+'" alt="'+esc(iName(i))+'"><strong>'+esc(iName(i))+'</strong><small>'+Number(i["prize-gold"]).toLocaleString("ru-RU")+' золота</small></div>'}
@@ -115,7 +145,7 @@ function renderCatalog(){
 function resultText(){return["Моя рулетка MLBB:","Герой: "+hName(hero),"Линия: "+lane.name,"Сборка: "+build.map(iName).join(" → "),"Задание: "+task].join("\n")}
 async function copyResult(){const text=resultText();try{await navigator.clipboard.writeText(text);$("copyResult").textContent="✅ Скопировано";setTimeout(()=>$("copyResult").textContent="📋 Скопировать результат",1200)}catch(e){prompt("Скопируй результат:",text)}}
 function reset(){
-  stage=1;hero=null;lane=null;build=[];task=null;laneRotation=0;$("heroCenterPhoto").innerHTML="<span>?</span>";$("heroName").textContent="Кто выпадет?";$("heroOriginal").textContent="Нажми кнопку ниже";$("chosenHeroMini").textContent="Сначала выбери героя";$("laneName").textContent="—";$("laneHint").textContent="Мид — центральная линия, где обычно играют маги.";$("laneWheel").style.transform="rotate(0deg)";$("laneWheel").querySelector(".laneHub").textContent="?";$("buildSlots").innerHTML='<div class="itemSlot empty">?</div>'.repeat(6);$("buildPrice").textContent="—";$("taskText").textContent="Сначала собери героя, линию и сборку.";$("taskSub").textContent="Все задания написаны по-русски и рассчитаны на одну катку.";$("finalCard").classList.add("hidden");$("spinLane").disabled=true;$("spinBuild").disabled=true;$("spinTask").disabled=true;renderOrbit();updateProgress();$("heroSection").scrollIntoView({behavior:"smooth",block:"start"})
+  stage=1;hero=null;lane=null;build=[];task=null;laneRotation=0;$("heroCenterPhoto").innerHTML="<span>?</span>";$("heroName").textContent="Кто выпадет?";$("heroOriginal").textContent="Нажми кнопку ниже";$("chosenHeroMini").textContent="Сначала выбери героя";$("laneName").textContent="—";$("laneHint").textContent="Стрелка сверху точно показывает выпавший сектор.";$("laneWheel").style.transform="rotate(0deg)";$("laneWheel").querySelector(".laneHub span").textContent="?";$("laneWheel").querySelector(".laneHub small").textContent="линия";$("laneWheel").querySelectorAll(".laneMarker").forEach(el=>el.classList.remove("selected"));$("buildSlots").innerHTML='<div class="itemSlot empty">?</div>'.repeat(6);$("buildPrice").textContent="—";$("taskText").textContent="Сначала собери героя, линию и сборку.";$("taskSub").textContent="Все задания написаны по-русски и рассчитаны на одну катку.";$("finalCard").classList.add("hidden");$("spinLane").disabled=true;$("spinBuild").disabled=true;$("spinTask").disabled=true;renderOrbit();updateProgress();$("heroSection").scrollIntoView({behavior:"smooth",block:"start"})
 }
 async function load(){
   try{const r=await Promise.all([fetch("./data/heroes.json"),fetch("./data/items.json")]);heroes=await r[0].json();items=await r[1].json();$("heroCount").textContent=heroes.length;$("itemCount").textContent=items.length;renderOrbit();renderTabs();renderCatalog();showHistory()}
