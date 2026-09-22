@@ -129,82 +129,99 @@ function randomIndex(length){
 }
 function pick(arr){return arr[randomIndex(arr.length)]}
 
-function figure(x,y,scale,flip,pose){
-  const f=flip?-1:1;
-  const headY=y-54*scale;
-  const bodyEndY=y+12*scale;
-  let arm1=[x,y-24*scale,x+30*f*scale,y-2*scale];
-  let arm2=[x,y-18*scale,x-25*f*scale,y+2*scale];
-  let leg1=[x,bodyEndY,x+27*f*scale,y+55*scale];
-  let leg2=[x,bodyEndY,x-24*f*scale,y+51*scale];
-  if(pose==="sit"){leg1=[x,bodyEndY,x+42*f*scale,y+25*scale];leg2=[x,bodyEndY,x+14*f*scale,y+55*scale]}
-  if(pose==="kneel"){leg1=[x,bodyEndY,x+28*f*scale,y+30*scale];leg2=[x+28*f*scale,y+30*scale,x+4*f*scale,y+50*scale]}
-  if(pose==="lie"){leg1=[x,bodyEndY,x+52*f*scale,y+18*scale];leg2=[x,bodyEndY,x+44*f*scale,y+38*scale];arm1=[x,y-22*scale,x+34*f*scale,y-30*scale]}
-  return '<g stroke="currentColor" stroke-width="'+(10*scale)+'" stroke-linecap="round" fill="none">'+
-    '<circle cx="'+x+'" cy="'+headY+'" r="'+(14*scale)+'" fill="currentColor" stroke="none"/>'+
-    '<path d="M '+x+' '+(y-38*scale)+' L '+x+' '+bodyEndY+'"/>'+
-    '<path d="M '+arm1[0]+' '+arm1[1]+' L '+arm1[2]+' '+arm1[3]+'"/>'+
-    '<path d="M '+arm2[0]+' '+arm2[1]+' L '+arm2[2]+' '+arm2[3]+'"/>'+
-    '<path d="M '+leg1[0]+' '+leg1[1]+' L '+leg1[2]+' '+leg1[3]+'"/>'+
-    '<path d="M '+leg2[0]+' '+leg2[1]+' L '+leg2[2]+' '+leg2[3]+'"/>'+
-  '</g>';
-}
-function silhouette(scene,color){
-  const isSide=/side|curl|lie|prone|cross/i.test(scene);
-  const isSeat=/seat|recline|corner/i.test(scene);
-  const isKneel=/kneel|pillow/i.test(scene);
-  const poseA=isSide?"lie":isSeat?"sit":isKneel?"kneel":"stand";
-  const poseB=isSide?"lie":isSeat?"kneel":/edge|lean|support/i.test(scene)?"stand":isKneel?"kneel":"stand";
-  const aX=isSide?132:145, bX=isSide?230:225;
-  const aY=isSide?160:170, bY=isSide?183:170;
-  return '<svg viewBox="0 0 360 280" role="img" aria-label="Нейтральная схематичная иллюстрация двух взрослых фигур">'+
-    '<rect x="28" y="224" width="304" height="8" rx="4" fill="rgba(255,255,255,.13)"/>'+
-    '<g style="color:'+color+'">'+figure(aX,aY,1,false,poseA)+'</g>'+
-    '<g style="color:#f1e8f7">'+figure(bX,bY,.94,true,poseB)+'</g>'+
-    '<circle cx="180" cy="128" r="92" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="1"/>'+
-  '</svg>';
-}
-const referenceAssets = {
-  map: {
-    image: "https://upload.wikimedia.org/wikipedia/commons/f/fd/Sex_positions_diagram.png",
-    page: "https://commons.wikimedia.org/wiki/File:Sex_positions_diagram.png",
-    label: "Wikimedia Commons · CC0"
-  },
-  sitting: {
-    image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/56/Sex_position_-_sitting_1.svg/500px-Sex_position_-_sitting_1.svg.png",
-    page: "https://commons.wikimedia.org/wiki/File:Sex_position_-_sitting_1.svg",
-    label: "Wikimedia Commons · CC0"
-  }
+const mannequinPoses = {
+  stand:{head:[0,-66],shoulder:[0,-39],hip:[0,8],elbows:[[22,-12],[-20,-8]],hands:[[28,18],[-28,18]],knees:[[14,43],[-12,43]],feet:[[18,78],[-18,78]]},
+  sit:{head:[0,-66],shoulder:[0,-39],hip:[0,8],elbows:[[23,-10],[-16,-8]],hands:[[32,13],[18,18]],knees:[[43,16],[36,29]],feet:[[43,62],[28,64]]},
+  kneel:{head:[0,-66],shoulder:[0,-39],hip:[0,8],elbows:[[22,-8],[-18,-6]],hands:[[30,18],[20,18]],knees:[[27,40],[12,45]],feet:[[5,57],[-4,58]]},
+  allFours:{head:[-54,-25],shoulder:[-32,-10],hip:[25,0],elbows:[[-36,22],[-18,22]],hands:[[-38,55],[-13,55]],knees:[[38,35],[24,38]],feet:[[56,55],[42,56]]},
+  lie:{head:[-62,-10],shoulder:[-37,-4],hip:[15,2],elbows:[[-18,-25],[-10,16]],hands:[[12,-25],[18,18]],knees:[[50,8],[46,23]],feet:[[78,7],[73,29]]},
+  recline:{head:[-42,-58],shoulder:[-28,-36],hip:[2,8],elbows:[[-8,-13],[-22,-5]],hands:[[17,5],[-5,13]],knees:[[43,25],[38,38]],feet:[[62,58],[52,62]]},
+  curl:{head:[-58,-18],shoulder:[-35,-8],hip:[12,3],elbows:[[-20,-27],[-10,13]],hands:[[2,-18],[6,20]],knees:[[42,-8],[46,15]],feet:[[62,13],[62,30]]}
 };
 
-function referenceMode(scene){
-  if(/seat|recline|corner/i.test(scene)) return "sitting";
-  if(/side|curl|lie|prone|cross/i.test(scene)) return "side";
-  if(/face/i.test(scene)) return "front";
-  if(/edge|lean|support|kneel|pillow|stand/i.test(scene)) return "back";
-  return null;
+function mannequin(x,y,scale,rotation,pose,flip,color,label){
+  const p=mannequinPoses[pose]||mannequinPoses.stand;
+  const sx=flip?-scale:scale;
+  const limb=(a,b,w=13)=>'<path d="M '+a[0]+' '+a[1]+' L '+b[0]+' '+b[1]+'" stroke="currentColor" stroke-width="'+w+'" stroke-linecap="round"/>';
+  const joint=(pt,r=5)=>'<circle cx="'+pt[0]+'" cy="'+pt[1]+'" r="'+r+'" fill="currentColor"/>';
+  const body=
+    '<g transform="translate('+x+' '+y+') rotate('+rotation+') scale('+sx+' '+scale+')" style="color:'+color+'">'+
+      limb(p.shoulder,p.hip,27)+
+      limb(p.shoulder,p.elbows[0])+limb(p.elbows[0],p.hands[0],11)+
+      limb(p.shoulder,p.elbows[1])+limb(p.elbows[1],p.hands[1],11)+
+      limb(p.hip,p.knees[0],15)+limb(p.knees[0],p.feet[0],13)+
+      limb(p.hip,p.knees[1],15)+limb(p.knees[1],p.feet[1],13)+
+      '<circle cx="'+p.head[0]+'" cy="'+p.head[1]+'" r="17" fill="currentColor"/>'+
+      joint(p.shoulder,6)+joint(p.hip,7)+joint(p.knees[0],5)+joint(p.knees[1],5)+
+    '</g>';
+  const lx=x+(flip?28:-28), ly=y-82*scale;
+  return body+
+    '<g transform="translate('+lx+' '+ly+')"><circle r="13" fill="#0f0a17" stroke="'+color+'" stroke-width="2"/><text x="0" y="5" text-anchor="middle" font-size="13" font-weight="900" fill="#fff">'+label+'</text></g>';
 }
 
-function referenceIllustration(scene,color){
-  const mode=referenceMode(scene);
-  if(!mode) return silhouette(scene,color);
+function roomObject(kind){
+  if(kind==="bed") return '<g opacity=".9"><rect x="28" y="214" width="304" height="28" rx="10" fill="#31233e"/><rect x="38" y="202" width="285" height="15" rx="8" fill="#62506f"/><rect x="42" y="184" width="74" height="18" rx="9" fill="#806b8f"/></g>';
+  if(kind==="sofa") return '<g opacity=".9"><rect x="50" y="176" width="260" height="58" rx="18" fill="#3a2947"/><rect x="57" y="151" width="246" height="42" rx="18" fill="#584164"/><rect x="44" y="180" width="22" height="54" rx="10" fill="#6b5276"/><rect x="294" y="180" width="22" height="54" rx="10" fill="#6b5276"/></g>';
+  if(kind==="wall") return '<g opacity=".8"><rect x="42" y="28" width="10" height="207" rx="5" fill="#75657f"/><rect x="42" y="225" width="278" height="9" rx="4" fill="#45344f"/></g>';
+  if(kind==="support") return '<g opacity=".9"><rect x="48" y="177" width="105" height="53" rx="12" fill="#4a3856"/><rect x="48" y="169" width="105" height="14" rx="7" fill="#756082"/><rect x="48" y="226" width="105" height="7" rx="3" fill="#2d2035"/></g>';
+  return '<rect x="28" y="225" width="304" height="9" rx="4" fill="#44344f"/>';
+}
 
-  if(mode==="sitting"){
-    const asset=referenceAssets.sitting;
-    return '<div class="reference-wrap">'+
-      '<img class="reference-img" src="'+asset.image+'" alt="Схематичное расположение двух взрослых людей в сидячем положении">'+
-      '<div class="reference-note">Схема показывает только расположение тел.</div>'+
-      '<a class="reference-credit" href="'+asset.page+'" target="_blank" rel="noopener noreferrer">'+asset.label+'</a>'+
-    '</div>';
-  }
+const sceneLayouts = {
+  face:{env:"bed",a:[132,164,1,0,"lie",true],b:[228,174,.96,0,"lie",false],caption:"Оба лежат лицом друг к другу"},
+  side:{env:"bed",a:[132,158,.94,0,"lie",true],b:[228,182,.94,0,"lie",false],caption:"Оба на боку, головы направлены друг к другу"},
+  sideBack:{env:"bed",a:[168,155,.93,0,"lie",false],b:[190,184,.93,0,"lie",false],caption:"Оба на боку в одном направлении"},
+  seat:{env:"sofa",a:[132,153,.82,0,"sit",false],b:[225,170,.82,0,"sit",true],caption:"Оба сидят лицом друг к другу"},
+  edge:{env:"bed",a:[137,160,.88,0,"recline",false],b:[246,145,.9,0,"stand",true],caption:"A у края кровати, B рядом стоя"},
+  recline:{env:"bed",a:[130,163,.9,0,"recline",false],b:[232,169,.86,0,"kneel",true],caption:"A полусидя с опорой, B рядом"},
+  stand:{env:"wall",a:[145,143,.9,0,"stand",false],b:[220,147,.88,0,"stand",true],caption:"Оба стоят, рядом есть устойчивая опора"},
+  lean:{env:"support",a:[157,164,.9,0,"allFours",false],b:[250,145,.88,0,"stand",true],caption:"A опирается на устойчивую поверхность, B сзади"},
+  kneel:{env:"bed",a:[140,164,.88,0,"kneel",false],b:[220,164,.88,0,"kneel",true],caption:"Оба на коленях лицом друг к другу"},
+  edge2:{env:"bed",a:[136,166,.9,0,"lie",false],b:[246,146,.88,0,"stand",true],caption:"A лежит поперёк края, B рядом"},
+  seatHug:{env:"sofa",a:[151,154,.84,0,"sit",false],b:[207,158,.78,0,"sit",true],caption:"Сидя очень близко лицом друг к другу"},
+  support:{env:"support",a:[145,159,.85,0,"recline",false],b:[235,165,.82,0,"kneel",true],caption:"A использует низкую опору, B рядом"},
 
-  const asset=referenceAssets.map;
-  const label=mode==="front"?"лицом к лицу":mode==="side"?"на боку":"сзади / с опорой";
-  return '<div class="reference-wrap">'+
-    '<div class="reference-map ref-'+mode+'" role="img" aria-label="Базовая схема расположения тел: '+label+'"></div>'+
-    '<div class="reference-note">Ближайшая базовая схема: '+label+'. Она показывает только ориентацию тел, не детали практики.</div>'+
-    '<a class="reference-credit" href="'+asset.page+'" target="_blank" rel="noopener noreferrer">'+asset.label+'</a>'+
-  '</div>';
+  oralSeat:{env:"sofa",a:[135,152,.84,0,"sit",false],b:[225,174,.78,0,"kneel",true],caption:"A сидит, B располагается ниже перед ним"},
+  oralEdge:{env:"bed",a:[137,161,.88,0,"recline",false],b:[238,177,.76,0,"kneel",true],caption:"A у края кровати, B ниже рядом"},
+  oralLie:{env:"bed",a:[142,169,.91,0,"lie",false],b:[238,176,.75,0,"kneel",true],caption:"A лежит, B располагается рядом у края"},
+  oralSide:{env:"bed",a:[145,158,.9,0,"lie",false],b:[220,184,.84,0,"lie",true],caption:"Оба лежат на боку, повернувшись друг к другу"},
+  sixtyNineSide:{env:"bed",a:[161,153,.86,0,"lie",false],b:[198,187,.86,180,"lie",false],caption:"Оба лежат параллельно в противоположных направлениях"},
+  sixtyNine:{env:"bed",a:[178,172,.84,0,"lie",false],b:[182,142,.8,180,"lie",false],caption:"Один лежит над другим в противоположном направлении"},
+  oralRecline:{env:"bed",a:[132,160,.9,0,"recline",false],b:[235,174,.77,0,"kneel",true],caption:"A полусидит на подушках, B рядом ниже"},
+  oralStand:{env:"wall",a:[145,143,.9,0,"stand",false],b:[220,180,.75,0,"kneel",true],caption:"A стоит у опоры, B располагается ниже"},
+  oralKneel:{env:"bed",a:[143,165,.83,0,"kneel",false],b:[218,170,.83,0,"kneel",true],caption:"Оба на коленях лицом друг к другу"},
+  oralCorner:{env:"sofa",a:[128,150,.83,0,"sit",false],b:[220,176,.76,0,"kneel",true],caption:"A сидит в углу дивана, B рядом ниже"},
+  oralCross:{env:"bed",a:[141,166,.9,0,"lie",false],b:[240,174,.75,0,"kneel",true],caption:"A лежит ближе к краю, B располагается сбоку"},
+  oralFloor:{env:"sofa",a:[126,151,.83,0,"sit",false],b:[220,181,.73,0,"kneel",true],caption:"A сидит на диване, B на мягкой поверхности рядом"},
+
+  analSide:{env:"bed",a:[166,154,.92,0,"lie",false],b:[194,184,.92,0,"lie",false],caption:"Оба на боку, B располагается сзади"},
+  analFace:{env:"bed",a:[132,164,.93,0,"lie",true],b:[228,177,.93,0,"lie",false],caption:"Оба лежат лицом друг к другу"},
+  analRecline:{env:"bed",a:[132,160,.9,0,"recline",false],b:[220,162,.82,0,"sit",true],caption:"A полусидит с опорой, B близко лицом к нему"},
+  analPillow:{env:"bed",a:[154,164,.88,0,"allFours",false],b:[242,171,.8,0,"kneel",true],caption:"A с мягкой опорой впереди, B располагается сзади"},
+  analEdge:{env:"bed",a:[140,162,.87,0,"recline",false],b:[247,146,.88,0,"stand",true],caption:"A у края кровати, B рядом"},
+  analKneel:{env:"bed",a:[154,163,.88,0,"allFours",false],b:[242,170,.81,0,"kneel",true],caption:"A на коленях с опорой, B сзади"},
+  analProne:{env:"bed",a:[151,171,.9,0,"lie",false],b:[237,165,.79,0,"kneel",true],caption:"A лежит на животе, B располагается сзади"},
+  analStand:{env:"wall",a:[157,144,.88,0,"stand",false],b:[211,147,.88,0,"stand",false],caption:"Оба стоят в одном направлении у опоры"},
+  analLean:{env:"sofa",a:[154,161,.87,0,"allFours",false],b:[246,145,.88,0,"stand",true],caption:"A опирается на диван, B сзади"},
+  analCurl:{env:"bed",a:[164,157,.9,0,"curl",false],b:[196,184,.88,0,"curl",false],caption:"Оба на боку с согнутыми ногами"},
+  analSeat:{env:"sofa",a:[148,153,.84,0,"sit",false],b:[203,158,.8,0,"sit",false],caption:"Оба сидят близко в одном направлении с опорой"},
+  analSupport:{env:"support",a:[148,160,.84,0,"recline",false],b:[235,168,.8,0,"kneel",true],caption:"A использует низкую устойчивую опору, B рядом"}
+};
+
+function mannequinIllustration(scene,color){
+  const s=sceneLayouts[scene]||sceneLayouts.face;
+  const [ax,ay,as,ar,ap,af]=s.a;
+  const [bx,by,bs,br,bp,bf]=s.b;
+  return '<svg viewBox="0 0 360 280" role="img" aria-label="'+s.caption+'">'+
+    '<defs><filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-opacity=".25"/></filter></defs>'+
+    '<rect x="8" y="8" width="344" height="264" rx="24" fill="#17101f"/>'+
+    roomObject(s.env)+
+    '<g filter="url(#softShadow)">'+
+      mannequin(ax,ay,as,ar,ap,af,color,"A")+
+      mannequin(bx,by,bs,br,bp,bf,"#f0e8f6","B")+
+    '</g>'+
+    '<g transform="translate(180 255)"><rect x="-150" y="-15" width="300" height="24" rx="12" fill="rgba(0,0,0,.52)"/><text x="0" y="2" text-anchor="middle" font-size="11.5" font-weight="700" fill="#eee6f4">'+s.caption+'</text></g>'+
+  '</svg>';
 }
 
 function categoryTip(category){
@@ -223,7 +240,7 @@ function render(category,pose){
   difficultyTag.textContent="Сложность: "+pose.difficulty;
   settingTag.textContent="Где: "+pose.setting;
   poseTip.textContent=categoryTip(category)+" "+pose.note;
-  poseIllustration.innerHTML=referenceIllustration(pose.scene,meta.color);
+  poseIllustration.innerHTML=mannequinIllustration(pose.scene,meta.color);
   resultCard.classList.remove("hidden");
   addHistory(meta.badge,pose.title);
   setTimeout(()=>resultCard.scrollIntoView({behavior:"smooth",block:"nearest"}),70);
