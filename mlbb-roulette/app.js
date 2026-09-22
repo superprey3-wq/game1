@@ -51,7 +51,29 @@ const laneTasks={
 "Роум":["Выбери союзника VIP и трижды спаси его за матч.","Первые 5 минут не забирай ни одного крипа у союзников.","Организуй минимум две успешные засады из кустов."],
 "Мид":["После зачистки двух волн подряд обязательно сделай ротацию на боковую линию.","Помоги и линии опыта, и линии золота хотя бы по одному разу.","До 8-й минуты сделай минимум два ассиста вне мида."]
 };
-let heroes=[],items=[],stage=1,hero=null,lane=null,build=[],task=null,recent=[],laneRotation=0,itemFilter="Все";
+
+const BUILD_POOLS={
+  physicalBurst:["Blade of Despair","Blade of the Heptaseas","Hunter Strike","Malefic Roar","Sky Piercer","Endless Battle","Sea Halberd","Rose Gold Meteor","Great Dragon Spear","War Axe"],
+  magicBurst:["Genius Wand","Divine Glaive","Holy Crystal","Lightning Truncheon","Blood Wings","Wishing Lantern","Glowing Wand","Winter Crown","Concentrated Energy","Starlium Scythe"],
+  marksman:["Corrosion Scythe","Demon Hunter Sword","Golden Staff","Wind of Nature","Windtalker","Berserker's Fury","Great Dragon Spear","Haas's Claws","Malefic Gun","Malefic Roar","Sea Halberd","Rose Gold Meteor"],
+  magicDps:["Feather of Heaven","Glowing Wand","Genius Wand","Concentrated Energy","Holy Crystal","Divine Glaive","Blood Wings","Winter Crown","Wishing Lantern","Clock of Destiny","Starlium Scythe"],
+  physicalBruiser:["War Axe","Queen's Wings","Thunder Belt","Endless Battle","Brute Force Breastplate","Oracle","Immortality","Sea Halberd","Rose Gold Meteor","Hunter Strike","Malefic Roar"],
+  magicBruiser:["Concentrated Energy","Glowing Wand","Clock of Destiny","Blood Wings","Winter Crown","Oracle","Brute Force Breastplate","Immortality","Genius Wand","Divine Glaive"],
+  tankRoam:["Dominance Ice","Antique Cuirass","Athena's Shield","Radiant Armor","Guardian Helmet","Immortality","Oracle","Blade Armor","Cursed Helmet","Thunder Belt","Brute Force Breastplate","Queen's Wings"],
+  supportRoam:["Flask of the Oasis","Fleeting Time","Dominance Ice","Oracle","Athena's Shield","Radiant Armor","Immortality","Guardian Helmet","Brute Force Breastplate","Thunder Belt","Cursed Helmet"]
+};
+const BOOT_POOLS={
+  physicalBurst:["Rapid Boots","Magic Boots","Tough Boots","Warrior Boots"],
+  magicBurst:["Arcane Boots","Magic Boots","Tough Boots"],
+  marksman:["Swift Boots","Tough Boots","Warrior Boots"],
+  magicDps:["Arcane Boots","Magic Boots","Swift Boots"],
+  physicalBruiser:["Tough Boots","Warrior Boots","Magic Boots"],
+  magicBruiser:["Tough Boots","Magic Boots","Arcane Boots"],
+  tankRoam:["Tough Boots","Warrior Boots","Rapid Boots"],
+  supportRoam:["Tough Boots","Rapid Boots","Demon Boots","Magic Boots"]
+};
+
+let heroes=[],items=[],stage=1,hero=null,lane=null,build=[],buildProfile=null,task=null,recent=[],laneRotation=0,itemFilter="Все";
 let history=JSON.parse(localStorage.getItem("mlbbVisualHistory")||"[]");
 
 function hName(h){return RU_HERO[h.name_hero]||h.name_hero}
@@ -62,6 +84,42 @@ function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(m){retur
 function category(i){const id=Number(i.id_equip);if(id<=34)return"Атака";if(id<=65)return"Магия";if(id<=91)return"Защита";if(id<=99)return"Передвижение";return"Особое"}
 function boots(){return items.filter(i=>Number(i.id_equip)>=92&&Number(i.id_equip)<=98)}
 function finals(){const bad=new Set(["Power Potion","Magic Potion","Rock Potion"]);const map=new Map();items.forEach(function(i){const id=Number(i.id_equip),price=Number(i["prize-gold"]);if(id<=91&&price>=1500&&!bad.has(i["name-equipment"]))map.set(i["name-equipment"],i)});return[...map.values()]}
+function itemByName(name){return items.find(i=>i["name-equipment"]===name)}
+function namedItems(names){return names.map(itemByName).filter(Boolean)}
+function heroRoles(){return (hero&&Array.isArray(hero.role)?hero.role:[]).map(r=>String(r).toLowerCase())}
+function getBuildProfile(){
+  const roles=heroRoles(),isMage=roles.includes("mage"),isMarksman=roles.includes("marksman"),isSupport=roles.includes("support"),isTank=roles.includes("tank"),isAssassin=roles.includes("assassin");
+  const name=hName(hero);
+  if(!lane)return{key:"physicalBruiser",name:"Универсальная",reason:"Сначала должна выпасть линия."};
+
+  if(lane.name==="Роум"){
+    if(isSupport||isMage&&!isAssassin)return{key:"supportRoam",name:"Роум-поддержка",reason:name+" идёт в роум — собираем пользу команде, выживаемость и частые навыки."};
+    return{key:"tankRoam",name:"Защитный роум",reason:name+" идёт в роум — даже если это убийца или стрелок, превращаем его в максимально живучего роумера."};
+  }
+  if(lane.name==="Лес"){
+    if(isMage)return{key:"magicBurst",name:"Маг-убийца в лесу",reason:name+" идёт в лес — делаем агрессивную магическую сборку под быстрые убийства."};
+    if(isMarksman&&!isTank)return{key:"marksman",name:"Лесной керри",reason:name+" идёт в лес — упор на быстрый урон и добивание целей."};
+    return{key:"physicalBurst",name:"Убийца-лесник",reason:(isTank?name+" — танк, но выпал лес: собираем его агрессивно, почти как убийцу.":name+" идёт в лес — сборка на взрывной урон, пробивание и быстрые ганги.")};
+  }
+  if(lane.name==="Линия золота"){
+    if(isMage)return{key:"magicDps",name:"Магический керри",reason:name+" идёт на линию золота — собираем постоянный магический урон для поздней игры."};
+    return{key:"marksman",name:"Керри линии золота",reason:name+" идёт на линию золота — сборка под скорость атаки, крит или постоянный физический урон."};
+  }
+  if(lane.name==="Мид"){
+    if(isMage||isSupport)return{key:"magicBurst",name:"Маг мида",reason:name+" идёт на мид — сборка под прокаст, магическое пробивание и сильные ротации."};
+    return{key:"physicalBurst",name:"Физический убийца мида",reason:name+" идёт на мид без роли мага — собираем взрывной физический урон и пробивание."};
+  }
+  if(lane.name==="Линия опыта"){
+    if(isMage)return{key:"magicBruiser",name:"Маг-боец EXP",reason:name+" идёт на линию опыта — магический урон сочетаем с выживаемостью для долгих дуэлей."};
+    return{key:"physicalBruiser",name:"Боец EXP",reason:name+" идёт на линию опыта — собираем урон, восстановление и защиту для затяжных драк."};
+  }
+  return{key:"physicalBruiser",name:"Универсальная",reason:"Сборка адаптирована под героя и линию."};
+}
+function renderBuildContext(){
+  buildProfile=getBuildProfile();
+  if($("buildStyle"))$("buildStyle").textContent=buildProfile.name;
+  if($("buildReason"))$("buildReason").textContent=buildProfile.reason;
+}
 
 function updateProgress(){
   document.querySelectorAll(".progressStep").forEach(function(el){const n=Number(el.dataset.progress);el.classList.toggle("active",n===stage);el.classList.toggle("done",n<stage);el.classList.toggle("locked",n>stage)});
@@ -109,7 +167,8 @@ function spinLane(){
     $("laneHint").textContent=final.hint;
     $("spinLane").disabled=false;
     $("spinBuild").disabled=false;
-    build=[];task=null;
+    build=[];buildProfile=getBuildProfile();task=null;
+    renderBuildContext();
     setTimeout(()=>go(3),650);
   };
 
@@ -117,9 +176,21 @@ function spinLane(){
   requestAnimationFrame(()=>{spinner.style.transform="rotate("+laneRotation+"deg)"});
   setTimeout(finish,2450);
 }
-function randomBuild(){const b=pick(boots()),rest=shuffle(finals()).filter(x=>x["name-equipment"]!==b["name-equipment"]).slice(0,5);return[b].concat(rest)}
+function randomBuild(){
+  buildProfile=getBuildProfile();
+  const bootPool=namedItems(BOOT_POOLS[buildProfile.key]||BOOT_POOLS.physicalBruiser);
+  const itemPool=shuffle(namedItems(BUILD_POOLS[buildProfile.key]||BUILD_POOLS.physicalBruiser));
+  const boot=pick(bootPool.length?bootPool:boots());
+  let chosen=itemPool.filter(i=>i["name-equipment"]!==boot["name-equipment"]).slice(0,5);
+  if(chosen.length<5){
+    const used=new Set(chosen.map(i=>i["name-equipment"]));
+    const fallback=shuffle(finals()).filter(i=>!used.has(i["name-equipment"])&&i["name-equipment"]!==boot["name-equipment"]);
+    chosen=chosen.concat(fallback.slice(0,5-chosen.length));
+  }
+  return[boot].concat(chosen);
+}
 function itemCard(i,rolling){return'<div class="itemSlot'+(rolling?" rolling":"")+'"><img src="'+itemImg(i)+'" alt="'+esc(iName(i))+'"><strong>'+esc(iName(i))+'</strong><small>'+Number(i["prize-gold"]).toLocaleString("ru-RU")+' золота</small></div>'}
-function showBuild(arr,rolling){$("buildSlots").innerHTML=arr.map(i=>itemCard(i,rolling)).join("");$("buildPrice").textContent=arr.reduce((s,x)=>s+Number(x["prize-gold"]||0),0).toLocaleString("ru-RU")+" золота"}
+function showBuild(arr,rolling){renderBuildContext();$("buildSlots").innerHTML=arr.map(i=>itemCard(i,rolling)).join("");$("buildPrice").textContent=arr.reduce((s,x)=>s+Number(x["prize-gold"]||0),0).toLocaleString("ru-RU")+" золота"}
 function spinBuild(){
   if(!lane)return;$("spinBuild").disabled=true;let t=0;const timer=setInterval(function(){showBuild(randomBuild(),true);if(++t>=12){clearInterval(timer);build=randomBuild();showBuild(build,false);$("spinBuild").disabled=false;$("spinTask").disabled=false;task=null;go(4)}},120)
 }
@@ -129,7 +200,7 @@ function spinTask(){
   const timer=setInterval(function(){$("taskText").textContent=pick(pool);if(++t>=15){clearInterval(timer);machine.classList.remove("rolling");task=final;$("taskText").textContent=final;$("taskSub").textContent="Задание действует на всю эту катку.";$("spinTask").disabled=false;stage=5;updateProgress();showFinal();saveHistory()}},90)
 }
 function showFinal(){
-  $("finalCard").classList.remove("hidden");$("finalSummary").innerHTML='<div class="finalSummaryGrid"><div><small>ГЕРОЙ</small><strong>'+esc(hName(hero))+'</strong></div><div><small>ЛИНИЯ</small><strong>'+esc(lane.name)+'</strong></div><div><small>СБОРКА</small><strong>'+build.map(i=>esc(iName(i))).join(" · ")+'</strong></div><div><small>ЗАДАНИЕ</small><strong>'+esc(task)+'</strong></div></div>'
+  $("finalCard").classList.remove("hidden");$("finalSummary").innerHTML='<div class="finalSummaryGrid"><div><small>ГЕРОЙ</small><strong>'+esc(hName(hero))+'</strong></div><div><small>ЛИНИЯ</small><strong>'+esc(lane.name)+'</strong></div><div><small>СБОРКА · '+esc(buildProfile?buildProfile.name:"")+'</small><strong>'+build.map(i=>esc(iName(i))).join(" · ")+'</strong></div><div><small>ЗАДАНИЕ</small><strong>'+esc(task)+'</strong></div></div>'
 }
 function saveHistory(){
   const e={hero:hName(hero),lane:lane.name,build:build.map(iName).join(", "),task:task,time:new Date().toLocaleString("ru-RU",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})};history=[e].concat(history).slice(0,10);localStorage.setItem("mlbbVisualHistory",JSON.stringify(history));showHistory()
@@ -149,7 +220,7 @@ function renderCatalog(){
 function resultText(){return["Моя рулетка MLBB:","Герой: "+hName(hero),"Линия: "+lane.name,"Сборка: "+build.map(iName).join(" → "),"Задание: "+task].join("\n")}
 async function copyResult(){const text=resultText();try{await navigator.clipboard.writeText(text);$("copyResult").textContent="✅ Скопировано";setTimeout(()=>$("copyResult").textContent="📋 Скопировать результат",1200)}catch(e){prompt("Скопируй результат:",text)}}
 function reset(){
-  stage=1;hero=null;lane=null;build=[];task=null;laneRotation=0;$("heroCenterPhoto").innerHTML="<span>?</span>";$("heroName").textContent="Кто выпадет?";$("heroOriginal").textContent="Нажми кнопку ниже";$("chosenHeroMini").textContent="Сначала выбери героя";$("laneName").textContent="—";$("laneHint").textContent="Нажми «Крутить линию» — стрелка остановится точно на выбранном секторе.";$("laneSpinner").style.transition="none";$("laneSpinner").style.transform="rotate(0deg)";requestAnimationFrame(()=>requestAnimationFrame(()=>{$("laneSpinner").style.transition=""}));$("laneWheel").querySelector(".laneHub span").textContent="?";$("laneWheel").querySelector(".laneHub small").textContent="крути";$("laneWheel").querySelectorAll(".laneMarker").forEach(el=>el.classList.remove("selected"));$("buildSlots").innerHTML='<div class="itemSlot empty">?</div>'.repeat(6);$("buildPrice").textContent="—";$("taskText").textContent="Сначала собери героя, линию и сборку.";$("taskSub").textContent="Все задания написаны по-русски и рассчитаны на одну катку.";$("finalCard").classList.add("hidden");$("spinLane").disabled=true;$("spinBuild").disabled=true;$("spinTask").disabled=true;renderOrbit();updateProgress();$("heroSection").scrollIntoView({behavior:"smooth",block:"start"})
+  stage=1;hero=null;lane=null;build=[];buildProfile=null;task=null;laneRotation=0;$("heroCenterPhoto").innerHTML="<span>?</span>";$("heroName").textContent="Кто выпадет?";$("heroOriginal").textContent="Нажми кнопку ниже";$("chosenHeroMini").textContent="Сначала выбери героя";$("laneName").textContent="—";$("laneHint").textContent="Нажми «Крутить линию» — стрелка остановится точно на выбранном секторе.";$("laneSpinner").style.transition="none";$("laneSpinner").style.transform="rotate(0deg)";requestAnimationFrame(()=>requestAnimationFrame(()=>{$("laneSpinner").style.transition=""}));$("laneWheel").querySelector(".laneHub span").textContent="?";$("laneWheel").querySelector(".laneHub small").textContent="крути";$("laneWheel").querySelectorAll(".laneMarker").forEach(el=>el.classList.remove("selected"));$("buildSlots").innerHTML='<div class="itemSlot empty">?</div>'.repeat(6);$("buildPrice").textContent="—";if($("buildStyle"))$("buildStyle").textContent="Сначала выбери героя и линию";if($("buildReason"))$("buildReason").textContent="Например: танк в лесу станет агрессивным лесником, а убийца в роуме — защитным роумером.";$("taskText").textContent="Сначала собери героя, линию и сборку.";$("taskSub").textContent="Все задания написаны по-русски и рассчитаны на одну катку.";$("finalCard").classList.add("hidden");$("spinLane").disabled=true;$("spinBuild").disabled=true;$("spinTask").disabled=true;renderOrbit();updateProgress();$("heroSection").scrollIntoView({behavior:"smooth",block:"start"})
 }
 async function load(){
   try{const r=await Promise.all([fetch("./data/heroes.json"),fetch("./data/items.json")]);heroes=await r[0].json();items=await r[1].json();$("heroCount").textContent=heroes.length;$("itemCount").textContent=items.length;renderOrbit();renderTabs();renderCatalog();showHistory()}
