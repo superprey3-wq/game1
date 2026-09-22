@@ -148,6 +148,7 @@ const pools={
 };
 
 const wheel=document.getElementById("wheel");
+const wheelResult=document.getElementById("wheelResult");
 const spinBtn=document.getElementById("spinBtn");
 const resultCard=document.getElementById("resultCard");
 const categoryTitle=document.getElementById("categoryTitle");
@@ -314,13 +315,28 @@ function spin(){
   if(spinning)return;
   spinning=true;
   spinBtn.classList.add("spinning");
+  wheelResult.textContent="Крутим...";
+  wheelResult.classList.add("rolling");
+
   const idx=randomIndex(categories.length);
   const chosen=categories[idx];
-  const segment=120;
-  const center=idx*segment;
-  rotation+=1440+(360-center);
+
+  // Секторы заданы conic-gradient от -60°:
+  // обычный центр = 0°, оральный = 120°, анальный = 240°.
+  // Стрелка стоит на 0° (сверху), поэтому выбранный центр
+  // должен закончить вращение ровно под стрелкой.
+  const center=idx*120;
+  const target=(360-center)%360;
+  const current=((rotation%360)+360)%360;
+  const correction=(target-current+360)%360;
+  rotation+=1440+correction;
+
   wheel.style.transform="rotate("+rotation+"deg)";
+
   window.setTimeout(()=>{
+    wheelResult.textContent="Выпало: "+chosen.label;
+    wheelResult.classList.remove("rolling");
+    wheelResult.dataset.category=chosen.id;
     render(chosen.id,pick(pools[chosen.id]));
     spinning=false;
     spinBtn.classList.remove("spinning");
