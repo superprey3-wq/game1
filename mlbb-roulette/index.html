@@ -3,90 +3,136 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#090d19">
-<title>Рулетка MLBB</title>
+<meta name="theme-color" content="#070a12">
+<title>MLBB — Весёлая рулетка</title>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <main class="wrap">
-  <header class="heroHeader">
+  <header class="topbar">
     <div>
-      <p class="eyebrow">МОБАЙЛ ЛЕГЕНДС · ФАН-РУЛЕТКА</p>
-      <h1>Рулетка MLBB</h1>
-      <p class="subtitle">Сначала герой. Потом линия. Потом сборка. В конце — весёлое задание на катку.</p>
+      <p class="kicker">MOBILE LEGENDS: BANG BANG · ФАН-РУЛЕТКА</p>
+      <h1>Собери безумную катку</h1>
+      <p class="lead">Четыре шага: герой → линия → сборка → весёлое задание.</p>
     </div>
-    <button id="restart" class="ghost">↻ Начать заново</button>
+    <button id="restartAll" class="ghost">↻ Начать заново</button>
   </header>
 
-  <section class="steps" aria-label="Этапы рулетки">
-    <button class="step active" data-step="1"><span>1</span><b>Герой</b><small id="stepHero">Крутим первым</small></button>
-    <button class="step locked" data-step="2"><span>2</span><b>Линия</b><small id="stepLane">После героя</small></button>
-    <button class="step locked" data-step="3"><span>3</span><b>Сборка</b><small id="stepBuild">После линии</small></button>
-    <button class="step locked" data-step="4"><span>4</span><b>Задание</b><small id="stepTask">Финал</small></button>
-  </section>
+  <nav class="progress" aria-label="Этапы">
+    <a href="#heroSection" class="progressStep active" data-progress="1"><b>1</b><span>Герой</span></a>
+    <a href="#laneSection" class="progressStep locked" data-progress="2"><b>2</b><span>Линия</span></a>
+    <a href="#buildSection" class="progressStep locked" data-progress="3"><b>3</b><span>Сборка</span></a>
+    <a href="#taskSection" class="progressStep locked" data-progress="4"><b>4</b><span>Задание</span></a>
+  </nav>
 
-  <section class="roulette panel" id="roulette">
-    <div class="glow"></div>
-    <div class="wheelRing"></div>
-    <div class="rouletteContent">
-      <p id="rouletteLabel">ЭТАП 1 · ГЕРОЙ</p>
-      <h2 id="rouletteValue">Кто сегодня страдает?</h2>
-      <p id="rouletteHint">Нажми кнопку — выпадет случайный герой.</p>
-      <button id="roll" class="roll">🎰 Крутить героя</button>
+  <section class="stage panel activeStage" id="heroSection">
+    <div class="stageHead">
+      <div><span class="stageNumber">01</span><p>ПЕРВАЯ РУЛЕТКА</p><h2>Крутим героя</h2></div>
+      <div class="counter"><strong id="heroCount">133</strong><small>героя в рулетке</small></div>
+    </div>
+
+    <div class="heroWheelArea">
+      <div class="pointer">▼</div>
+      <div class="heroOrbit" id="heroOrbit"></div>
+      <div class="heroCenter">
+        <div class="heroCenterPhoto" id="heroCenterPhoto"><span>?</span></div>
+        <strong id="heroName">Кто выпадет?</strong>
+        <small id="heroOriginal">Нажми кнопку ниже</small>
+      </div>
+    </div>
+    <div class="actionRow">
+      <button id="spinHero" class="primary">🎰 Крутить героя</button>
+      <label class="check"><input type="checkbox" id="noRepeat" checked> не повторять недавних</label>
     </div>
   </section>
 
-  <section class="resultGrid">
-    <article class="result panel" id="heroCard">
-      <span class="number">01</span>
-      <small>ГЕРОЙ</small>
-      <strong id="heroResult">—</strong>
-      <p id="heroInfo">Сначала выбери героя.</p>
-    </article>
-
-    <article class="result panel lockedCard" id="laneCard">
-      <span class="number">02</span>
-      <small>ЛИНИЯ</small>
-      <strong id="laneResult">—</strong>
-      <p id="laneInfo">Откроется после героя.</p>
-    </article>
-
-    <article class="result panel lockedCard" id="buildCard">
-      <span class="number">03</span>
-      <small>СБОРКА</small>
-      <strong id="buildResult">—</strong>
-      <p id="buildItems">Откроется после линии.</p>
-    </article>
-
-    <article class="result panel lockedCard taskCard" id="taskCard">
-      <span class="number">04</span>
-      <small>ЗАДАНИЕ НА КАТКУ</small>
-      <strong id="taskResult">—</strong>
-      <p id="taskInfo">Откроется после сборки.</p>
-    </article>
-  </section>
-
-  <section class="panel options">
-    <div>
-      <h3>Настройки веселья</h3>
-      <p>Они влияют только на задания и повторения героев.</p>
+  <section class="stage panel lockedStage" id="laneSection">
+    <div class="stageHead">
+      <div><span class="stageNumber">02</span><p>ВТОРАЯ РУЛЕТКА</p><h2>Куда идёт герой?</h2></div>
+      <div class="chosenMini" id="chosenHeroMini">Сначала выбери героя</div>
     </div>
-    <label><input id="noRepeat" type="checkbox" checked> Не повторять последних героев</label>
-    <label><input id="crazy" type="checkbox"> Добавить безумные задания</label>
+
+    <div class="laneWheelArea">
+      <div class="pointer">▼</div>
+      <div class="laneWheel" id="laneWheel">
+        <div class="laneLabel l1">Линия опыта</div>
+        <div class="laneLabel l2">Лес</div>
+        <div class="laneLabel l3">Линия золота</div>
+        <div class="laneLabel l4">Роум</div>
+        <div class="laneLabel l5">Мид</div>
+        <div class="laneHub">?</div>
+      </div>
+    </div>
+    <div class="lineResult">
+      <small>ВЫПАЛА ЛИНИЯ</small>
+      <strong id="laneName">—</strong>
+      <span id="laneHint">Мид — центральная линия, где обычно играют маги.</span>
+    </div>
+    <button id="spinLane" class="primary" disabled>🗺️ Крутить линию</button>
   </section>
+
+  <section class="stage panel lockedStage" id="buildSection">
+    <div class="stageHead">
+      <div><span class="stageNumber">03</span><p>ТРЕТЬЯ РУЛЕТКА</p><h2>Случайная сборка</h2></div>
+      <div class="counter"><strong>6</strong><small>предметов в сборке</small></div>
+    </div>
+
+    <p class="stageText">В сборке всегда шесть полноценных слотов: одни ботинки и пять случайных законченных предметов. Ниже есть полный каталог всех 109 предметов из базы игры.</p>
+    <div class="buildSlots" id="buildSlots">
+      <div class="itemSlot empty">?</div><div class="itemSlot empty">?</div><div class="itemSlot empty">?</div>
+      <div class="itemSlot empty">?</div><div class="itemSlot empty">?</div><div class="itemSlot empty">?</div>
+    </div>
+    <div class="buildSummary"><span>Общая стоимость:</span><strong id="buildPrice">—</strong></div>
+    <button id="spinBuild" class="primary" disabled>🛠️ Крутить сборку</button>
+  </section>
+
+  <section class="stage panel lockedStage" id="taskSection">
+    <div class="stageHead">
+      <div><span class="stageNumber">04</span><p>ЧЕТВЁРТАЯ РУЛЕТКА</p><h2>Задание на эту катку</h2></div>
+      <label class="check"><input type="checkbox" id="crazyTasks"> добавить безумные</label>
+    </div>
+
+    <div class="taskMachine">
+      <small>ТВОЁ ЗАДАНИЕ</small>
+      <strong id="taskText">Сначала собери героя, линию и сборку.</strong>
+      <p id="taskSub">Все задания написаны по-русски и рассчитаны на одну катку.</p>
+    </div>
+    <button id="spinTask" class="primary" disabled>🎯 Крутить задание</button>
+
+    <div class="finalCard hidden" id="finalCard">
+      <h3>Готово. Вот твоя катка:</h3>
+      <div id="finalSummary"></div>
+      <div class="finalActions">
+        <button id="copyResult" class="ghost">📋 Скопировать результат</button>
+        <button id="newRound" class="primary small">↻ Новая рулетка</button>
+      </div>
+    </div>
+  </section>
+
+  <details class="catalog panel">
+    <summary>
+      <div><p>КАТАЛОГ</p><h2>Все предметы MLBB</h2></div>
+      <span><b id="itemCount">109</b> предметов ▾</span>
+    </summary>
+    <div class="catalogControls">
+      <input id="itemSearch" type="search" placeholder="Поиск предмета…">
+      <div class="tabs" id="itemTabs"></div>
+    </div>
+    <div class="itemCatalog" id="itemCatalog"></div>
+  </details>
 
   <section class="panel historyPanel">
-    <div class="sectionHead">
-      <div>
-        <h3>Последние катки</h3>
-        <p>Сохраняются только полностью собранные рулетки.</p>
-      </div>
+    <div class="stageHead">
+      <div><p>ИСТОРИЯ</p><h2>Последние рулетки</h2></div>
       <button id="clearHistory" class="ghost">Очистить</button>
     </div>
     <div id="history" class="history"></div>
   </section>
 
-  <footer>Неофициальный фан-проект по Mobile Legends: Bang Bang. Рулетка создана ради весёлых матчей, а не как мета-гайд.</footer>
+  <footer>
+    Неофициальный фан-проект, не связан с MOONTON. Хаотичные сборки и задания лучше использовать в обычном режиме, а не в рейтинге.
+    Данные героев и предметов хранятся в репозитории проекта; изображения загружаются из открытого набора данных MLBB.
+  </footer>
 </main>
 <script src="app.js"></script>
 </body>
