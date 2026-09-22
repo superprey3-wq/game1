@@ -139,24 +139,30 @@ const mannequinPoses = {
   curl:{head:[-58,-18],shoulder:[-35,-8],hip:[12,3],elbows:[[-20,-27],[-10,13]],hands:[[2,-18],[6,20]],knees:[[42,-8],[46,15]],feet:[[62,13],[62,30]]}
 };
 
-function mannequin(x,y,scale,rotation,pose,flip,color,label){
+function solidFigure(x,y,scale,rotation,pose,flip,color,label){
   const p=mannequinPoses[pose]||mannequinPoses.stand;
   const sx=flip?-scale:scale;
-  const limb=(a,b,w=13)=>'<path d="M '+a[0]+' '+a[1]+' L '+b[0]+' '+b[1]+'" stroke="currentColor" stroke-width="'+w+'" stroke-linecap="round"/>';
-  const joint=(pt,r=5)=>'<circle cx="'+pt[0]+'" cy="'+pt[1]+'" r="'+r+'" fill="currentColor"/>';
+  const limb=(a,b,w)=>'<path d="M '+a[0]+' '+a[1]+' L '+b[0]+' '+b[1]+'" stroke="'+color+'" stroke-width="'+w+'" stroke-linecap="round" stroke-linejoin="round"/>';
+  const outline=(a,b,w)=>'<path d="M '+a[0]+' '+a[1]+' L '+b[0]+' '+b[1]+'" stroke="rgba(38,22,48,.45)" stroke-width="'+(w+5)+'" stroke-linecap="round" stroke-linejoin="round"/>';
+  const torso='<path d="M '+(p.shoulder[0]-14)+' '+(p.shoulder[1]-3)+' Q '+p.shoulder[0]+' '+(p.shoulder[1]-12)+' '+(p.shoulder[0]+14)+' '+(p.shoulder[1]-3)+' L '+(p.hip[0]+12)+' '+(p.hip[1]+4)+' Q '+p.hip[0]+' '+(p.hip[1]+13)+' '+(p.hip[0]-12)+' '+(p.hip[1]+4)+' Z" fill="'+color+'" stroke="rgba(38,22,48,.45)" stroke-width="4"/>';
   const body=
-    '<g transform="translate('+x+' '+y+') rotate('+rotation+') scale('+sx+' '+scale+')" style="color:'+color+'">'+
-      limb(p.shoulder,p.hip,27)+
-      limb(p.shoulder,p.elbows[0])+limb(p.elbows[0],p.hands[0],11)+
-      limb(p.shoulder,p.elbows[1])+limb(p.elbows[1],p.hands[1],11)+
-      limb(p.hip,p.knees[0],15)+limb(p.knees[0],p.feet[0],13)+
-      limb(p.hip,p.knees[1],15)+limb(p.knees[1],p.feet[1],13)+
-      '<circle cx="'+p.head[0]+'" cy="'+p.head[1]+'" r="17" fill="currentColor"/>'+
-      joint(p.shoulder,6)+joint(p.hip,7)+joint(p.knees[0],5)+joint(p.knees[1],5)+
+    '<g transform="translate('+x+' '+y+') rotate('+rotation+') scale('+sx+' '+scale+')">'+
+      outline(p.shoulder,p.elbows[0],15)+outline(p.elbows[0],p.hands[0],13)+
+      outline(p.shoulder,p.elbows[1],15)+outline(p.elbows[1],p.hands[1],13)+
+      outline(p.hip,p.knees[0],20)+outline(p.knees[0],p.feet[0],17)+
+      outline(p.hip,p.knees[1],20)+outline(p.knees[1],p.feet[1],17)+
+      limb(p.shoulder,p.elbows[0],15)+limb(p.elbows[0],p.hands[0],13)+
+      limb(p.shoulder,p.elbows[1],15)+limb(p.elbows[1],p.hands[1],13)+
+      limb(p.hip,p.knees[0],20)+limb(p.knees[0],p.feet[0],17)+
+      limb(p.hip,p.knees[1],20)+limb(p.knees[1],p.feet[1],17)+
+      torso+
+      '<circle cx="'+p.head[0]+'" cy="'+p.head[1]+'" r="19" fill="'+color+'" stroke="rgba(38,22,48,.45)" stroke-width="4"/>'+
+      '<circle cx="'+p.hands[0][0]+'" cy="'+p.hands[0][1]+'" r="7" fill="'+color+'"/>'+
+      '<circle cx="'+p.hands[1][0]+'" cy="'+p.hands[1][1]+'" r="7" fill="'+color+'"/>'+
     '</g>';
-  const lx=x+(flip?28:-28), ly=y-82*scale;
+  const lx=x+(flip?30:-30), ly=y-84*scale;
   return body+
-    '<g transform="translate('+lx+' '+ly+')"><circle r="13" fill="#0f0a17" stroke="'+color+'" stroke-width="2"/><text x="0" y="5" text-anchor="middle" font-size="13" font-weight="900" fill="#fff">'+label+'</text></g>';
+    '<g transform="translate('+lx+' '+ly+')"><circle r="13" fill="#ffffff" stroke="'+color+'" stroke-width="3"/><text x="0" y="5" text-anchor="middle" font-size="13" font-weight="900" fill="#24182d">'+label+'</text></g>';
 }
 
 function roomObject(kind){
@@ -214,13 +220,13 @@ function mannequinIllustration(scene,color){
   const [bx,by,bs,br,bp,bf]=s.b;
   return '<svg viewBox="0 0 360 280" role="img" aria-label="'+s.caption+'">'+
     '<defs><filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-opacity=".25"/></filter></defs>'+
-    '<rect x="8" y="8" width="344" height="264" rx="24" fill="#17101f"/>'+
+    '<rect x="8" y="8" width="344" height="264" rx="24" fill="#fffdf8"/><rect x="12" y="12" width="336" height="256" rx="20" fill="none" stroke="#eadfe8" stroke-width="2"/>'+
     roomObject(s.env)+
     '<g filter="url(#softShadow)">'+
-      mannequin(ax,ay,as,ar,ap,af,color,"A")+
-      mannequin(bx,by,bs,br,bp,bf,"#f0e8f6","B")+
+      solidFigure(ax,ay,as,ar,ap,af,"#f4c542","A")+
+      solidFigure(bx,by,bs,br,bp,bf,"#b01f63","B")+
     '</g>'+
-    '<g transform="translate(180 255)"><rect x="-150" y="-15" width="300" height="24" rx="12" fill="rgba(0,0,0,.52)"/><text x="0" y="2" text-anchor="middle" font-size="11.5" font-weight="700" fill="#eee6f4">'+s.caption+'</text></g>'+
+    '<g transform="translate(180 255)"><rect x="-150" y="-15" width="300" height="24" rx="12" fill="rgba(255,255,255,.88)"/><text x="0" y="2" text-anchor="middle" font-size="11.5" font-weight="700" fill="#3d2a46">'+s.caption+'</text></g>'+
   '</svg>';
 }
 
