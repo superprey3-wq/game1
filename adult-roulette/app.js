@@ -4,148 +4,65 @@ const categories = [
   { id:"anal", label:"Анальный", badge:"Анальный", color:"#ff9b5c" }
 ];
 
-const variationSets = [
-  { suffix:"", difficultyShift:0, note:"Базовый вариант — без спешки, с возможностью легко поменять положение." },
-  { suffix:" с мягкой опорой", difficultyShift:-1, note:"Используйте подушку или сложенный плед, чтобы уменьшить нагрузку." },
-  { suffix:" в медленном темпе", difficultyShift:-1, note:"Сохраняйте спокойный темп и заранее договоритесь о стоп-сигнале." },
-  { suffix:" с паузами", difficultyShift:-1, note:"Делайте короткие паузы и регулярно сверяйтесь по комфорту." },
-  { suffix:" с дополнительной подушкой", difficultyShift:-1, note:"Дополнительная подушка помогает немного изменить высоту и угол без лишнего напряжения." },
-  { suffix:" с опорой для спины", difficultyShift:-1, note:"Добавьте устойчивую опору под спину там, где это уместно и удобно." },
-  { suffix:" ближе друг к другу", difficultyShift:0, note:"Сократите расстояние между партнёрами только настолько, насколько обоим комфортно." },
-  { suffix:" с большим пространством", difficultyShift:0, note:"Оставьте больше пространства для свободной смены положения и остановки." },
-  { suffix:" короткий вариант", difficultyShift:-1, note:"Используйте положение недолго и без стремления удерживать его через усталость." },
-  { suffix:" с контролем принимающего партнёра", difficultyShift:0, note:"Темп и глубину определяет партнёр, для которого это особенно важно по комфорту." },
-  { suffix:" с контролем дистанции", difficultyShift:0, note:"Сохраняйте такое расстояние, при котором легко замедлиться или полностью остановиться." },
-  { suffix:" с мягкой поверхностью", difficultyShift:-1, note:"Выберите мягкую, но устойчивую поверхность и уберите предметы, мешающие свободному движению." },
-  { suffix:" вариант для перехода", difficultyShift:0, note:"Используйте эту позицию как недолгий переход к другому удобному положению." },
-  { suffix:" более активный вариант", difficultyShift:1, note:"Требует немного больше контроля и устойчивости; при усталости лучше вернуться к базовому варианту." }
-];
 
-const base = {
-  vaginal: [
-    ["Лицом к лицу лёжа","Оба партнёра лежат лицом друг к другу; положение легко регулировать расстоянием и углом.","лёжа","Легко","face"],
-    ["На боку лицом к лицу","Оба лежат на боку лицом друг к другу. Спокойный вариант с небольшой нагрузкой.","кровать","Легко","side"],
-    ["На боку сзади","Один партнёр лежит на боку, второй располагается сзади. Подходит для неторопливого темпа.","кровать","Легко","sideBack"],
-    ["Сидя лицом к лицу","Один партнёр сидит устойчиво, второй располагается лицом к нему. Удобно контролировать дистанцию.","диван","Средне","seat"],
-    ["На краю кровати","Один партнёр располагается у края кровати, второй остаётся рядом стоя или на коленях.","кровать","Средне","edge"],
-    ["Полусидя","Один партнёр опирается спиной на подушки, второй располагается ближе лицом к нему.","кровать","Легко","recline"],
-    ["Стоя у опоры","Оба стоят рядом с устойчивой стеной или высокой мебелью; опора помогает сохранять баланс.","стоя","Сложно","stand"],
-    ["Сзади с опорой","Один партнёр опирается руками на устойчивую поверхность, второй располагается сзади.","диван","Средне","lean"],
-    ["Колени рядом","Оба располагаются на коленях близко друг к другу; лучше использовать мягкую поверхность.","кровать","Средне","kneel"],
-    ["Поперёк кровати","Один партнёр лежит поперёк края кровати, второй располагается рядом.","кровать","Средне","edge2"],
-    ["Объятие сидя","Один партнёр сидит, второй располагается близко, обхватывая его ногами без сильного напряжения.","диван","Средне","seatHug"],
-    ["Низкая опора","Один партнёр использует устойчивую низкую опору, чтобы немного изменить высоту и угол.","комната","Средне","support"]
-  ],
-  oral: [
-    ["Один сидит, второй рядом","Один партнёр удобно сидит, второй располагается перед ним на мягкой поверхности.","диван","Легко","oralSeat"],
-    ["На краю кровати","Один партнёр располагается у края кровати, второй — рядом ниже уровня кровати.","кровать","Легко","oralEdge"],
-    ["Лёжа на спине","Один партнёр лежит на спине, второй располагается рядом так, чтобы обоим было удобно.","кровать","Легко","oralLie"],
-    ["На боку","Партнёры располагаются на боку. Положение снижает нагрузку на шею и колени.","кровать","Легко","oralSide"],
-    ["69 на боку","Оба лежат на боку в противоположных направлениях. При дискомфорте легко разойтись и сменить положение.","кровать","Средне","sixtyNineSide"],
-    ["69 лёжа","Один партнёр располагается над другим без переноса лишнего веса на грудь или шею.","кровать","Средне","sixtyNine"],
-    ["Полусидя на подушках","Один партнёр полусидит с опорой под спиной, второй располагается рядом.","кровать","Легко","oralRecline"],
-    ["Стоя у стены","Один партнёр стоит у устойчивой опоры, второй располагается ниже. Лучше избегать долгой нагрузки на колени.","стоя","Средне","oralStand"],
-    ["Оба на коленях","Партнёры располагаются на мягкой поверхности на коленях, сохраняя свободный доступ к смене положения.","кровать","Средне","oralKneel"],
-    ["Угол дивана","Один партнёр удобно размещается в углу дивана, второй — рядом. Подлокотник можно использовать как опору.","диван","Легко","oralCorner"],
-    ["Поперёк кровати","Один партнёр лежит ближе к краю, второй располагается сбоку, не создавая нагрузку сверху.","кровать","Легко","oralCross"],
-    ["Сидя на полу у дивана","Один партнёр сидит на диване, второй — на мягком ковре или подушке рядом.","комната","Легко","oralFloor"]
-  ],
-  anal: [
-    ["На боку сзади","Принимающий партнёр лежит на боку, второй располагается сзади. Положение позволяет легко остановиться или изменить угол.","кровать","Легко","analSide"],
-    ["Лицом к лицу лёжа","Оба располагаются лицом друг к другу лёжа; подушка может помочь найти комфортный угол.","кровать","Средне","analFace"],
-    ["Полусидя лицом к лицу","Один партнёр полусидит с хорошей опорой спины, второй располагается ближе лицом к нему.","кровать","Средне","analRecline"],
-    ["Сзади с подушкой","Один партнёр располагается впереди на мягкой поверхности с подушкой для опоры, второй — сзади.","кровать","Легко","analPillow"],
-    ["На краю кровати","Один партнёр располагается у края кровати, второй остаётся рядом, сохраняя устойчивое положение.","кровать","Средне","analEdge"],
-    ["Колени и опора","Один партнёр находится на коленях с опорой руками и корпусом, второй располагается сзади.","кровать","Средне","analKneel"],
-    ["Лёжа на животе","Один партнёр лежит на животе с небольшой подушкой под бёдрами, второй располагается сверху без переноса веса.","кровать","Средне","analProne"],
-    ["Стоя у стены","Один партнёр использует стену как устойчивую опору, второй располагается сзади.","стоя","Сложно","analStand"],
-    ["Наклон у дивана","Один партнёр опирается на спинку или сиденье устойчивого дивана, второй располагается сзади.","диван","Средне","analLean"],
-    ["Оба на боку, ноги согнуты","Оба лежат на боку с немного согнутыми ногами; вариант рассчитан на небольшой диапазон движений.","кровать","Легко","analCurl"],
-    ["Сидя с опорой","Один партнёр устойчиво сидит, второй располагается ближе, используя спинку или стену как дополнительную опору.","диван","Сложно","analSeat"],
-    ["Низкая устойчивая опора","Положение строится вокруг низкой устойчивой поверхности, чтобы партнёрам было проще контролировать высоту.","комната","Средне","analSupport"]
-  ]
-};
+function siteSlug(name){
+  return name.toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .replace(/&/g," and ")
+    .replace(/['’]/g,"-")
+    .replace(/[^a-z0-9]+/g,"-")
+    .replace(/^-+|-+$/g,"")
+    .replace(/-+/g,"-");
+}
+const SOURCE_BASE="https://educacionsexual.org/en/sex-positions/";
 
+const ordinaryGroups=[["Advanced Edge Doggy Style",["Doggy style on the edge with hand support","Doggy style on the edge with elbow support","Doggy style on the edge with knee support"]],["Amazon on the chair",["Reverse Cowgirl","Cowgirl with arm support","Amazon with legs raised"]],["Amazona on the table",["Reverse Cowgirl","Amazona with support","Amazona with rotation"]],["Apex",["Tilted Peak","Seated Peak","Supported Peak"]],["Ark of Love",["Leaning Love Ark","Love Ark with Support","Arca de Amor Rotada"]],["Asian Cowgirl",["Asian Cowgirl Leaning","Asian Cowgirl with Hand Support","Asian Cowgirl with Legs Open"]],["Astrologer",["Astrologer with chair support","Astrologer with wall support","Astrologer with table support"]],["Athlete's Hold",["Athlete's Seated Grip","Athlete's Supported Grip","Athlete's Leaning Hold"]],["Back Delights",["Elevated Rear Delights","Rear Delights with Hand Support","Back Delights with Bent Legs"]],["Back Door",["Raised Rear Entry","Doggy Style with Legs Spread","Backdoor with Rotation"]],["Backrest",["Rear Support with Inclination","Posterior Support with Circular Movements","Posterior Support with Manual Stimulation"]],["Backstroke",["Doggy Style with a Twist","Seated Doggy Style","Rear Entry with Support"]],["Balcony of Sighs",["Balcony of Sighs Seated","Balcony of Sighs Leaning","Balcony of Sighs Lying Down"]],["Bear Hug",["Bear Hug with Inclination","Bear Hug with Rotation","Bear Hug with Arm Support"]],["Bermuda Triangle",["Classic Variant","Tilted Variant","Elevated Variant"]],["Blazing Embrace",["Fiery Embrace with Inclination","Fiery Embrace with Lateral Support","Fiery Embrace with Hand Support"]],["Boat",["Deep Boat","Side Car","Reversed Cowgirl"]],["Breeze",["Brisa Acostada","Seated Breeze","Supported Breeze"]],["Bright Moon",["Tilted Bright Moon","Bright Elevated Moon","Rotating Bright Moon"]],["Burning Desire",["Classic Burning Desire","Deep Burning Desire"]],["Butterfly Hug",["Butterfly Hug with Elevation","Butterfly Hug with Circular Movements","Butterfly Hug with Knee Support"]],["Canadian Mountain",["Canadian Mountain with Elevation","Canadian Mountain with Arm Support","Canadian Mountain with Legs Open"]],["Captivity",["Deep Captivity","Lateral Captivity","Captivity with Support"]],["Clamshell",["Concha Abrazada Elevada","Conque Embrassée Latérale","Concha Abrazada avec Soutien"]],["Classic Embrace Position",["Classic Hug with Elevation","Classic Hug with Rotation","Classic Hug with Arm Support"]],["Classic Harp",["Arpa Inclinada","Arpa Elevada","Rotating Harp"]],["Classical Dancer",["Classical Dancer with Support","Classical Dancer in Bed","Classical Dancer Against the Wall"]],["Clitoral Dragon",["Clitoral Dragon Elevated","Lateral Clitoral Dragon","Clitoral Dragon Sitting"]],["Close Breathing",["Closed Breathing with Circular Movements","Closed Breathing with Forward Lean","Closed-Leg Breathing with Legs Interlaced"]],["Corona",["Classic Crown","Elevated Crown","Supported Crown"]],["Cowboy",["Reverse Cowboy","Side Cowboy","Cowboy with Support"]],["Cowgirl",["Reverse Cowgirl","Side mount","Supported Ride"]],["Cowgirl Bent Over",["Classic Cowgirl Bent","Cowgirl Bent Kneeling","Reclined Cowgirl"]],["Crazy Monkey",["Crazy Monkey with Bed Support","Crazy Monkey with Wall Support","Crazy Monkey with Chair Support"]],["Crazy Train",["Crazy Elevated Train","Crazy Train Lateral","Crazy Train Seated"]],["Crimson Mount",["Inclined Crimson Mount","Crimson Supported Ride","Crimson Mount Sideways"]],["Crouching Tiger",["Crouching Tiger with Bent Legs","Crouching Tiger with Knee Support","Crouching Tiger with Circular Movements"]],["Deep Adoration",["Deep Adoration with Lean","Deep Adoration with Knee Support","Deep Adoration with Circular Movement"]],["Deep Drumming",["The Elevated Drumming","The Side Drum","The Deep Spotting"]],["Deep Ebony",["Deep Ebony with Bed Support","Deep Ebony with Sofa Support","Deep Ebony with Table Support"]],["Deep Ecstasy",["Elevated Ecstasy","Inclined Ecstasy","Rotary Ecstasy"]],["Deep Impalement",["Deep Penetration with Bed Support","Deep Thrusting in the Shower","Deep Thrusting with Circular Movements"]],["Deep Initiation",["Deep Initiation with Elbow Support","Deep Thrusting with Legs Apart","Deep Initiation with Lateral Inclination"]],["Deep Longing",["High Aspiration","Crossed Longing","Suspended Longing"]],["Deep prone",["Prona avec oreiller","Position allongée avec stimulation externe","Prona avec lubrifiant"]],["Deep Ride",["Classic Deep Ride","Deep Cowgirl with Legs Extended","Deep Ride with Hand Support"]],["Deeply Embracing",["Deeply Embracing with Legs Elevated","Deeply Embracing with Circular Movements","Deeply Embracing with Partner Support"]],["Depth",["Adjusted Depth","Dynamic Depth","Inclined Depth"]],["Diamond",["Inclined Diamond","Raised Diamond","Rotating Diamond"]],["Doggy on the edge",["Doggy style with knee support","Doggy style with hand support","Doggy style with elbow support"]],["Dolphin",["Dolphin with support","Inverted Dolphin","Dolphin with legs raised"]],["Ecstasy",["Reverse Ecstasy","Lateral Ecstasy","Seated Ecstasy"]],["Ecstasy Waterfall",["Gentle Waterfall","Dynamic Waterfall","Inverted waterfall"]],["Edge of the bed",["Mirror variant"]],["El Rodeo",["Cowgirl with legs raised","Cowboy with arm support","Rodeo with circular movements"]],["Embraced by the Moon",["Embraced in the Moon with circular movement","Embraced in the Moon with leg support","Embraced in the Moon with forward lean"]],["Entangled Spoon",["Leaning Spooning","Spoon Elevated","Crossed Spooning"]],["Explorer",["Seated Explorer","Supported Explorer","Supported Side Foot Explorer"]],["Explosion of Pleasure",["Soft Explosion","Elevated Explosion","Sideways Explosion"]],["Face on pillow",["Face down on pillow with bent legs","Face on pillow with manual stimulation","Face down on pillow with rotation"]],["Fallen Warrior",["Receiving Warrior with Elevation","Fallen Warrior with Wall Support","Fallen Warrior with Circular Movements"]],["Female Plow",["Inclined Cowgirl","Rotating Grind","Supported Cowgirl"]],["Fire Hydrant",["Elevated Fire Fountain","Fire Fountain Manual","Side Fire Source"]],["Fireman",["Firefighter with wall support","Firefighter with support on a chair","Firefighter with floor support"]],["Flame",["Seated Blaze","Supported Burpee","Leaning Burst"]],["Forbidden Fruit",["Forbidden Fruit Classic","Forbidden Fruit Elevated","Forbidden Fruit Sideways"]],["Frog Position",["Elevated Frog","Frog with Support","Sleeping Frog"]],["Frog Style",["Frog Leaning Style","Frog Elevated Style","Frog Spin Style"]],["G Force",["Wall support","Support on a chair","Floor support"]],["Goddess Pose",["The Bent-Over Goddess","The Spinning Goddess","The Elevated Goddess"]],["Grasshopper",["Elevated Grasshopper","Crossed Grasshopper","Inverted Grasshopper"]],["Harmonious Penetration",["Harmonious Penetration with Hand Support","Harmonious Penetration with Elbow Support","Harmonious Penetration with Back Support"]],["Heart Link",["Deep Heart Link","Swinging Heart Link","Inclined Heart Link"]],["Heaven on Your Feet",["The Leaning Sky","Heaven with Support","The Rotating Sky"]],["Hill",["Deep Hill","Colina Suspensa","Inclined Hill"]],["Hip Swing",["Inverted pendulum","Circular pendulum"]],["Honeymoon",["Honeymoon Elevated","Wedding Night Incline","Seated Honey Moon"]],["Hummingbird",["Hummingbird with lateral support","Inverted Hummingbird","Hummingbird with hand support"]],["Ice Cream Sitting",["Seated Ice Cream with Inclination","Seated Ice Cream with Circular Movements","Ice Sitting with Hand Support"]],["Impaler",["Inverted Pounding","Side Spooning","Supported pegger"]],["Interlaced Leaves",["Crossed Legs Top","Crossed Sideways Leaves","Inverted Crossed Legs"]],["Interlaced Ride",["Reverse Cowgirl","Side mount","Suspended Mount"]],["Intimate Arch",["Deep Arch","Arch with Support","Circular Arch"]],["Intimate Link",["Intimate Link with Legs Open","Intimate Leg Crossed Link","Intimate Link with Knee Support"]],["Intimate Spooning",["Spoon with clitoral massage"]],["Intimate Style",["Intimate Style with Support","Intimate Style Against the Wall","Intimate Style in the Water"]],["Iron Throne",["Iron Throne with knee support","Iron Throne with Arm Support","Iron Throne with Wall Support"]],["Kneeling face to face",["Face to face with support","Face to face with legs intertwined","Face to face with mutual stimulation"]],["Love Basket",["Elevated Love Basket","Side Love Basket","Love Basket with Support"]],["Love Mechanics",["Classic Love Mechanics","Mechanics of Inclined Love","Rotative Love Mechanics"]],["Love Prison",["Prison of Love Elevated","Prison of Love with Support","Inverted Love Prison"]],["Low doggy",["Doggy style with support on elbows","Doggy style with a pillow under the hips","Doggy style with support on hands and knees"]],["Magic Carpet",["Elevated Magic Carpet","Magic Carpet Sides","Magic Carpet with Bent Legs"]],["Mature Lady",["Elevated Mature Lady","Mature Woman with Arm Support","Mature Woman with Bent Legs"]],["Mexican Style",["Mexican Style with Circular Movements","Mexican Style with Leg Support","Mexican Style with Manual Stimulation"]],["Midnight Moon",["Midnight Incline Moon","Midnight Moon Seated","Midnight Moon Supported"]],["Mirror",["Mirror on the Bed","Shower Mirror","Mirror on the Sofa"]],["Mixed Spoon",["Inverted mixed spoon","Spoon with kisses"]],["Mountain Creek",["Mountain Stream with Bed Support","Mountain Stream with Sofa Support","Mountain Stream with Wall Support"]],["Mounted Rider",["Cowgirl Elevated","Kneeling Cowgirl","Supported Standing Rider"]],["Moving Mountain",["Mountain with support","Spinning Mountain","Mountain with intertwined legs"]],["Narcissus",["Narcissus with lateral support","Narcissus with entwined legs","Narcissus with chair support"]],["Navigator",["Side-by-Side Rider","Supported Rider","Rotative Rider"]],["Need for Speed",["Fast and Furious in Bed","Couch Crazy Speed","Furious Speed Against the Wall"]],["On a Chair (Straddling)",["Face to face","From behind"]],["On the Sofa",["Leaning on the backrest","About the armrest"]],["On the Table",["Seated face to face","Lying down with legs up"]],["Passionate Dancer",["Passionate Dancer with Inclination","Passionate Dancer with Circular Movements","Passionate Dancer with Bed Support"]],["Passionate Explorer",["Passionate Explorer with Inclination","Passionate Explorer with Rotation","Passionate Explorer with Leg Support"]],["Pleasure Bench",["Inverted Bench","Side bench","Elevated bench"]],["Pleasure Wall",["Pleasure wall with lateral support","Pleasure wall with chair support","Pleasure wall with front wall support"]],["Posterior Relaxation",["Posterior Relaxation with Inclination","Posterior Relaxation with Leg Support","Posterior Relaxation with Circular Movements"]],["Praying Mantis",["Hanging Mantis","Leaning Mantis","Mantis Rotada"]],["Princess Elevated",["Princess Elevated with Knee Support","Princess Elevated with Legs Stretched","Princess Elevated with Ankle Support"]],["Prison Guard",["Prison Warden with lateral support","Prison Warden with wall support","Prison Guard with floor support"]],["Punishment",["Elevated Punishment","Bent-Over Punishment","Seated Punishment"]],["Slow Dance",["Slow Dance with Support","Slow Dance Against the Wall","Slow Dance on the Floor"]],["Snake",["Lying Down Snake","Standing Serpent","Snake with Support"]],["Snow angel",["Snow angel with legs raised","Snow angel with knee support","Snow angel with circular motion"]],["Snow Glide",["Elevated Snow Drift","Side Snow Glide","Snow Sitting Slide"]],["Soft Landing",["Soft Landing with Inclination","Soft Landing with Arm Support","Soft Landing with Rotation"]],["Spanish Guitar",["Spanish Guitar with Circular Movements","Spanish Guitar Tilted","Spanish Guitar with Wall Support"]],["Speed Bump",["Quick Dip with Inclination","Quickie with Knee Support","Quick Bumps with Circular Movements"]],["Sphinx",["Inverted Sphinx","Side Sphinx","Sphinx with Arm Support"]],["Spider Monkey",["Spider Monkey with Bed Support","Spider Monkey with Chair Support","Spider Monkey with Wall Support"]],["Spread Eagle",["Spread Eagle with Elevation","Spread Eagle Side","Spread Eagle with Rotation"]],["Standing against the wall, leg raised",["Leg over shoulder","Sitting on the edge of a table","Support on a chair"]],["Standing Face to Face",["With elevated leg","Against the wall"]],["Standing from Behind",["Leaning over the table","Against the wall"]],["Starfish",["Starfish with hand support","Starfish with forearm support","Starfish with support on the elbows"]],["Strength",["Classic Strength","Flexed Strength","Elevated Strength"]],["Submissive",["Elevated Receiver","Receptive with Back Support","Submissive with Legs Open"]],["Superwoman",["Superwoman with support on the bed","Superwoman with support on a chair","Superwoman with hands supporting"]],["Surfboard",["Elevated Surfboard","Side Surfing Board","Reverse Cowgirl"]],["Tangle",["Entanglement with pillow support","Tangled with bent legs","Up against the wall"]]];
+const oralGroups=[["Anilingus (Rim Job)",["On all fours","Lying down with legs up"]],["Frog position oral",["Oral in frog position with legs open","Frog position oral with pillows","Frog position oral with eye contact"]],["Hot Lunch",["Spicy Lunch with Superficial Penetration","Spicy Lunch with Manual Stimulation","Spicy Lunch with Oral Sex"]],["Mouth between thighs",["Mouth between thighs in the side position","Mouth between thighs with legs open","Mouth between thighs with pillow support"]],["Oral in the shower",["Oral in the shower with support","Oral in the shower standing up"]],["Oral Sex on the Penis (Fellatio)",["On your knees","Lying on your side"]],["Oral Sex on the Vulva (Cunnilingus)",["Sitting on the edge","Top position (sitting on the face)","Lying down with legs on shoulders"]],["Oral standing with the other kneeling",["Standing oral with wall support","Oral standing with legs apart","Oral standing with hands free"]],["Oral with hip holding",["Oral with legs elevated","Oral with manual stimulation","Oral with rhythm change"]],["Pleasure Servant",["Classic Pleasure Servant","Servant of Inverted Pleasure","Reclining Pleasure Servant"]],["Pleasure Star",["Oral pleasure star","Manual pleasure star","Mixed pleasure star"]],["Snake Charmer",["Classic Variant","Oral Variant","Manual Stimulation Variant"]],["Surprise Blow",["Reverse Surprise Blow","Side Surprise Blow","Elevated Surprise Hit"]],["Sweet Pillow",["Reversed Sweetness Pillow","Sweet Side Pillow","High Sweetness Pad"]],["The 69",["69 from the side","69 superior"]],["The Gallows",["The Leaning Gallows","The Reverse Cowgirl","The Seated Gallows"]],["The Sigh",["The Deep Sigh","The Lateral Sigh","The Elevated Sigh"]],["The Whispering Garden II",["The Garden of Deep Whispers","The Whispering Garden with Tension","Le Jardin des Chuchotements Inversé"]],["The Whisper of the Garden",["The Whispering Garden","La Danza del Té","The Garden Embrace"]],["69 classic lying down",["69 in the shower","69 with a mirror"]],["69 in the Chair",["Variant 1: With arm support","Variant 2: With leg support","Variant 3: With pillow support"]],["69 lateral",["69 inverted sideways","69 lateral with legs entwined","69 lateral with pillow support"]],["69 standing leaning against the wall",["69 in bed","69 on the floor","69 in the shower"]],["Love Mechanics",["Classic Love Mechanics","Mechanics of Inclined Love","Rotative Love Mechanics"]],["The Deep Caress",["The Seated Caress","The Lying Caress","The Foot Caress"]]];
+const analGroups=[["The Whispering Whirlpool",["The Vertical Whirlpool","The Whirlwind in Bed","The Pillow Whirlpool"]],["The Burning Skeleton Dance",["The Burning Spiral","The Bone Hug","The Bone Caress"]],["The Dance of Venus",["The Flight of Aphrodite","The Dance of Pleasure","The Sacred Movement"]],["The Rose Garden",["The Deep Rose Garden","The Hanging Rose","The Vertical Rose"]],["The Whispering Flying Squirrel",["The Inverted Flying Squirrel","The Sleeping Flying Squirrel","The Flying Squirrel on the Wall"]],["The Waterfall of Sighs",["The Whispering Waterfall","The Vertical Waterfall","The Rhythmic Waterfall"]],["The Whispered Dream",["Deep Sleep","The Whispered Dream in Bed","The Whispered Dream with Movement"]],["The Venus Spiral",["The Inverted Spiral","The Sensual Whirlpool","Le Tornado de Plaisir"]],["The Butterfly Flight",["The Flight of the Open Wings","Flight in the Dark","The Whispered Flight"]],["The Whispering Pendulum",["The Afrodite Swing","The Pleasure Swing","The Deep Whisper"]],["The Whispering Spiral V",["The Whispering Spiral in Bed","The Whisper Spiral with Chair","The Whisper Spiral Standing Up"]],["The Polar Hug",["The Inclined Polar Hug","The Polar Bear Hug with Support","The Rotating Polar Hug"]],["The Hummingbird Flight III",["The Hummingbird Flight with Inclination","The Hummingbird Flight with Caressing","The Hummingbird's Flight in Bed"]],["The Night Whisper",["The Deep Flight","The Moon Dance","The Night Kiss"]],["The Coffee Dance: Backstage Whisper",["The Coffee Sigh","The Coffee Kiss","The Coffee Dance"]],["The Whisper Dance",["The Silver Spiral","The Swan's Flight","The Posterior Caress"]],["The Rhythm Lady",["The Inverted Rhythm Lady","The High Beat Lady","The Sensual Rhythm Lady"]],["The Chair of Pleasure",["The Inclined Chair","The Spinning Chair","The Suspended Chair"]],["The Hummingbird Dance",["The Flight of the Falcon","Le Bal des Plumes","The Caress of the Wind"]],["Advanced Edge Doggy Style",["Doggy style on the edge with hand support","Doggy style on the edge with elbow support","Doggy style on the edge with knee support"]],["The Wild Horse",["Forward-Leaning Variant"]],["Cuddled Bloodhound",["Elevated Spooning","Spooning Lateral","Chien en cuillère inversé"]],["The Staircase",["The Low Staircase","The High Staircase","The Side Ladder"]],["The Mason's Workshop",["The Elevated Mason","The Relaxed Mason","The Inverted Bricklayer"]],["Seated Fairy",["Seated Fairy with Legs Crossed","Fairy Sitting with Hand Support","Fairy Squatting with Legs Apart"]],["The Airplane",["The Tilted Airplane","The Airplane with Support","The Rotating Plane"]],["The Phoenix Embrace",["The Elevated Phoenix Hug","The Embrace of the Inclined Phoenix","The Phoenix Turned Embrace"]],["The Dive",["Deep Penetration","Side Entry","The Inverted Dive"]],["Crazy Train",["Crazy Elevated Train","Crazy Train Lateral","Crazy Train Seated"]],["Doggy on the edge",["Doggy style with knee support","Doggy style with hand support","Doggy style with elbow support"]]];
 
-const sourceLinks = {
-  vaginal: {
-    face:["Face to Face — пошаговая настройка","https://bestsexypositions.com/positions/face-to-face/kneeling/"],
-    side:["Side positions — варианты на боку","https://bestsexypositions.com/positions/side/"],
-    sideBack:["Spooning — пошаговая инструкция","https://bestsexypositions.com/positions/side/spooning/"],
-    seat:["Lotus — пошаговая инструкция","https://bestsexypositions.com/positions/face-to-face/lotus-position/"],
-    edge:["Face to Face у края кровати","https://bestsexypositions.com/positions/face-to-face/kneeling/"],
-    recline:["Arch — положение с опорой","https://bestsexypositions.com/positions/tantric/arch/"],
-    stand:["Standing Missionary — стоя","https://bestsexypositions.com/positions/standing/missionary-standing/"],
-    lean:["Bent Over — с опорой","https://bestsexypositions.com/positions/doggy-style/bent-over/"],
-    kneel:["Kneeling Embrace — на коленях","https://bestsexypositions.com/positions/tantric/kneeling-spooning/"],
-    edge2:["Face to Face у края кровати","https://bestsexypositions.com/positions/face-to-face/kneeling/"],
-    seatHug:["Lotus — сидя лицом к лицу","https://bestsexypositions.com/positions/face-to-face/lotus-position/"],
-    support:["Arch — с устойчивой опорой","https://bestsexypositions.com/positions/tantric/arch/"]
-  },
-  oral: {
-    oralSeat:["Chair Blowjob — сидя","https://bestsexypositions.com/positions/oral/chair-blowjob/"],
-    oralEdge:["Chair Blowjob — край кровати/стула","https://bestsexypositions.com/positions/oral/chair-blowjob/"],
-    oralLie:["Classic Cunnilingus — лёжа","https://bestsexypositions.com/positions/oral/classic-cunnilingus/"],
-    oralSide:["Oral positions — варианты на боку","https://bestsexypositions.com/positions/oral/"],
-    sixtyNineSide:["Side 69 — на боку","https://bestsexypositions.com/positions/oral/side-69/"],
-    sixtyNine:["Classic 69 — пошаговая инструкция","https://bestsexypositions.com/positions/oral/classic-69/"],
-    oralRecline:["Classic Cunnilingus — с опорой","https://bestsexypositions.com/positions/oral/classic-cunnilingus/"],
-    oralStand:["Kneeling BJ — один стоит","https://bestsexypositions.com/positions/oral/kneeling-bj/"],
-    oralKneel:["Kneeling BJ — на коленях","https://bestsexypositions.com/positions/oral/kneeling-bj/"],
-    oralCorner:["Chair Blowjob — на диване/стуле","https://bestsexypositions.com/positions/oral/chair-blowjob/"],
-    oralCross:["Classic Cunnilingus — лёжа","https://bestsexypositions.com/positions/oral/classic-cunnilingus/"],
-    oralFloor:["Kneeling BJ — у дивана","https://bestsexypositions.com/positions/oral/kneeling-bj/"]
-  },
-  anal: {
-    analSide:["Anal Spooning — на боку","https://bestsexypositions.com/positions/anal/anal-spooning/"],
-    analFace:["Anal Missionary — лицом к лицу","https://bestsexypositions.com/positions/anal/missionary/"],
-    analRecline:["Anal Missionary — с опорой","https://bestsexypositions.com/positions/anal/missionary/"],
-    analPillow:["Anal Doggy Style — сзади","https://bestsexypositions.com/positions/anal/doggy-style/"],
-    analEdge:["Anal Missionary — у края","https://bestsexypositions.com/positions/anal/missionary/"],
-    analKneel:["Anal Doggy Style — на коленях","https://bestsexypositions.com/positions/anal/doggy-style/"],
-    analProne:["Anal Prone Bone — лёжа на животе","https://bestsexypositions.com/positions/anal/prone-bone-anal/"],
-    analStand:["Standing Anal — стоя","https://bestsexypositions.com/positions/anal/standing-anal/"],
-    analLean:["Anal Doggy Style — с опорой","https://bestsexypositions.com/positions/anal/doggy-style/"],
-    analCurl:["Anal Spooning — согнув ноги","https://bestsexypositions.com/positions/anal/anal-spooning/"],
-    analSeat:["Anal Cowgirl — сидя сверху","https://bestsexypositions.com/positions/anal/cowgirl/"],
-    analSupport:["Anal Missionary — с низкой опорой","https://bestsexypositions.com/positions/anal/missionary/"]
-  }
-};
-
-function getSource(category,scene,variantIndex){
-  let source=sourceLinks[category]?.[scene] || ["Каталог подробных инструкций","https://bestsexypositions.com/"];
-  if(category==="oral" && ["oralLie","oralSide","oralRecline","oralCross"].includes(scene) && variantIndex%2===1){
-    source=["Classic Blowjob — базовая инструкция","https://bestsexypositions.com/positions/oral/classic-bj/"];
-  }
-  return {name:source[0],url:source[1]};
+function makePool(category,groups){
+  let n=0;
+  return groups.flatMap(([baseTitle,variants])=>{
+    const url=SOURCE_BASE+siteSlug(baseTitle)+"/";
+    const baseEntry={
+      id:category+"-"+(n++),
+      title:baseTitle,
+      description:"Реальная отдельная позиция из энциклопедии. На странице источника есть иллюстрация, положение тел, пошаговое объяснение и советы.",
+      difficulty:"на странице",
+      setting:"реальная позиция",
+      scene:category==="oral"?"oralLie":category==="anal"?"analSide":"face",
+      note:"Название взято из каталога educacionsexual.org — это не искусственно созданная вариация.",
+      source:{name:baseTitle,url}
+    };
+    const variationEntries=(variants||[]).map(v=>({
+      id:category+"-"+(n++),
+      title:baseTitle+" — "+v,
+      description:"Реальная вариация позиции «"+baseTitle+"». Ссылка открывает страницу базовой позиции, где эта вариация перечислена и объясняется.",
+      difficulty:"на странице",
+      setting:"реальная вариация",
+      scene:category==="oral"?"oralLie":category==="anal"?"analSide":"face",
+      note:"Эта вариация указана в каталоге источника.",
+      source:{name:baseTitle+" · "+v,url}
+    }));
+    return [baseEntry,...variationEntries];
+  });
 }
 
-function difficultyIndex(label){
-  return ["Легко","Средне","Сложно"].indexOf(label);
-}
-function shiftDifficulty(label,shift){
-  const i=difficultyIndex(label);
-  return ["Легко","Средне","Сложно"][Math.max(0,Math.min(2,i+shift))];
-}
-function buildPool(category){
-  return base[category].flatMap((item,baseIndex)=>
-    variationSets.map((v,variantIndex)=>({
-      id:category+"-"+baseIndex+"-"+variantIndex,
-      title:item[0]+v.suffix,
-      description:item[1],
-      setting:item[2],
-      difficulty:shiftDifficulty(item[3],v.difficultyShift),
-      scene:item[4],
-      note:v.note,
-      source:getSource(category,item[4],variantIndex)
-    }))
-  );
-}
 const pools={
-  vaginal:buildPool("vaginal"),
-  oral:buildPool("oral"),
-  anal:buildPool("anal")
+  vaginal:makePool("vaginal",ordinaryGroups),
+  oral:makePool("oral",oralGroups),
+  anal:makePool("anal",analGroups)
 };
+
+function sourcePreview(pose,meta){
+  return '<a class="catalog-preview" href="'+pose.source.url+'" target="_blank" rel="noopener noreferrer">'+
+    '<span class="catalog-preview-icon">↗</span>'+
+    '<span class="catalog-preview-kicker">Иллюстрация и пошаговая инструкция на источнике</span>'+
+    '<strong>'+escapeHtml(pose.title)+'</strong>'+
+    '<span class="catalog-preview-domain">educacionsexual.org</span>'+
+  '</a>';
+}
+
 
 const wheel=document.getElementById("wheel");
 const wheelResult=document.getElementById("wheelResult");
@@ -301,10 +218,10 @@ function render(category,pose){
   categoryBadge.style.borderColor=meta.color+"66";
   poseTitle.textContent=pose.title;
   poseDescription.textContent=pose.description;
-  difficultyTag.textContent="Сложность: "+pose.difficulty;
-  settingTag.textContent="Где: "+pose.setting;
+  difficultyTag.textContent="Подробности: "+pose.difficulty;
+  settingTag.textContent="Каталог: "+pose.setting;
   poseTip.textContent=categoryTip(category)+" "+pose.note;
-  poseIllustration.innerHTML=mannequinIllustration(pose.scene,meta.color);
+  poseIllustration.innerHTML=sourcePreview(pose,meta);
   sourceLink.href=pose.source.url;
   sourceName.textContent=pose.source.name;
   resultCard.classList.remove("hidden");
