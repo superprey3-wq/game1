@@ -3,40 +3,90 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#0b1020">
-<title>MLBB Chaos Roulette</title>
+<meta name="theme-color" content="#090d19">
+<title>Рулетка MLBB</title>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <main class="wrap">
-<header><div><h1>MLBB Chaos Roulette</h1><p>133 героя · линии · сборки · спеллы · эмблемы · задания</p></div><span>Fan project</span></header>
-<section class="grid top">
-<div class="panel wheel" id="wheel"><div class="ring"></div><div class="center"><small>ТВОЙ ГЕРОЙ</small><strong id="hero">Нажми «Крутить»</strong><em id="heroLanes">—</em></div></div>
-<div class="panel controls">
-<h2>Настройки</h2>
-<label>Режим<select id="mode"><option value="smart">Герой под линию</option><option value="hero">Сначала герой</option><option value="chaos">Полный хаос</option></select></label>
-<label>Линия<select id="forcedLane"><option value="">🎲 Случайная</option><option>EXP Lane</option><option>Jungle</option><option>Mid Lane</option><option>Gold Lane</option><option>Roam</option></select></label>
-<label class="check"><input id="noRepeat" type="checkbox" checked> Не повторять недавних героев</label>
-<label class="check"><input id="hard" type="checkbox"> Добавить безумные задания</label>
-<button class="main" id="spin">🎰 Крутить полный раунд</button>
-<div class="twins"><button id="rerollHero">🎲 Только герой</button><button id="rerollTask">⚔️ Только задание</button></div>
-<div class="twins"><button id="copy">📋 Скопировать</button><button id="unlock">🔓 Снять блокировки</button></div>
-</div>
-</section>
-<section class="cards" id="cards">
-<article class="panel"><small>ЛИНИЯ</small><b id="lane">—</b><i id="laneNote">—</i><button class="lock" data-lock="lane">🔓</button></article>
-<article class="panel"><small>СБОРКА</small><b id="build">—</b><i id="buildNote">—</i><button class="lock" data-lock="build">🔓</button></article>
-<article class="panel"><small>СПЕЛЛ</small><b id="spell">—</b><i>рандом для челленджа</i><button class="lock" data-lock="spell">🔓</button></article>
-<article class="panel"><small>ЭМБЛЕМА</small><b id="emblem">—</b><i>случайная категория</i><button class="lock" data-lock="emblem">🔓</button></article>
-<article class="panel wide"><small>ЗАДАНИЕ</small><b id="task">—</b><i>выполни в одном матче</i><button class="lock" data-lock="task">🔓</button></article>
-<article class="panel"><small>БОНУС</small><b id="bonus">—</b><i>модификатор раунда</i><button class="lock" data-lock="bonus">🔓</button></article>
-</section>
-<section class="panel catalog">
-<div class="catalogHead"><h2>Все герои</h2><input id="search" placeholder="Поиск героя…"></div>
-<div class="filters" id="filters"></div><div id="count"></div><div class="heroes" id="heroes"></div>
-</section>
-<section class="panel history"><div class="catalogHead"><h2>Последние раунды</h2><button id="clearHistory">Очистить</button></div><div id="history"></div></section>
-<footer>Герои и рекомендованные линии сверены по Liquipedia MLBB, Patch 2.2.16. Неофициальный фан-проект, не связан с MOONTON. Случайные сборки — не мета-рекомендации.</footer>
+  <header class="heroHeader">
+    <div>
+      <p class="eyebrow">МОБАЙЛ ЛЕГЕНДС · ФАН-РУЛЕТКА</p>
+      <h1>Рулетка MLBB</h1>
+      <p class="subtitle">Сначала герой. Потом линия. Потом сборка. В конце — весёлое задание на катку.</p>
+    </div>
+    <button id="restart" class="ghost">↻ Начать заново</button>
+  </header>
+
+  <section class="steps" aria-label="Этапы рулетки">
+    <button class="step active" data-step="1"><span>1</span><b>Герой</b><small id="stepHero">Крутим первым</small></button>
+    <button class="step locked" data-step="2"><span>2</span><b>Линия</b><small id="stepLane">После героя</small></button>
+    <button class="step locked" data-step="3"><span>3</span><b>Сборка</b><small id="stepBuild">После линии</small></button>
+    <button class="step locked" data-step="4"><span>4</span><b>Задание</b><small id="stepTask">Финал</small></button>
+  </section>
+
+  <section class="roulette panel" id="roulette">
+    <div class="glow"></div>
+    <div class="wheelRing"></div>
+    <div class="rouletteContent">
+      <p id="rouletteLabel">ЭТАП 1 · ГЕРОЙ</p>
+      <h2 id="rouletteValue">Кто сегодня страдает?</h2>
+      <p id="rouletteHint">Нажми кнопку — выпадет случайный герой.</p>
+      <button id="roll" class="roll">🎰 Крутить героя</button>
+    </div>
+  </section>
+
+  <section class="resultGrid">
+    <article class="result panel" id="heroCard">
+      <span class="number">01</span>
+      <small>ГЕРОЙ</small>
+      <strong id="heroResult">—</strong>
+      <p id="heroInfo">Сначала выбери героя.</p>
+    </article>
+
+    <article class="result panel lockedCard" id="laneCard">
+      <span class="number">02</span>
+      <small>ЛИНИЯ</small>
+      <strong id="laneResult">—</strong>
+      <p id="laneInfo">Откроется после героя.</p>
+    </article>
+
+    <article class="result panel lockedCard" id="buildCard">
+      <span class="number">03</span>
+      <small>СБОРКА</small>
+      <strong id="buildResult">—</strong>
+      <p id="buildItems">Откроется после линии.</p>
+    </article>
+
+    <article class="result panel lockedCard taskCard" id="taskCard">
+      <span class="number">04</span>
+      <small>ЗАДАНИЕ НА КАТКУ</small>
+      <strong id="taskResult">—</strong>
+      <p id="taskInfo">Откроется после сборки.</p>
+    </article>
+  </section>
+
+  <section class="panel options">
+    <div>
+      <h3>Настройки веселья</h3>
+      <p>Они влияют только на задания и повторения героев.</p>
+    </div>
+    <label><input id="noRepeat" type="checkbox" checked> Не повторять последних героев</label>
+    <label><input id="crazy" type="checkbox"> Добавить безумные задания</label>
+  </section>
+
+  <section class="panel historyPanel">
+    <div class="sectionHead">
+      <div>
+        <h3>Последние катки</h3>
+        <p>Сохраняются только полностью собранные рулетки.</p>
+      </div>
+      <button id="clearHistory" class="ghost">Очистить</button>
+    </div>
+    <div id="history" class="history"></div>
+  </section>
+
+  <footer>Неофициальный фан-проект по Mobile Legends: Bang Bang. Рулетка создана ради весёлых матчей, а не как мета-гайд.</footer>
 </main>
 <script src="app.js"></script>
 </body>
