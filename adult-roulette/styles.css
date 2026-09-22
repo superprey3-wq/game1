@@ -96,11 +96,11 @@ h3{font-size:clamp(1.45rem,4vw,2rem);margin-bottom:10px}
 .category-badge{padding:8px 11px;font-size:.75rem;font-weight:900;white-space:nowrap}
 .pose-grid{display:grid;grid-template-columns:minmax(240px,.85fr) 1.2fr;gap:28px;align-items:center;margin-top:12px}
 .illustration{
-  min-height:285px;border-radius:24px;border:1px solid var(--line);
+  min-height:360px;border-radius:24px;border:1px solid var(--line);
   display:grid;place-items:center;overflow:hidden;
   background:radial-gradient(circle at 50% 45%,rgba(255,255,255,.07),transparent 46%),rgba(255,255,255,.025)
 }
-.illustration svg{width:92%;height:auto;max-height:300px}
+.illustration svg{width:100%;height:auto;max-height:390px;padding:8px}
 .pose-copy p{color:var(--muted);line-height:1.62}
 .tags{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
 .tags span{padding:7px 10px;font-size:.75rem;color:#e7dced}
@@ -132,7 +132,7 @@ footer{padding:24px 10px 0;color:#7f728b;font-size:.76rem;line-height:1.55;text-
   .card{border-radius:22px}
   .hero{padding:22px 16px}
   .pose-grid{grid-template-columns:1fr}
-  .illustration{min-height:235px}
+  .illustration{min-height:310px}
   .info-grid{grid-template-columns:1fr 1fr}
   .info-grid .mini-card:last-child{grid-column:1/-1}
   .actions>*{width:100%}
