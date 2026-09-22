@@ -54,19 +54,19 @@
 
     <div class="laneWheelArea">
       <div class="pointer">▼</div>
-      <div class="laneWheel" id="laneWheel">
-        <div class="laneLabel l1">Линия опыта</div>
-        <div class="laneLabel l2">Лес</div>
-        <div class="laneLabel l3">Линия золота</div>
-        <div class="laneLabel l4">Роум</div>
-        <div class="laneLabel l5">Мид</div>
-        <div class="laneHub">?</div>
+      <div class="laneWheel" id="laneWheel" aria-label="Рулетка линий">
+        <div class="laneMarker" style="--i:0"><span class="laneIcon">⚔️</span><b>Линия опыта</b><small>EXP</small></div>
+        <div class="laneMarker" style="--i:1"><span class="laneIcon">🌿</span><b>Лес</b><small>Jungle</small></div>
+        <div class="laneMarker" style="--i:2"><span class="laneIcon">💰</span><b>Линия золота</b><small>Gold</small></div>
+        <div class="laneMarker" style="--i:3"><span class="laneIcon">🛡️</span><b>Роум</b><small>Roam</small></div>
+        <div class="laneMarker" style="--i:4"><span class="laneIcon">✨</span><b>Мид</b><small>Mid</small></div>
+        <div class="laneHub"><span>?</span><small>линия</small></div>
       </div>
     </div>
     <div class="lineResult">
       <small>ВЫПАЛА ЛИНИЯ</small>
       <strong id="laneName">—</strong>
-      <span id="laneHint">Мид — центральная линия, где обычно играют маги.</span>
+      <span id="laneHint">Стрелка сверху точно показывает выпавший сектор.</span>
     </div>
     <button id="spinLane" class="primary" disabled>🗺️ Крутить линию</button>
   </section>
