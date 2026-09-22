@@ -82,16 +82,20 @@ function spinHero(){
 function spinLane(){
   if(!hero)return;
   $("spinLane").disabled=true;
-  const idx=Math.floor(Math.random()*lanes.length),final=lanes[idx],wheel=$("laneWheel");
+  const idx=Math.floor(Math.random()*lanes.length);
+  const final=lanes[idx];
+  const wheel=$("laneWheel");
+  const spinner=$("laneSpinner");
+
   wheel.querySelectorAll(".laneMarker").forEach(el=>el.classList.remove("selected"));
   wheel.querySelector(".laneHub span").textContent="...";
-  wheel.querySelector(".laneHub small").textContent="крутится";
+  wheel.querySelector(".laneHub small").textContent="крутим";
   $("laneName").textContent="Крутим...";
-  $("laneHint").textContent="Стрелка сверху остановится точно по центру выпавшего сектора.";
+  $("laneHint").textContent="Стрелка выбирает один из пяти секторов.";
 
-  const stopAngle=(360-idx*72)%360;
+  const targetAngle=idx*72;
   const base=Math.ceil(laneRotation/360)*360;
-  laneRotation=base+1440+stopAngle;
+  laneRotation=base+1440+targetAngle;
 
   let finished=false;
   const finish=function(){
@@ -106,12 +110,12 @@ function spinLane(){
     $("spinLane").disabled=false;
     $("spinBuild").disabled=false;
     build=[];task=null;
-    go(3);
+    setTimeout(()=>go(3),650);
   };
 
-  wheel.addEventListener("transitionend",finish,{once:true});
-  requestAnimationFrame(()=>{wheel.style.transform="rotate("+laneRotation+"deg)"});
-  setTimeout(finish,2500);
+  spinner.addEventListener("transitionend",finish,{once:true});
+  requestAnimationFrame(()=>{spinner.style.transform="rotate("+laneRotation+"deg)"});
+  setTimeout(finish,2450);
 }
 function randomBuild(){const b=pick(boots()),rest=shuffle(finals()).filter(x=>x["name-equipment"]!==b["name-equipment"]).slice(0,5);return[b].concat(rest)}
 function itemCard(i,rolling){return'<div class="itemSlot'+(rolling?" rolling":"")+'"><img src="'+itemImg(i)+'" alt="'+esc(iName(i))+'"><strong>'+esc(iName(i))+'</strong><small>'+Number(i["prize-gold"]).toLocaleString("ru-RU")+' золота</small></div>'}
@@ -145,7 +149,7 @@ function renderCatalog(){
 function resultText(){return["Моя рулетка MLBB:","Герой: "+hName(hero),"Линия: "+lane.name,"Сборка: "+build.map(iName).join(" → "),"Задание: "+task].join("\n")}
 async function copyResult(){const text=resultText();try{await navigator.clipboard.writeText(text);$("copyResult").textContent="✅ Скопировано";setTimeout(()=>$("copyResult").textContent="📋 Скопировать результат",1200)}catch(e){prompt("Скопируй результат:",text)}}
 function reset(){
-  stage=1;hero=null;lane=null;build=[];task=null;laneRotation=0;$("heroCenterPhoto").innerHTML="<span>?</span>";$("heroName").textContent="Кто выпадет?";$("heroOriginal").textContent="Нажми кнопку ниже";$("chosenHeroMini").textContent="Сначала выбери героя";$("laneName").textContent="—";$("laneHint").textContent="Стрелка сверху точно показывает выпавший сектор.";$("laneWheel").style.transform="rotate(0deg)";$("laneWheel").querySelector(".laneHub span").textContent="?";$("laneWheel").querySelector(".laneHub small").textContent="линия";$("laneWheel").querySelectorAll(".laneMarker").forEach(el=>el.classList.remove("selected"));$("buildSlots").innerHTML='<div class="itemSlot empty">?</div>'.repeat(6);$("buildPrice").textContent="—";$("taskText").textContent="Сначала собери героя, линию и сборку.";$("taskSub").textContent="Все задания написаны по-русски и рассчитаны на одну катку.";$("finalCard").classList.add("hidden");$("spinLane").disabled=true;$("spinBuild").disabled=true;$("spinTask").disabled=true;renderOrbit();updateProgress();$("heroSection").scrollIntoView({behavior:"smooth",block:"start"})
+  stage=1;hero=null;lane=null;build=[];task=null;laneRotation=0;$("heroCenterPhoto").innerHTML="<span>?</span>";$("heroName").textContent="Кто выпадет?";$("heroOriginal").textContent="Нажми кнопку ниже";$("chosenHeroMini").textContent="Сначала выбери героя";$("laneName").textContent="—";$("laneHint").textContent="Нажми «Крутить линию» — стрелка остановится точно на выбранном секторе.";$("laneSpinner").style.transition="none";$("laneSpinner").style.transform="rotate(0deg)";requestAnimationFrame(()=>requestAnimationFrame(()=>{$("laneSpinner").style.transition=""}));$("laneWheel").querySelector(".laneHub span").textContent="?";$("laneWheel").querySelector(".laneHub small").textContent="крути";$("laneWheel").querySelectorAll(".laneMarker").forEach(el=>el.classList.remove("selected"));$("buildSlots").innerHTML='<div class="itemSlot empty">?</div>'.repeat(6);$("buildPrice").textContent="—";$("taskText").textContent="Сначала собери героя, линию и сборку.";$("taskSub").textContent="Все задания написаны по-русски и рассчитаны на одну катку.";$("finalCard").classList.add("hidden");$("spinLane").disabled=true;$("spinBuild").disabled=true;$("spinTask").disabled=true;renderOrbit();updateProgress();$("heroSection").scrollIntoView({behavior:"smooth",block:"start"})
 }
 async function load(){
   try{const r=await Promise.all([fetch("./data/heroes.json"),fetch("./data/items.json")]);heroes=await r[0].json();items=await r[1].json();$("heroCount").textContent=heroes.length;$("itemCount").textContent=items.length;renderOrbit();renderTabs();renderCatalog();showHistory()}

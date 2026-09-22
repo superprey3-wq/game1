@@ -316,3 +316,225 @@ footer{text-align:center;color:#65718d;font-size:11px;line-height:1.55;margin-to
   .laneMarker small{font-size:7px}
   .lineResult strong{font-size:30px}
 }
+
+
+/* Рулетка линий v2: неподвижные сектора + точная вращающаяся стрелка */
+#laneSection .laneWheelArea{
+  height:auto;
+  min-height:0;
+  padding:22px 10px 16px;
+  overflow:visible;
+  background:linear-gradient(180deg,#0b1223,#080d18);
+  border:1px solid #25304b;
+  border-radius:22px;
+}
+#laneSection .laneWheel{
+  --wheel-size:min(78vw,340px);
+  position:relative;
+  width:var(--wheel-size);
+  height:var(--wheel-size);
+  margin:0 auto;
+  border-radius:50%;
+  border:7px solid #151f36;
+  background:
+    repeating-conic-gradient(from -36deg,transparent 0 71.2deg,rgba(255,255,255,.32) 71.2deg 72deg),
+    conic-gradient(from -36deg,
+      #6b54df 0 20%,
+      #18816e 20% 40%,
+      #c78618 40% 60%,
+      #bf4d70 60% 80%,
+      #3477bb 80% 100%);
+  box-shadow:
+    0 0 0 2px #526186,
+    0 0 0 8px #0a1020,
+    0 22px 48px #0009,
+    inset 0 0 45px rgba(0,0,0,.28);
+  transform:none !important;
+  transition:none !important;
+}
+#laneSection .laneWheel:before{
+  content:"";
+  position:absolute;
+  inset:10px;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,.18);
+  box-shadow:inset 0 0 22px rgba(255,255,255,.04);
+  pointer-events:none;
+}
+#laneSection .laneWheel:after{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:76px;
+  height:76px;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  background:radial-gradient(circle at 40% 35%,#25314e,#09101e 72%);
+  border:4px solid #6a789b;
+  box-shadow:0 0 0 6px #080e1b,0 10px 24px #0008;
+  z-index:7;
+}
+#laneSection .laneMarker{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:96px;
+  min-height:58px;
+  margin:-29px 0 0 -48px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  text-align:center;
+  color:#fff;
+  text-shadow:0 2px 8px #000c;
+  z-index:4;
+  transition:filter .2s,scale .2s;
+}
+#laneSection .laneMarker[data-lane="0"]{transform:translateY(-112px)}
+#laneSection .laneMarker[data-lane="1"]{transform:rotate(72deg) translateY(-112px) rotate(-72deg)}
+#laneSection .laneMarker[data-lane="2"]{transform:rotate(144deg) translateY(-112px) rotate(-144deg)}
+#laneSection .laneMarker[data-lane="3"]{transform:rotate(216deg) translateY(-112px) rotate(-216deg)}
+#laneSection .laneMarker[data-lane="4"]{transform:rotate(288deg) translateY(-112px) rotate(-288deg)}
+#laneSection .laneMarker .laneIcon{
+  font-size:24px;
+  line-height:1;
+  filter:drop-shadow(0 3px 5px #0008);
+}
+#laneSection .laneMarker b{
+  font-size:12px;
+  line-height:1.02;
+  font-weight:950;
+}
+#laneSection .laneMarker.selected{
+  filter:brightness(1.35) drop-shadow(0 0 11px rgba(255,226,130,.95));
+  scale:1.08;
+}
+#laneSection .laneSpinner{
+  position:absolute;
+  inset:0;
+  z-index:6;
+  pointer-events:none;
+  transform:rotate(0deg);
+  transition:transform 2.3s cubic-bezier(.12,.72,.08,1);
+  will-change:transform;
+}
+#laneSection .laneNeedle{
+  position:absolute;
+  left:50%;
+  bottom:50%;
+  width:7px;
+  height:calc(50% - 30px);
+  transform:translateX(-50%);
+  border-radius:7px 7px 2px 2px;
+  background:linear-gradient(180deg,#ffe38a,#ffb52f 62%,#fff1b0);
+  box-shadow:0 0 10px #ffc85799,0 3px 7px #0008;
+}
+#laneSection .laneNeedle:after{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:-6px;
+  width:15px;
+  height:15px;
+  transform:translateX(-50%) rotate(45deg);
+  border-radius:3px;
+  background:#ffe083;
+  box-shadow:0 0 12px #ffc857aa;
+}
+#laneSection .laneNeedleTip{display:none}
+#laneSection .laneHub{
+  position:absolute;
+  left:50%;
+  top:50%;
+  z-index:8;
+  transform:translate(-50%,-50%);
+  width:68px;
+  height:68px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  pointer-events:none;
+}
+#laneSection .laneHub span{
+  font-size:18px;
+  font-weight:1000;
+  line-height:1;
+}
+#laneSection .laneHub small{
+  margin-top:3px;
+  font-size:8px;
+  color:#95a2be;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+#laneSection .lineResult{
+  max-width:650px;
+  margin:12px auto 0;
+  padding:11px 14px;
+  display:flex;
+  align-items:center;
+  gap:16px;
+  text-align:left;
+  background:#0a1120;
+  border:1px solid #25314d;
+  border-radius:14px;
+}
+#laneSection .lineResultTitle{
+  flex:0 0 auto;
+  min-width:118px;
+}
+#laneSection .lineResultTitle small{
+  display:block;
+  color:var(--cyan);
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.13em;
+}
+#laneSection .lineResultTitle strong{
+  display:block;
+  margin:2px 0 0;
+  color:#fff;
+  font-size:21px;
+  line-height:1.05;
+}
+#laneSection .lineResult>span{
+  display:block;
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.4;
+}
+#laneSection #spinLane{
+  margin-top:12px;
+}
+@media(max-width:700px){
+  #laneSection .laneWheel{--wheel-size:min(82vw,310px)}
+  #laneSection .laneMarker[data-lane="0"]{transform:translateY(-101px)}
+  #laneSection .laneMarker[data-lane="1"]{transform:rotate(72deg) translateY(-101px) rotate(-72deg)}
+  #laneSection .laneMarker[data-lane="2"]{transform:rotate(144deg) translateY(-101px) rotate(-144deg)}
+  #laneSection .laneMarker[data-lane="3"]{transform:rotate(216deg) translateY(-101px) rotate(-216deg)}
+  #laneSection .laneMarker[data-lane="4"]{transform:rotate(288deg) translateY(-101px) rotate(-288deg)}
+}
+@media(max-width:470px){
+  #laneSection{padding:13px}
+  #laneSection .laneWheelArea{padding:18px 4px 12px;border-radius:18px}
+  #laneSection .laneWheel{--wheel-size:min(78vw,286px);border-width:6px}
+  #laneSection .laneMarker{width:78px;margin-left:-39px;min-height:50px}
+  #laneSection .laneMarker[data-lane="0"]{transform:translateY(-91px)}
+  #laneSection .laneMarker[data-lane="1"]{transform:rotate(72deg) translateY(-91px) rotate(-72deg)}
+  #laneSection .laneMarker[data-lane="2"]{transform:rotate(144deg) translateY(-91px) rotate(-144deg)}
+  #laneSection .laneMarker[data-lane="3"]{transform:rotate(216deg) translateY(-91px) rotate(-216deg)}
+  #laneSection .laneMarker[data-lane="4"]{transform:rotate(288deg) translateY(-91px) rotate(-288deg)}
+  #laneSection .laneMarker .laneIcon{font-size:19px}
+  #laneSection .laneMarker b{font-size:9px}
+  #laneSection .laneWheel:after{width:64px;height:64px}
+  #laneSection .laneHub{width:58px;height:58px}
+  #laneSection .laneHub span{font-size:15px}
+  #laneSection .laneNeedle{width:6px;height:calc(50% - 25px)}
+  #laneSection .lineResult{display:block;text-align:center;padding:10px 12px}
+  #laneSection .lineResultTitle{min-width:0;margin-bottom:5px}
+  #laneSection .lineResultTitle strong{font-size:24px}
+}

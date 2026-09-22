@@ -53,20 +53,22 @@
     </div>
 
     <div class="laneWheelArea">
-      <div class="pointer">▼</div>
       <div class="laneWheel" id="laneWheel" aria-label="Рулетка линий">
-        <div class="laneMarker" style="--i:0"><span class="laneIcon">⚔️</span><b>Линия опыта</b><small>бойцы</small></div>
-        <div class="laneMarker" style="--i:1"><span class="laneIcon">🌿</span><b>Лес</b><small>лесник</small></div>
-        <div class="laneMarker" style="--i:2"><span class="laneIcon">💰</span><b>Линия золота</b><small>стрелки</small></div>
-        <div class="laneMarker" style="--i:3"><span class="laneIcon">🛡️</span><b>Роум</b><small>поддержка</small></div>
-        <div class="laneMarker" style="--i:4"><span class="laneIcon">✨</span><b>Мид</b><small>маги</small></div>
-        <div class="laneHub"><span>?</span><small>линия</small></div>
+        <div class="laneMarker" data-lane="0"><span class="laneIcon">⚔️</span><b>Линия опыта</b></div>
+        <div class="laneMarker" data-lane="1"><span class="laneIcon">🌿</span><b>Лес</b></div>
+        <div class="laneMarker" data-lane="2"><span class="laneIcon">💰</span><b>Линия золота</b></div>
+        <div class="laneMarker" data-lane="3"><span class="laneIcon">🛡️</span><b>Роум</b></div>
+        <div class="laneMarker" data-lane="4"><span class="laneIcon">✨</span><b>Мид</b></div>
+        <div class="laneSpinner" id="laneSpinner" aria-hidden="true">
+          <span class="laneNeedle"></span>
+          <span class="laneNeedleTip"></span>
+        </div>
+        <div class="laneHub"><span>?</span><small>крути</small></div>
       </div>
     </div>
     <div class="lineResult">
-      <small>ВЫПАЛА ЛИНИЯ</small>
-      <strong id="laneName">—</strong>
-      <span id="laneHint">Стрелка сверху точно показывает выпавший сектор.</span>
+      <div class="lineResultTitle"><small>ВЫПАЛО</small><strong id="laneName">—</strong></div>
+      <span id="laneHint">Нажми «Крутить линию» — стрелка остановится точно на выбранном секторе.</span>
     </div>
     <button id="spinLane" class="primary" disabled>🗺️ Крутить линию</button>
   </section>
