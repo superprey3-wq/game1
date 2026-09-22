@@ -66,6 +66,60 @@ const base = {
   ]
 };
 
+
+const sourceLinks = {
+  vaginal: {
+    face:["The Eagle","https://educacionsexual.org/en/sex-positions/the-eagle/"],
+    side:["The Crab","https://educacionsexual.org/en/sex-positions/the-crab/"],
+    sideBack:["The Doggy Style","https://educacionsexual.org/en/sex-positions/the-doggy-style/"],
+    seat:["The Lotus Flower","https://educacionsexual.org/en/sex-positions/the-lotus-flower/"],
+    edge:["Advanced Edge Doggy Style","https://educacionsexual.org/en/sex-positions/advanced-edge-doggy-style/"],
+    recline:["With Ergonomic Wedge","https://educacionsexual.org/en/sex-positions/with-ergonomic-wedge/"],
+    stand:["The Column","https://educacionsexual.org/en/sex-positions/the-column/"],
+    lean:["The Doggy Style","https://educacionsexual.org/en/sex-positions/the-doggy-style/"],
+    kneel:["Depth","https://educacionsexual.org/en/sex-positions/depth/"],
+    edge2:["Advanced Edge Doggy Style","https://educacionsexual.org/en/sex-positions/advanced-edge-doggy-style/"],
+    seatHug:["The Lotus Flower","https://educacionsexual.org/en/sex-positions/the-lotus-flower/"],
+    support:["With Ergonomic Wedge","https://educacionsexual.org/en/sex-positions/with-ergonomic-wedge/"]
+  },
+  oral: {
+    oralSeat:["Oral Sex on the Penis","https://educacionsexual.org/en/sex-positions/oral-sex-on-the-penis-fellatio/"],
+    oralEdge:["The Gallows","https://educacionsexual.org/en/sex-positions/the-gallows/"],
+    oralLie:["Oral Sex on the Vulva","https://educacionsexual.org/en/sex-positions/oral-sex-on-the-vulva-cunnilingus/"],
+    oralSide:["Oral Sex on the Penis","https://educacionsexual.org/en/sex-positions/oral-sex-on-the-penis-fellatio/"],
+    sixtyNineSide:["The 69","https://educacionsexual.org/en/sex-positions/the-69/"],
+    sixtyNine:["The 69","https://educacionsexual.org/en/sex-positions/the-69/"],
+    oralRecline:["The Gallows","https://educacionsexual.org/en/sex-positions/the-gallows/"],
+    oralStand:["The Gallows","https://educacionsexual.org/en/sex-positions/the-gallows/"],
+    oralKneel:["Oral Sex on the Penis","https://educacionsexual.org/en/sex-positions/oral-sex-on-the-penis-fellatio/"],
+    oralCorner:["The Queen's Chair","https://educacionsexual.org/en/sex-positions/the-queen-s-chair/"],
+    oralCross:["Oral Sex on the Vulva","https://educacionsexual.org/en/sex-positions/oral-sex-on-the-vulva-cunnilingus/"],
+    oralFloor:["Oral Sex on the Penis","https://educacionsexual.org/en/sex-positions/oral-sex-on-the-penis-fellatio/"]
+  },
+  anal: {
+    analSide:["Anal Sex — Complete Guide","https://educacionsexual.org/en/sex-positions/anal-sex-complete-guide/"],
+    analFace:["The Eagle","https://educacionsexual.org/en/sex-positions/the-eagle/"],
+    analRecline:["The Crab","https://educacionsexual.org/en/sex-positions/the-crab/"],
+    analPillow:["The Doggy Style","https://educacionsexual.org/en/sex-positions/the-doggy-style/"],
+    analEdge:["Anal Sex — Complete Guide","https://educacionsexual.org/en/sex-positions/anal-sex-complete-guide/"],
+    analKneel:["The Doggy Style","https://educacionsexual.org/en/sex-positions/the-doggy-style/"],
+    analProne:["Anal Sex — Complete Guide","https://educacionsexual.org/en/sex-positions/anal-sex-complete-guide/"],
+    analStand:["Anal sex positions","https://educacionsexual.org/en/anal-sex-positions/"],
+    analLean:["The Doggy Style","https://educacionsexual.org/en/sex-positions/the-doggy-style/"],
+    analCurl:["Anal Sex — Complete Guide","https://educacionsexual.org/en/sex-positions/anal-sex-complete-guide/"],
+    analSeat:["Anal Sex — Complete Guide","https://educacionsexual.org/en/sex-positions/anal-sex-complete-guide/"],
+    analSupport:["Anal Sex — Complete Guide","https://educacionsexual.org/en/sex-positions/anal-sex-complete-guide/"]
+  }
+};
+
+function getSource(category,scene,variantIndex){
+  let source=sourceLinks[category]?.[scene] || ["Sex positions encyclopedia","https://educacionsexual.org/en/sex-positions/"];
+  if(category==="oral" && ["oralSeat","oralLie","oralSide","oralCross","oralFloor"].includes(scene) && variantIndex%2===1){
+    source=["Oral Sex on the Vulva","https://educacionsexual.org/en/sex-positions/oral-sex-on-the-vulva-cunnilingus/"];
+  }
+  return {name:source[0],url:source[1]};
+}
+
 function difficultyIndex(label){
   return ["Легко","Средне","Сложно"].indexOf(label);
 }
@@ -82,7 +136,8 @@ function buildPool(category){
       setting:item[2],
       difficulty:shiftDifficulty(item[3],v.difficultyShift),
       scene:item[4],
-      note:v.note
+      note:v.note,
+      source:getSource(category,item[4],variantIndex)
     }))
   );
 }
@@ -102,6 +157,8 @@ const poseDescription=document.getElementById("poseDescription");
 const difficultyTag=document.getElementById("difficultyTag");
 const settingTag=document.getElementById("settingTag");
 const poseTip=document.getElementById("poseTip");
+const sourceLink=document.getElementById("sourceLink");
+const sourceName=document.getElementById("sourceName");
 const poseIllustration=document.getElementById("poseIllustration");
 const rerollPoseBtn=document.getElementById("rerollPoseBtn");
 const rerollAllBtn=document.getElementById("rerollAllBtn");
@@ -247,6 +304,8 @@ function render(category,pose){
   settingTag.textContent="Где: "+pose.setting;
   poseTip.textContent=categoryTip(category)+" "+pose.note;
   poseIllustration.innerHTML=mannequinIllustration(pose.scene,meta.color);
+  sourceLink.href=pose.source.url;
+  sourceName.textContent=pose.source.name;
   resultCard.classList.remove("hidden");
   addHistory(meta.badge,pose.title);
   setTimeout(()=>resultCard.scrollIntoView({behavior:"smooth",block:"nearest"}),70);
