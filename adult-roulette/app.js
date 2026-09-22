@@ -6,74 +6,55 @@ const categories = [
 
 
 
-const CF_BASE="https://www.christianfriendlysexpositions.com/";
-const CF_CATALOG=CF_BASE+"table-of-contents/";
-const ANAL_CATALOG="https://sexpositions.guru/en/type/possible";
 
-const ordinaryNames=["Ace","Adapted Missionary","Amazon 2","Amazon","Ape","April Fool's Paradise","Are Those Colored Contacts?","Armrest Yes!","Ascent to Desire","Assist","Backseat Driver","Backwards Slide","Bad Santa","Banana Pancakes","Banana Split","Bandoleer","Barcalounger","Basket","Beep Beep","Ben Dover","Bent Spoon","Best View","Betty Rocker","Bicycle","Big L","Bounce","Bouncing Spoon","Bridge","Bringing Up the Rear","Butterfly","Camel Style 1","Camel Style","Can You Feel Me Now?","Candle","CAT","Challenge","Chimney Sweep","Circle Driver","Clapper","Clasp","Clip","Close-up","Column","Comfy","Corner Cowgirl","Couchtastic","Cowboy","Cowgirl","Cowgirl Squeeze","Crisscross","Crossed Keys","Crouching Tiger","Curled Angel","Dancer","Dart","Deckchair","Deep Victory","Delight","Divine Lift","Doggy on the Bench","Doggy on the Couch","Doggy Style","Dolphin","Double Decker","Down Low","Dr. Scholl's Day Off","Dragonfly","Dublin Shuffle","Eagle","Easy Rider","Edge of His Seat","Edgy","Edward Scissorlegs","Erotic V","Exposed Eagle","Extension Cord","Fan","Fantastic Rocking Horse","Fast and Furious","Fast Romp","Flatiron","Foot In Mouth","Frame Job","Frog","Froggy Style","From Behind","Fulcrum Lift","Fullback","Funky Monkey","G-Force","Gallery","Gettin' Jiggy With It","Glowing Juniper","Glowing Triangle","Grinder","Grinding the Corn","Grip","Harp","Heart to Heart","Her High Plane","Hero","High Rise","High-Ridin' Cowboy","Hind-quarterly Review","Hinge","Hobbyhorse","Hooked On You","Hound","Hula Bula","I'll Be Back","Ice Cream","Ice Sculpture","Indian Headstand","Indrani","Inverted Spoon","Jockey","Jugghead","Kneel","Laid Back","Laid-Back Reverse Cowgirl","Lamaze Coach","Lap Dance","Lap Top","Layover","Lazy Cowgirl","Lazy Love Seat","Lazy Wheelbarrow","Leap Frog","Leg Slider","Let's Dance","Locked Cowgirl","Long Goodbye","Lotus Blossom","Lovely","Lunge","Lustful Cobra","Magic Mountain","Man On Fire","Mastery","Mating Press","Meet N' Greet","Mermaid","Missionary","Night Crawler","Nirvana","No Elbows On the Table","Octopus","Oh, My!","Open Sesame","Otto-Man","Over Easy","Packing the Suitcase","Padlock","Pedal","Pedestal","Peg","Perch","Perpen-Dic-Ular","Pilates Class","Pink Flamingo","Plinth","Plow 2","Plow","Prime Time","Prone Bone","Prone Tiger","Proposal","Reach for the Stars","Rear-Ender","Reclining Lotus","Reverse Cowgirl Rocker","Reverse Cowgirl","Reverse Grinding the Corn 2","Reverse Grinding the Corn","Reverse Missionary","Right Angle 2","Right Angle","Rocket Sled","Rodeo","Rowing Boat","Sandwich","Seated Ball","Seduction","See-Saw","Ship","Shoulder Holder","Shoulder Stand","Sidekick","Sideways Champion","Sledge","Slide","Slip","Smooth Operator","Snail","Sofa Press","Sofa Surprise","Sphinx","Spider","Splitting Bamboo","Splitting Queen","Spoon","Squashing the Deckchair","Squat Balance","Stair Master","Stand and Deliver","Standing Froggy","Standing Missionary","Standing Ovation","Star","Stargazer","Straight Back","Super 8","Super Missionary","Suspended Congress","Swing Fling","Take Flight","Take Me Now","Thigh Master","Tight Missionary","Toad","Tominagi","Trampoline","Triumph Arch","Turtle","Twisted Mrs.","Very Happy Valentine's Day","Waterfall","When In Doubt","Whisper","X","X-Rated"];
-const oralNames=["68 Hers","68 His","69 Edge of the Bed","69 Inverted","69","69 Sideways","69 Yin-Yang","All Yours","Atten-hut","Blazing Saddles","Breakfast At Tiffany's","Bridge 2","Butler","Cinema Stroke","Couch Potato","Divine Incline","Drive-thru","Ear Muffs","Eleven O'Clock","Eve's Ecstasy","Evolved Oral","Feast","Feedbag","Fire Hydrant","Forbidden Fruit","Game's On","Headrest","Hot Seat","In Her Face","Jack Hammer","Licking the Flag Pole","Oral Therapy","Pie in the Sky","Pleasure Garden 69","Plumber","Riding the North Face","Riding the South Face","San Francisco Treat","Scarf","Sitin' On the Edge","Slide On Down","Southern Exposure","Spread Eagle","Suplex - Her","Suplex - His","Throat Swab","Thrustastic","Under the Cuckoo's Nest","Under the Hood","Under the Sink","Usual Blowjob"];
-const analEntries=[["Clapper","https://sexpositions.guru/en/positions/clapper-4"],["Straddle","https://sexpositions.guru/en/positions/straddle-6"],["Candle","https://sexpositions.guru/en/positions/candle-7"],["Boat","https://sexpositions.guru/en/positions/boat-8"],["Spooning","https://sexpositions.guru/en/positions/spooning-13"],["Swing","https://sexpositions.guru/en/positions/swing-15"],["Basset Hound","https://sexpositions.guru/en/positions/basset-hound-17"],["Waterfall","https://sexpositions.guru/en/positions/waterfall-18"],["Sprout","https://sexpositions.guru/en/positions/sprout-19"],["Wall","https://sexpositions.guru/en/positions/wall-20"],["Binding","https://sexpositions.guru/en/positions/binding-26"],["Rider","https://sexpositions.guru/en/positions/rider-27"],["Ape","https://sexpositions.guru/en/positions/ape-28"],["Backshot","https://sexpositions.guru/en/positions/backshot-30"],["Ecstasy","https://sexpositions.guru/en/positions/ecstasy-32"],["Hook","https://sexpositions.guru/en/positions/hook-33"],["Cancer","https://sexpositions.guru/en/positions/cancer-34"],["Bizet","https://sexpositions.guru/en/positions/bizet-39"],["Nun","https://sexpositions.guru/en/positions/nun-41"],["Submissive","https://sexpositions.guru/en/positions/submissive-43"],["Sagittarius","https://sexpositions.guru/en/positions/sagittarius-46"],["Magic Mountain","https://sexpositions.guru/en/positions/magic-mountain-47"],["Crème Brûlée","https://sexpositions.guru/en/positions/creme-brulee-52"],["Precipice","https://sexpositions.guru/en/positions/precipice-53"]];
+const LOVE_SICK_ROOT="https://love-sick.ru/";
+const LOVE_SICK_ORAL="https://love-sick.ru/oral.html";
+const ANAL_GUIDE="https://lifehacker.ru/pozy-dlya-analnogo-seksa/";
 
-const cfSlugOverrides={
-  "Backseat Driver":"back-seat-driver",
-  "Headrest":"head-rest"
-};
+const ordinaryEntries=[["Порхающая бабочка","https://love-sick.ru/butterfly.html"],["Верша","https://love-sick.ru/fish-trap.html"],["Прибывающая лодка","https://love-sick.ru/inbound-boat.html"],["Внутренняя рамка","https://love-sick.ru/inner-frame.html"],["Взламывание бамбука","https://love-sick.ru/bamboo-cracking.html"],["Счастье","https://love-sick.ru/good-fortune.html"],["Маленькая лодочка","https://love-sick.ru/small-boat.html"],["Принуждение","https://love-sick.ru/constraint.html"],["Двойное объятие","https://love-sick.ru/double-belted.html"],["Фруктовый рулет","https://love-sick.ru/roly-poly.html"],["Подъем кипы","https://love-sick.ru/lifting-the-bale.html"],["Птичка","https://love-sick.ru/plover-(little-bird).html"],["Письменный стол","https://love-sick.ru/writing-desk.html"],["Хороший ковшик","https://love-sick.ru/well-bucket.html"],["Причудливая повозка","https://love-sick.ru/fancy-cart.html"],["Морская птичка","https://love-sick.ru/beach-plover.html"],["Высокие горы","https://love-sick.ru/hight-mountains.html"],["Двойной цветок камелии","https://love-sick.ru/double-flowered-camellia.html"],["Верно либо неверно","https://love-sick.ru/whether-right-or-wrong.html"],["Чайная мельница, плот раскачиваемый волнами","https://love-sick.ru/raft-style-tea-grinding-mill.html"],["Переплетающая, чайная мельница","https://love-sick.ru/weaving-tea-grinding-mill.html"],["Моросящий дождь, чайная мельница","https://love-sick.ru/drizzling-tea-grinding-mill.html"],["Богиня наклоняющаяся назад","https://love-sick.ru/goddess-leaning-backward.html"],["Вытянутая, чайная мельница","https://love-sick.ru/stretched-tea-grinding-mill.html"],["Истинная, чайная мельница","https://love-sick.ru/authentic-tea-grinding-mill.html"],["Охота верхом","https://love-sick.ru/shooting-from-the-saddle.html"],["Зеркальное отражение, чайная мельница","https://love-sick.ru/mirrored-tea-grinding-mill.html"],["Причудливое оплетение","https://love-sick.ru/fancy-necking.html"],["Под одеялом","https://love-sick.ru/underneath-the-quilt.html"],["Свешивающаяся глициния","https://love-sick.ru/hanging-wisteria.html"],["Танец льва","https://love-sick.ru/lion-dance.html"],["Сдержанная, чайная мельница","https://love-sick.ru/restrained-tea-grinding-mill.html"],["Удерживание божественной хранительницы","https://love-sick.ru/holding-the-guardian-deity.html"],["Тесный союз на коленях","https://love-sick.ru/knee-brace.html"],["В объятиях","https://love-sick.ru/cuddled-tea-grinding-mill.html"],["Парусная шлюпка","https://love-sick.ru/sailboat-tea-grinding-mill.html"],["Дорожка","https://love-sick.ru/boardwalk.html"],["Флейта","https://love-sick.ru/flute.html"],["Треножник","https://love-sick.ru/tripod.html"],["Стоящая башня","https://love-sick.ru/standing-tower.html"],["Наплавной мост","https://love-sick.ru/float-bridge.html"],["Сомкнутые бедра","https://love-sick.ru/closed-loins.html"],["Летящая ласточка","https://love-sick.ru/flying-swallow.html"],["Укрощение непокорной женщины","https://love-sick.ru/taming-of-the-shrew.html"],["Спуск верхом по склону","https://love-sick.ru/riding-down-the-cliff.html"],["Соприкосновение ягодиц","https://love-sick.ru/back-ass-ward.html"],["Плотно прилегающая птичка","https://love-sick.ru/tightfitting-plover.html"],["Опрокинутый молот","https://love-sick.ru/toppled-hammer.html"],["Созерцание луны","https://love-sick.ru/moon-viewing-tea-grinding-mill.html"],["Удерживание птицы","https://love-sick.ru/holding-the-bird.html"],["Под столом","https://love-sick.ru/under-the-table.html"],["Шиворот-навыворот","https://love-sick.ru/tight-topsy-turvy.html"],["Наклонившаяся вперед со скрещенными ногами","https://love-sick.ru/cross-legged-and-toppled-forward.html"],["Игра в союзе с розой","https://love-sick.ru/fiddling-with-the-confederate-rose.html"],["Поднятие","https://love-sick.ru/lift-up.html"],["Пронзенная","https://love-sick.ru/getting-rammed.html"],["Утиная шея","https://love-sick.ru/duck-neck.html"],["Подножие горы","https://love-sick.ru/foot-of-the-mountain.html"],["Луна в окне","https://love-sick.ru/moon-in-the-window.html"],["Наслаждение на боку","https://love-sick.ru/doing-it-sideways.html"],["Обратная сторона башни","https://love-sick.ru/back-of-the-tower.html"],["Сзади выемки","https://love-sick.ru/behind-the-nock.html"],["Тачка","https://love-sick.ru/pushcart.html"],["Овладение на шахматной доске","https://love-sick.ru/assault-on-the-chessboard.html"],["Дно алтаря","https://love-sick.ru/bottom-of-the-altar.html"],["Встречное проникновение","https://love-sick.ru/crossbill.html"],["Горизантальная хризантема","https://love-sick.ru/horizontal-chrysanthemum.html"],["Разрозненные сосновые иглы","https://love-sick.ru/scattered-pine-needles.html"],["Карета соблазна","https://love-sick.ru/court-carriage.html"],["Погружение в раздумья","https://love-sick.ru/brooding.html"],["Драгоценный корабль","https://love-sick.ru/treasure-boat.html"],["Прямые сосновые иглы","https://love-sick.ru/perpendicular-pine-needles.html"],["Мост радуги","https://love-sick.ru/rainbow-bridge.html"],["Изогнутые сосновые иглы","https://love-sick.ru/curved-pine-needles.html"],["Наковальня","https://love-sick.ru/anvil.html"],["Соединение","https://love-sick.ru/lever-stitching.html"]];
+const oralEntries=[["Горный источник","https://love-sick.ru/mountain-spring.html"],["Соловей в полете","https://love-sick.ru/warbler-in-flight.html"],["Гусиная шея","https://love-sick.ru/gooseneck.html"],["Лепестки цветка","https://love-sick.ru/upright-flower-petals.html"],["Пение ржанки","https://love-sick.ru/song-of-the-plover.html"],["Нападение на лепестки цветка","https://love-sick.ru/assault-on-the-flower-petals.html"],["Спуск со скалы","https://love-sick.ru/plunging-down-the-cliff.html"],["Поза 69 (Инь-Янь)","https://love-sick.ru/poza-69-ying-yang.html"],["Поза 69 (Скворец)","https://love-sick.ru/poza-69-starling.html"]];
+const analNames=["Поза черепахи","Догги-стайл","Наездница","Танец на коленях","Сзади","Высокий стул","Ложки","Прыжок лягушки","Миссионерская поза","Наковальня","Сидя","Уголок"];
 
-function cfSlug(name){
-  if(cfSlugOverrides[name])return cfSlugOverrides[name];
-  return name.toLowerCase()
-    .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
-    .replace(/[’']/g,"")
-    .replace(/&/g," and ")
-    .replace(/[^a-z0-9]+/g,"-")
-    .replace(/^-+|-+$/g,"")
-    .replace(/-+/g,"-");
-}
-
-function makeCfPool(category,names){
-  return names.map((title,i)=>({
+function makeLoveSickPool(category,entries){
+  return entries.map(([title,url],i)=>({
     id:category+"-"+i,
     title,
     description:category==="oral"
-      ?"Оральная позиция для пары мужчина + женщина. На странице источника есть иллюстрация и пошаговое описание расположения партнёров."
-      :"Позиция для пары мужчина + женщина. На странице источника есть иллюстрация и пошаговое описание того, как расположиться.",
-    difficulty:"на странице",
+      ?"Оральная позиция из русского каталога Love-Sick. На странице есть изображение и отдельное описание расположения мужчины и женщины."
+      :"Позиция из русского каталога Love-Sick. На странице есть изображение и отдельное описание расположения мужчины и женщины.",
+    difficulty:"смотри источник",
     setting:"мужчина + женщина",
     scene:category==="oral"?"oralLie":"face",
-    note:"В эту категорию добавлены позиции из каталога, который описывает партнёров как мужа и жену.",
-    source:{
-      name:title,
-      url:CF_BASE+cfSlug(title)+"/",
-      domain:"christianfriendlysexpositions.com"
-    },
-    fallback:CF_CATALOG
+    note:"Прямая страница этой позиции была проверена перед добавлением в рулетку.",
+    source:{name:title,url,domain:"love-sick.ru"},
+    fallback:category==="oral"?LOVE_SICK_ORAL:LOVE_SICK_ROOT
   }));
 }
 
 function makeAnalPool(){
-  return analEntries.map(([title,url],i)=>({
+  return analNames.map((title,i)=>({
     id:"anal-"+i,
     title,
-    description:"Позиция из straight-каталога, отмеченная источником как допускающая анальный вариант. Страница содержит схему и пошаговое описание.",
-    difficulty:"на странице",
+    description:"Позиция из русской подборки «12 лучших поз для анального секса». На странице есть отдельная иллюстрация и раздел «Как выполнить» для каждой позиции.",
+    difficulty:"смотри источник",
     setting:"мужчина + женщина",
     scene:"analSide",
-    note:"Для анальной категории выбраны только проверенные страницы, совместимые со straight-парой.",
-    source:{name:title,url,domain:"sexpositions.guru"},
-    fallback:ANAL_CATALOG
+    note:"Все 12 вариантов находятся на одной проверенной странице; пролистайте до названия выпавшей позиции.",
+    source:{name:title,url:ANAL_GUIDE,domain:"lifehacker.ru"},
+    fallback:ANAL_GUIDE
   }));
 }
 
 const pools={
-  vaginal:makeCfPool("vaginal",ordinaryNames),
-  oral:makeCfPool("oral",oralNames),
+  vaginal:makeLoveSickPool("vaginal",ordinaryEntries),
+  oral:makeLoveSickPool("oral",oralEntries),
   anal:makeAnalPool()
 };
 
 function sourcePreview(pose,meta){
   return '<a class="catalog-preview" href="'+pose.source.url+'" target="_blank" rel="noopener noreferrer">'+
     '<span class="catalog-preview-icon">↗</span>'+
-    '<span class="catalog-preview-kicker">Иллюстрация и пошаговая инструкция</span>'+
+    '<span class="catalog-preview-kicker">Русская страница с картинкой и описанием</span>'+
     '<strong>'+escapeHtml(pose.title)+'</strong>'+
     '<span class="catalog-preview-domain">'+escapeHtml(pose.source.domain)+'</span>'+
   '</a>';
@@ -289,7 +270,7 @@ function render(category,pose){
   sourceLink.href=pose.source.url;
   sourceName.textContent=pose.source.name;
   sourceFallback.href=pose.fallback;
-  sourceFallback.textContent=category==="anal"?"Если прямая страница не открылась — открыть полный straight-каталог ↗":"Если прямая страница не открылась — открыть полный каталог М + Ж ↗";
+  sourceFallback.textContent=category==="anal"?"Открыть всю русскую подборку из 12 анальных поз ↗":category==="oral"?"Открыть русский раздел «Оральные ласки» ↗":"Открыть русский каталог Love-Sick ↗";
   resultCard.classList.remove("hidden");
   addHistory(meta.badge,pose.title);
   setTimeout(()=>resultCard.scrollIntoView({behavior:"smooth",block:"nearest"}),70);
