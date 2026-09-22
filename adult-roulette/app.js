@@ -67,6 +67,8 @@ function sourcePreview(pose,meta){
 const wheel=document.getElementById("wheel");
 const wheelResult=document.getElementById("wheelResult");
 const spinBtn=document.getElementById("spinBtn");
+const copyLinkBtn=document.getElementById("copyLinkBtn");
+const copyStatus=document.getElementById("copyStatus");
 const resultCard=document.getElementById("resultCard");
 const categoryTitle=document.getElementById("categoryTitle");
 const categoryBadge=document.getElementById("categoryBadge");
@@ -329,7 +331,34 @@ function escapeHtml(s){
   return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
 }
 
+
+async function copySiteLink(){
+  const cleanUrl=window.location.origin+window.location.pathname;
+  try{
+    await navigator.clipboard.writeText(cleanUrl);
+    copyStatus.textContent="Ссылка скопирована ✓";
+    copyLinkBtn.textContent="Скопировано ✓";
+  }catch{
+    const area=document.createElement("textarea");
+    area.value=cleanUrl;
+    area.setAttribute("readonly","");
+    area.style.position="fixed";
+    area.style.opacity="0";
+    document.body.appendChild(area);
+    area.select();
+    document.execCommand("copy");
+    area.remove();
+    copyStatus.textContent="Ссылка скопирована ✓";
+    copyLinkBtn.textContent="Скопировано ✓";
+  }
+  window.setTimeout(()=>{
+    copyStatus.textContent="";
+    copyLinkBtn.textContent="Скопировать ссылку";
+  },2200);
+}
+
 spinBtn.addEventListener("click",spin);
+copyLinkBtn.addEventListener("click",copySiteLink);
 rerollPoseBtn.addEventListener("click",rerollPose);
 rerollAllBtn.addEventListener("click",spin);
 historyBtn.addEventListener("click",()=>{renderHistory();historyModal.showModal()});
