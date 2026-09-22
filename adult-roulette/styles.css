@@ -193,3 +193,16 @@ footer{padding:24px 10px 0;color:#7f728b;font-size:.76rem;line-height:1.55;text-
 .catalog-preview-kicker{font-size:.72rem;color:#bbaec8;text-transform:uppercase;letter-spacing:.08em}
 .catalog-preview strong{font-size:clamp(1.15rem,4vw,1.7rem);line-height:1.15;max-width:480px}
 .catalog-preview-domain{font-size:.76rem;color:#cdb8ff}
+
+.hero-actions{
+  display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;width:100%
+}
+.hero-actions .primary,.hero-actions .secondary{min-width:190px}
+.copy-link-btn{border-color:rgba(205,184,255,.35)}
+.copy-status{
+  min-height:20px;margin:6px 0 0;text-align:center;font-size:.82rem;font-weight:800;color:#d7c6ff
+}
+@media(max-width:560px){
+  .hero-actions{flex-direction:column}
+  .hero-actions .primary,.hero-actions .secondary{width:100%}
+}
