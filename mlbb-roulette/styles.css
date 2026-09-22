@@ -129,3 +129,190 @@ footer{text-align:center;color:#65718d;font-size:11px;line-height:1.55;margin-to
   .itemCatalog{grid-template-columns:repeat(3,1fr)}
   .finalSummaryGrid{grid-template-columns:1fr}
 }
+
+
+/* Точная рулетка линий */
+.laneWheelArea{
+  height:430px;
+  background:
+    radial-gradient(circle at 50% 48%,rgba(91,75,184,.18),transparent 30%),
+    linear-gradient(180deg,#111a31,#080d19);
+  border:1px solid #273654;
+}
+.laneWheelArea .pointer{
+  top:5px;
+  width:58px;
+  height:52px;
+  display:grid;
+  place-items:center;
+  color:#ffe28a;
+  font-size:34px;
+  filter:drop-shadow(0 7px 8px #0009);
+  z-index:20;
+}
+.laneWheelArea .pointer:before{
+  content:"";
+  position:absolute;
+  top:0;
+  width:42px;
+  height:18px;
+  border-radius:10px;
+  background:#ffc857;
+  box-shadow:0 0 18px #ffc85766;
+}
+.laneWheel{
+  width:350px;
+  height:350px;
+  border:10px solid #182139;
+  background:
+    repeating-conic-gradient(from -36deg,transparent 0 71deg,rgba(255,255,255,.26) 71deg 72deg),
+    conic-gradient(from -36deg,
+      #6f54e8 0 20%,
+      #16826f 20% 40%,
+      #c58a1d 40% 60%,
+      #c34f73 60% 80%,
+      #347bc2 80% 100%);
+  box-shadow:
+    0 0 0 2px #53658d,
+    0 0 0 11px #0b1120,
+    0 28px 60px #000a,
+    inset 0 0 45px #0005;
+  transition:transform 2.35s cubic-bezier(.12,.72,.08,1);
+  will-change:transform;
+}
+.laneWheel:before{
+  content:"";
+  position:absolute;
+  inset:18px;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,.16);
+  pointer-events:none;
+}
+.laneWheel:after{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:104px;
+  height:104px;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  background:radial-gradient(circle,#171f39 0,#09101f 68%);
+  border:5px solid #60709a;
+  box-shadow:0 0 0 7px #090f1e,0 12px 24px #0008;
+  z-index:4;
+}
+.laneHub{
+  z-index:5;
+  width:92px;
+  height:92px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  pointer-events:none;
+}
+.laneHub span{
+  font-size:22px;
+  font-weight:1000;
+  line-height:1;
+}
+.laneHub small{
+  margin-top:4px;
+  font-size:9px;
+  color:#8fa0c1;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+}
+.laneMarker{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:118px;
+  min-height:70px;
+  margin:-35px 0 0 -59px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:2px;
+  text-align:center;
+  z-index:3;
+  color:white;
+  text-shadow:0 2px 7px #000c;
+  transition:filter .25s,transform .25s;
+}
+.laneMarker:nth-child(1){transform:translateY(-126px)}
+.laneMarker:nth-child(2){transform:rotate(72deg) translateY(-126px) rotate(-72deg)}
+.laneMarker:nth-child(3){transform:rotate(144deg) translateY(-126px) rotate(-144deg)}
+.laneMarker:nth-child(4){transform:rotate(216deg) translateY(-126px) rotate(-216deg)}
+.laneMarker:nth-child(5){transform:rotate(288deg) translateY(-126px) rotate(-288deg)}
+.laneMarker .laneIcon{
+  font-size:24px;
+  line-height:1;
+  filter:drop-shadow(0 3px 5px #0008);
+}
+.laneMarker b{
+  font-size:12px;
+  line-height:1.05;
+  max-width:105px;
+}
+.laneMarker small{
+  font-size:8px;
+  line-height:1;
+  color:rgba(255,255,255,.72);
+  text-transform:uppercase;
+  letter-spacing:.09em;
+}
+.laneMarker.selected{
+  filter:brightness(1.3) drop-shadow(0 0 9px rgba(255,230,140,.85));
+}
+.lineResult{
+  max-width:620px;
+  margin:4px auto 0;
+  padding:16px;
+  border-radius:16px;
+  background:#0a1121;
+  border:1px solid #263452;
+}
+.lineResult strong{
+  font-size:38px;
+  color:#fff;
+}
+.lineResult span{
+  display:block;
+  max-width:520px;
+  margin:0 auto;
+  line-height:1.45;
+}
+@media(max-width:700px){
+  .laneWheelArea{height:380px}
+  .laneWheel{width:300px;height:300px}
+  .laneWheel:after{width:94px;height:94px}
+  .laneHub{width:84px;height:84px}
+  .laneMarker{width:105px;margin-left:-52.5px}
+  .laneMarker:nth-child(1){transform:translateY(-107px)}
+  .laneMarker:nth-child(2){transform:rotate(72deg) translateY(-107px) rotate(-72deg)}
+  .laneMarker:nth-child(3){transform:rotate(144deg) translateY(-107px) rotate(-144deg)}
+  .laneMarker:nth-child(4){transform:rotate(216deg) translateY(-107px) rotate(-216deg)}
+  .laneMarker:nth-child(5){transform:rotate(288deg) translateY(-107px) rotate(-288deg)}
+  .laneMarker .laneIcon{font-size:20px}
+  .laneMarker b{font-size:10px}
+}
+@media(max-width:470px){
+  .laneWheelArea{height:330px}
+  .laneWheel{width:252px;height:252px;border-width:8px}
+  .laneWheel:after{width:82px;height:82px;border-width:4px}
+  .laneHub{width:74px;height:74px}
+  .laneHub span{font-size:17px}
+  .laneMarker{width:88px;margin-left:-44px;min-height:58px}
+  .laneMarker:nth-child(1){transform:translateY(-88px)}
+  .laneMarker:nth-child(2){transform:rotate(72deg) translateY(-88px) rotate(-72deg)}
+  .laneMarker:nth-child(3){transform:rotate(144deg) translateY(-88px) rotate(-144deg)}
+  .laneMarker:nth-child(4){transform:rotate(216deg) translateY(-88px) rotate(-216deg)}
+  .laneMarker:nth-child(5){transform:rotate(288deg) translateY(-88px) rotate(-288deg)}
+  .laneMarker .laneIcon{font-size:18px}
+  .laneMarker b{font-size:9px;max-width:78px}
+  .laneMarker small{font-size:7px}
+  .lineResult strong{font-size:30px}
+}
