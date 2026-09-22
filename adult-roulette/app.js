@@ -164,6 +164,49 @@ function silhouette(scene,color){
     '<circle cx="180" cy="128" r="92" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="1"/>'+
   '</svg>';
 }
+const referenceAssets = {
+  map: {
+    image: "https://upload.wikimedia.org/wikipedia/commons/f/fd/Sex_positions_diagram.png",
+    page: "https://commons.wikimedia.org/wiki/File:Sex_positions_diagram.png",
+    label: "Wikimedia Commons · CC0"
+  },
+  sitting: {
+    image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/56/Sex_position_-_sitting_1.svg/500px-Sex_position_-_sitting_1.svg.png",
+    page: "https://commons.wikimedia.org/wiki/File:Sex_position_-_sitting_1.svg",
+    label: "Wikimedia Commons · CC0"
+  }
+};
+
+function referenceMode(scene){
+  if(/seat|recline|corner/i.test(scene)) return "sitting";
+  if(/side|curl|lie|prone|cross/i.test(scene)) return "side";
+  if(/face/i.test(scene)) return "front";
+  if(/edge|lean|support|kneel|pillow|stand/i.test(scene)) return "back";
+  return null;
+}
+
+function referenceIllustration(scene,color){
+  const mode=referenceMode(scene);
+  if(!mode) return silhouette(scene,color);
+
+  if(mode==="sitting"){
+    const asset=referenceAssets.sitting;
+    return '<div class="reference-wrap">'+
+      '<img class="reference-img" src="'+asset.image+'" alt="Схематичное расположение двух взрослых людей в сидячем положении">'+
+      '<div class="reference-note">Схема показывает только расположение тел.</div>'+
+      '<a class="reference-credit" href="'+asset.page+'" target="_blank" rel="noopener noreferrer">'+asset.label+'</a>'+
+    '</div>';
+  }
+
+  const asset=referenceAssets.map;
+  const label=mode==="front"?"лицом к лицу":mode==="side"?"на боку":"сзади / с опорой";
+  return '<div class="reference-wrap">'+
+    '<div class="reference-map ref-'+mode+'" role="img" aria-label="Базовая схема расположения тел: '+label+'"></div>'+
+    '<div class="reference-note">Ближайшая базовая схема: '+label+'. Она показывает только ориентацию тел, не детали практики.</div>'+
+    '<a class="reference-credit" href="'+asset.page+'" target="_blank" rel="noopener noreferrer">'+asset.label+'</a>'+
+  '</div>';
+}
+
 function categoryTip(category){
   if(category==="anal") return "Для этой категории особенно важны достаточная смазка, медленный темп, ясное согласие и немедленная остановка при боли.";
   if(category==="oral") return "Не давите на голову или шею партнёра без заранее оговорённого согласия; удобное положение важнее результата.";
@@ -180,7 +223,7 @@ function render(category,pose){
   difficultyTag.textContent="Сложность: "+pose.difficulty;
   settingTag.textContent="Где: "+pose.setting;
   poseTip.textContent=categoryTip(category)+" "+pose.note;
-  poseIllustration.innerHTML=silhouette(pose.scene,meta.color);
+  poseIllustration.innerHTML=referenceIllustration(pose.scene,meta.color);
   resultCard.classList.remove("hidden");
   addHistory(meta.badge,pose.title);
   setTimeout(()=>resultCard.scrollIntoView({behavior:"smooth",block:"nearest"}),70);
