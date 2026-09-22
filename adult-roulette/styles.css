@@ -181,3 +181,15 @@ footer{padding:24px 10px 0;color:#7f728b;font-size:.76rem;line-height:1.55;text-
 .wheel-result[data-category="vaginal"]{text-shadow:0 0 18px rgba(255,92,138,.55)}
 .wheel-result[data-category="oral"]{text-shadow:0 0 18px rgba(155,109,255,.6)}
 .wheel-result[data-category="anal"]{text-shadow:0 0 18px rgba(255,155,92,.6)}
+
+.catalog-preview{
+  width:100%;min-height:330px;padding:26px;border-radius:22px;text-decoration:none;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;text-align:center;
+  background:radial-gradient(circle at 50% 35%,rgba(155,109,255,.20),transparent 45%),linear-gradient(145deg,#21142f,#120b1b);
+  color:#fff;border:1px solid rgba(255,255,255,.1)
+}
+.catalog-preview:hover{border-color:rgba(205,184,255,.5)}
+.catalog-preview-icon{width:58px;height:58px;border-radius:18px;display:grid;place-items:center;background:linear-gradient(135deg,var(--a),var(--b));font-size:1.8rem;font-weight:900}
+.catalog-preview-kicker{font-size:.72rem;color:#bbaec8;text-transform:uppercase;letter-spacing:.08em}
+.catalog-preview strong{font-size:clamp(1.15rem,4vw,1.7rem);line-height:1.15;max-width:480px}
+.catalog-preview-domain{font-size:.76rem;color:#cdb8ff}
