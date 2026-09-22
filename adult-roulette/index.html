@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#120b1d">
+  <title>18+ Roulette — рулетка для пары</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="bg-orb orb-a"></div>
+  <div class="bg-orb orb-b"></div>
+
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">18+ • только для совершеннолетних</p>
+        <h1>Couple Roulette</h1>
+      </div>
+      <button class="ghost" id="historyBtn" type="button">История</button>
+    </header>
+
+    <section class="hero card">
+      <div class="hero-copy">
+        <span class="pill">2 шага</span>
+        <h2>Сначала вид, потом случайная поза</h2>
+        <p>Рулетка выбирает категорию, после чего из соответствующей библиотеки выбирается нейтрально описанная поза. Иллюстрации — только абстрактные силуэты без анатомических деталей.</p>
+      </div>
+
+      <div class="wheel-wrap" aria-label="Рулетка категорий">
+        <div class="pointer" aria-hidden="true"></div>
+        <div class="wheel" id="wheel">
+          <div class="wheel-label label-a">Обычный</div>
+          <div class="wheel-label label-b">Оральный</div>
+          <div class="wheel-label label-c">Анальный</div>
+          <div class="wheel-center">18+</div>
+        </div>
+      </div>
+
+      <button class="primary" id="spinBtn" type="button">Крутить рулетку</button>
+      <p class="microcopy">Все участники должны быть совершеннолетними и согласными. В любой момент можно пропустить результат.</p>
+    </section>
+
+    <section class="result card hidden" id="resultCard" aria-live="polite">
+      <div class="result-head">
+        <div>
+          <p class="eyebrow">Выпало</p>
+          <h2 id="categoryTitle">—</h2>
+        </div>
+        <span class="category-badge" id="categoryBadge">—</span>
+      </div>
+
+      <div class="pose-grid">
+        <div class="illustration" id="poseIllustration" aria-hidden="true"></div>
+        <div class="pose-copy">
+          <h3 id="poseTitle">—</h3>
+          <p id="poseDescription">—</p>
+          <div class="tags">
+            <span id="difficultyTag">—</span>
+            <span id="settingTag">—</span>
+          </div>
+          <p class="tip" id="poseTip"></p>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="primary" id="rerollPoseBtn" type="button">Другая поза этой категории</button>
+        <button class="secondary" id="rerollAllBtn" type="button">Крутить всё заново</button>
+      </div>
+    </section>
+
+    <section class="info-grid">
+      <article class="mini-card">
+        <strong id="poolCount">144</strong>
+        <span>варианта в библиотеке</span>
+      </article>
+      <article class="mini-card">
+        <strong>3</strong>
+        <span>категории</span>
+      </article>
+      <article class="mini-card">
+        <strong>0</strong>
+        <span>откровенных изображений</span>
+      </article>
+    </section>
+
+    <footer>
+      <p>Игровая идея для взрослых пар. Не медицинская рекомендация. Комфорт, согласие и возможность остановиться важнее любого результата рулетки.</p>
+    </footer>
+  </main>
+
+  <dialog id="ageGate" class="modal">
+    <form method="dialog" class="modal-card">
+      <span class="age-mark">18+</span>
+      <h2>Подтверди возраст</h2>
+      <p>Этот сайт предназначен только для совершеннолетних. Содержимое остаётся не-графическим: текст и условные силуэты.</p>
+      <div class="modal-actions">
+        <button class="primary" id="adultConfirm" value="confirm">Мне есть 18</button>
+        <button class="secondary" id="adultExit" value="exit">Выйти</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="historyModal" class="modal">
+    <div class="modal-card history-card">
+      <div class="result-head">
+        <div>
+          <p class="eyebrow">Последние результаты</p>
+          <h2>История</h2>
+        </div>
+        <button class="ghost" id="closeHistory" type="button">Закрыть</button>
+      </div>
+      <div id="historyList" class="history-list"></div>
+      <button class="secondary" id="clearHistory" type="button">Очистить историю</button>
+    </div>
+  </dialog>
+
+  <script src="./app.js"></script>
+</body>
+</html>
