@@ -1,0 +1,24 @@
+name: Last Wagon build
+on:
+  push:
+    paths: ['last-wagon/**', '.github/workflows/last-wagon.yml']
+  pull_request:
+    paths: ['last-wagon/**', '.github/workflows/last-wagon.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --check last-wagon/game.js
+      - run: node last-wagon/smoke.cjs
+      - run: python3 last-wagon/package.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: last-wagon-yandex-upload
+          path: last-wagon.zip
