@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 
 const BASE = 'https://cs2.duskrain.cn/';
@@ -15,6 +16,11 @@ async function fetchFile(relative, expectedBytes) {
   if (Number.isFinite(expectedBytes) && bytes.length !== expectedBytes) {
     throw new Error(`Size mismatch for ${relative}: expected ${expectedBytes}, got ${bytes.length}`);
   }
+  const entry = manifest?.files?.find?.(file => file.path === relative);
+  if (entry?.sha256) {
+    const actual = createHash('sha256').update(bytes).digest('hex');
+    if (actual !== entry.sha256) throw new Error(`SHA-256 mismatch for ${relative}`);
+  }
   await writeFile(target, bytes);
   return bytes.length;
 }
@@ -28,7 +34,8 @@ async function ensureManifest() {
   }
 }
 
-const manifest = await ensureManifest();
+let manifest;
+manifest = await ensureManifest();
 if (!Array.isArray(manifest.files) || !manifest.files.length) throw new Error('Invalid mobile asset manifest');
 
 let next = 0, done = 0, bytes = 0;
