@@ -304,7 +304,7 @@ async function start(joinExisting=false){
   const weapon=getWeapon(primary);$('loading-weapon').textContent=`${weapon.name} · ${getSkin(skins.loadout[primary])?.name||weapon.skin}`;
   $('menu-status').textContent='正在加载战场。资源会缓存，之后进入更快。';
   setLoadStage(loaded?'connect':'download',loaded?'连接对战房间':'准备资源清单');
-  const audioReady=audio.start();audioReady.catch(()=>{});
+  const audioReady=audio.start().then(()=>true).catch(error=>{console.warn('[audio startup]',error);return false;});
   try{await loadGame(audioReady);setLoadStage('connect','建立多人对战连接');connect(joinExisting);}
   catch(e){downloadAbort=null;if(e.name==='AbortError'){$('loading-screen').hidden=true;loading=false;$('start-button').disabled=false;$('join-button').disabled=false;$('menu-status').textContent='已取消加载。';}else{console.error(e);loadError(e);}}
 }
