@@ -55,7 +55,7 @@ function joinSettings(msg) {
 }
 
 /** Start the authoritative server after loading collision geometry. No external services. */
-export async function startGameServer({ port = Number(process.env.PORT || 3000), host = process.env.HOST || '0.0.0.0', staticDir = path.join(ROOT, 'dist'), rules = {} } = {}) {
+export async function startGameServer({ port = Number(process.env.PORT || 3000), host = process.env.HOST || '0.0.0.0', staticDir = path.join(ROOT, 'dist'), rules = {}, oneVsOne = false } = {}) {
   await loadPhysics();
   const rooms = new Map();
   const maxRooms = Math.max(1, Math.min(100, Number(process.env.MAX_ROOMS) || 12));
@@ -112,7 +112,7 @@ export async function startGameServer({ port = Number(process.env.PORT || 3000),
       if(msg.type==='listRooms'){
         if(now-(socket.listRoomsAt||0)<1000)return;
         socket.listRoomsAt=now;
-        send(socket,{type:'rooms',rooms:[...rooms.values()].filter(r=>r.humanCount>0).map(r=>({code:r.code,mode:r.mode,botDifficulty:r.botDifficulty,humans:r.humanCount,bots:r.botCount,scores:r.scores,phase:r.round.phase,joinable:r.humanCount<10&&r.match.status!=='ended'})).sort((a,b)=>Number(b.joinable)-Number(a.joinable)||b.humans-a.humans)});return;
+        send(socket,{type:'rooms',rooms:[...rooms.values()].filter(r=>r.humanCount>0).map(r=>({code:r.code,mode:r.mode,botDifficulty:r.botDifficulty,humans:r.humanCount,bots:r.botCount,scores:r.scores,phase:r.round.phase,joinable:r.humanCount<r.maxHumans&&r.match.status!=='ended'})).sort((a,b)=>Number(b.joinable)-Number(a.joinable)||b.humans-a.humans)});return;
       }
       if (msg.type === 'join') {
         if (socket.playerId) { error(socket, 'ALREADY_JOINED', '当前连接已经加入房间。'); return; }
@@ -123,7 +123,7 @@ export async function startGameServer({ port = Number(process.env.PORT || 3000),
         if(msg.existing===true&&!room){error(socket,'ROOM_GONE','房间已经关闭，请在大厅选择有玩家的房间。');return;}
         if (!room) {
           if (rooms.size >= maxRooms) { error(socket, 'SERVER_FULL', '服务器当前房间数量已达上限。'); return; }
-          room = new GameRoom(settings.room, { mode: settings.mode, bots: settings.bots, botDifficulty:settings.botDifficulty, rules }); rooms.set(settings.room, room); created = true;
+          room = new GameRoom(settings.room, { mode: settings.mode, bots: oneVsOne?0:settings.bots, botDifficulty:settings.botDifficulty, rules, ...(oneVsOne?{maxHumans:2,teamHumanLimit:1,allowBots:false}:{}) }); rooms.set(settings.room, room); created = true;
         }
         try {
           const player = room.addHuman(socket, settings); socket.playerId = player.id; socket.roomCode = room.code;
@@ -219,7 +219,7 @@ export async function startGameServer({ port = Number(process.env.PORT || 3000),
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
-  startGameServer().then(app => {
+  startGameServer({oneVsOne:true}).then(app => {
     console.log(`Dust2 Web ready: http://localhost:${app.port} | WebSocket /ws | Health /health`);
     const stop = () => app.close().then(() => process.exit(0));
     process.once('SIGINT', stop); process.once('SIGTERM', stop);
