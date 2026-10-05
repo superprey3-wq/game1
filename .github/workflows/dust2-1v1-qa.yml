@@ -28,6 +28,20 @@ jobs:
       - run: npm ci
       - run: node --test tests/one-v-one.mjs
       - run: npm run build:render
+      - name: Verify packaged Render assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s dist/assets/asset-manifest-mobile.json
+          test -s dist/assets/audio/cs2/manifest.json
+          test -s dist/assets/audio/cs2/ak47_01.mp3
+          test -s dist/assets/map-mobile/dust2-clear.gltf
+          test -s dist/assets/map/positions.f32
+          test -s dist/assets/sky/daylight.hdr
+          test -s dist/assets/weapons/cs2-loadout/m4a1-printstream.glb
+          test -s dist/assets/weapons/cs2-loadout/usp-kill-confirmed.glb
+          test -s dist/assets/weapons/cs2-loadout/karambit-sapphire.glb
+          du -sh dist
       - name: Smoke test same-origin asset proxy
         shell: bash
         run: |
