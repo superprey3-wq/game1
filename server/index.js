@@ -74,7 +74,7 @@ export async function startGameServer({ port = Number(process.env.PORT || 3000),
     if (requestPath === '/health') {
       res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
       const memory = process.memoryUsage();
-      res.end(JSON.stringify({ ok: true, service: 'dust2-web', release: process.env.DUST2_RELEASE || 'local', assetMode: 'local-mobile-direct-v2', protocol: 1, tickRate: TICK_RATE, uptime: Math.round((Date.now() - startedAt) / 1000), rooms: rooms.size, humans: [...rooms.values()].reduce((n, r) => n + r.humanCount, 0), players: [...rooms.values()].reduce((n, r) => n + r.players.size, 0), memory: { rssMiB: Math.round(memory.rss / 1048576), heapMiB: Math.round(memory.heapUsed / 1048576) },performance:performanceMetrics.snapshot() })); return;
+      res.end(JSON.stringify({ ok: true, service: 'dust2-web', release: process.env.DUST2_RELEASE || 'local', assetMode: 'dist-local-mobile-v3', protocol: 1, tickRate: TICK_RATE, uptime: Math.round((Date.now() - startedAt) / 1000), rooms: rooms.size, humans: [...rooms.values()].reduce((n, r) => n + r.humanCount, 0), players: [...rooms.values()].reduce((n, r) => n + r.players.size, 0), memory: { rssMiB: Math.round(memory.rss / 1048576), heapMiB: Math.round(memory.heapUsed / 1048576) },performance:performanceMetrics.snapshot() })); return;
     }
     if (requestPath.includes('\0') || requestPath.includes('\\')) { res.writeHead(400); res.end('Bad path'); return; }
     let found = null, info = null;
