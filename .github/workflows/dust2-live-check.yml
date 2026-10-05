@@ -1,0 +1,49 @@
+name: Dust2 Live Endpoint Check
+
+on:
+  push:
+    branches:
+      - dust2-1v1
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Check health and mobile assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://dust2-1v1.onrender.com"
+          echo "== HEALTH =="
+          curl -fSsL --max-time 90 -D /tmp/health.headers "$base/health" -o /tmp/health.json
+          cat /tmp/health.headers
+          cat /tmp/health.json
+          echo
+          echo "== MANIFEST =="
+          curl -fSsL --max-time 90 -D /tmp/manifest.headers "$base/assets/asset-manifest-mobile.json" -o /tmp/manifest.json
+          cat /tmp/manifest.headers
+          python - <<'PY'
+          import json
+          m=json.load(open('/tmp/manifest.json'))
+          print('files',len(m['files']),'bytes',m['totalBytes'])
+          for f in m['files'][:5]:
+              print(f['path'],f['bytes'],f['sha256'])
+          PY
+          echo "== FIRST FIVE ASSETS =="
+          python - <<'PY' >/tmp/paths.txt
+          import json
+          m=json.load(open('/tmp/manifest.json'))
+          for f in m['files'][:5]:
+              print(f["path"])
+          PY
+          while IFS= read -r p; do
+            echo "-- $p"
+            curl -fSsL --max-time 120 -D /tmp/a.headers "$base/$p" -o /tmp/a.bin
+            wc -c /tmp/a.bin
+            grep -Ei 'HTTP/|content-type|content-length|cache-control|location' /tmp/a.headers || true
+          done </tmp/paths.txt
