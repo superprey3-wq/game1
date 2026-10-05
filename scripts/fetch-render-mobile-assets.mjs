@@ -10,9 +10,12 @@ const CONCURRENCY = Math.max(1, Math.min(12, Number(process.env.ASSET_FETCH_CONC
 async function fetchFile(relative, expectedBytes) {
   const target = path.join('public', relative);
   await mkdir(path.dirname(target), { recursive: true });
-  const response = await fetch(new URL(relative, BASE), { signal: AbortSignal.timeout(120000) });
-  if (!response.ok || !response.body) throw new Error(`HTTP ${response.status} fetching ${relative}`);
-  const bytes = new Uint8Array(await response.arrayBuffer());
+  let lastError;
+  for (let attempt = 1; attempt <= 4; attempt++) {
+    try {
+      const response = await fetch(new URL(relative, BASE), { signal: AbortSignal.timeout(300000) });
+      if (!response.ok || !response.body) throw new Error(`HTTP ${response.status}`);
+      const bytes = new Uint8Array(await response.arrayBuffer());
   if (Number.isFinite(expectedBytes) && bytes.length !== expectedBytes) {
     throw new Error(`Size mismatch for ${relative}: expected ${expectedBytes}, got ${bytes.length}`);
   }
@@ -21,8 +24,15 @@ async function fetchFile(relative, expectedBytes) {
     const actual = createHash('sha256').update(bytes).digest('hex');
     if (actual !== entry.sha256) throw new Error(`SHA-256 mismatch for ${relative}`);
   }
-  await writeFile(target, bytes);
-  return bytes.length;
+      await writeFile(target, bytes);
+      return bytes.length;
+    } catch (error) {
+      lastError = error;
+      console.warn(`Retry ${attempt}/4 for ${relative}: ${error?.message || error}`);
+      if (attempt < 4) await new Promise(resolve => setTimeout(resolve, attempt * 2000));
+    }
+  }
+  throw new Error(`Failed to fetch ${relative} after 4 attempts: ${lastError?.message || lastError}`);
 }
 
 async function ensureManifest() {
@@ -48,7 +58,8 @@ const workers = Array.from({length: Math.min(CONCURRENCY,total)}, async () => {
     const index = next++;
     if (index >= total) return;
     const file = manifest.files[index];
-    bytes += await fetchFile(file.path, file.bytes);
+    const size = await fetchFile(file.path, file.bytes);
+    bytes += size;
     done++;
     if (done % 50 === 0 || done === total) {
       console.log(`${done}/${total} files · ${(bytes/1048576).toFixed(1)} MiB`);
