@@ -271,13 +271,17 @@ async function loadGame(audioReady){
   setLoadStage('scene',mobileDevice()?'准备手机材质与骨骼动画':'解码原版材质与骨骼动画');await paint();
   // Wait for every parser before opening Retry. Successful heavy work is kept
   // so a failed audio/model request cannot append a second map on the next try.
-  const tasks=await Promise.allSettled([
-    modelsReady?Promise.resolve():loadModels().then(()=>{modelsReady=true;}),
-    mapResultCache?Promise.resolve(mapResultCache):createMapScene(scene,{onProgress:message=>{$('load-label').textContent=message;}}).then(result=>{mapResultCache=result;return result;}),
-    audioReady,
-    loadAgent(agentsUI.loadout[$('team').value==='CT'?'CT':'T']),
-    ...[primary,$('team').value==='CT'?'usp':'pistol','knife'].map(id=>skins.loadout[id]).filter(Boolean).map(id=>loadSkin(id)),
-  ]);
+  const selectedSkinIds=[primary,$('team').value==='CT'?'usp':'pistol','knife'].map(id=>skins.loadout[id]).filter(Boolean);
+  const namedTasks=[
+    ['models',modelsReady?Promise.resolve():loadModels().then(()=>{modelsReady=true;})],
+    ['map',mapResultCache?Promise.resolve(mapResultCache):createMapScene(scene,{onProgress:message=>{$('load-label').textContent=message;}}).then(result=>{mapResultCache=result;return result;})],
+    ['audio',audioReady],
+    ['agent:'+agentsUI.loadout[$('team').value==='CT'?'CT':'T'],loadAgent(agentsUI.loadout[$('team').value==='CT'?'CT':'T'])],
+    ...selectedSkinIds.map(id=>['skin:'+id,loadSkin(id)]),
+  ];
+  const tasks=await Promise.allSettled(namedTasks.map(async([label,task])=>{
+    try{return await task;}catch(error){const detail=error?.message||String(error);throw new Error(`${label}: ${detail}`);}
+  }));
   const failure=tasks.find(task=>task.status==='rejected');
   if(failure)throw failure.reason;
   const mapResult=mapResultCache;
