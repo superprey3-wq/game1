@@ -309,7 +309,7 @@ function connect(joinExisting){
   const url=connection.socketURL;
   socket=new WebSocket(url);const activeSocket=socket;
   const timeout=setTimeout(()=>{if(!connected&&socket===activeSocket){$('menu-status').textContent='服务器连接超时，请确认游戏服务已启动。';socket.close();}},15000);
-  socket.addEventListener('open',()=>{if(socket!==activeSocket)return;const name=$('nickname').value.trim()||'Player';preferences.setItem('dust2.name',name);activeSocket.send(JSON.stringify({type:'join',clientBuild:CLIENT_BUILD,rulesVersion:RULES_VERSION,assetVersion:ASSET_VERSION,existing:joinExisting,name,movementProtocol:1,shotProtocol:1,room:joinExisting?$('room-code').value.trim().toUpperCase():undefined,mode:$('mode').value,team:$('team').value,primary,skins:skins.loadout,agents:agentsUI.loadout,bots:Number($('bots').value),botDifficulty:preferredBotDifficulty}));});
+  socket.addEventListener('open',()=>{if(socket!==activeSocket)return;const name=$('nickname').value.trim()||'Player';preferences.setItem('dust2.name',name);activeSocket.send(JSON.stringify({type:'join',clientBuild:CLIENT_BUILD,rulesVersion:RULES_VERSION,assetVersion:ASSET_VERSION,existing:joinExisting,name,movementProtocol:1,shotProtocol:1,room:joinExisting?$('room-code').value.trim().toUpperCase():undefined,mode:$('mode').value,team:joinExisting?'auto':$('team').value,primary,skins:skins.loadout,agents:agentsUI.loadout,bots:0,botDifficulty:preferredBotDifficulty}));});
   socket.addEventListener('message',e=>{if(socket!==activeSocket)return;let data;try{data=JSON.parse(e.data);}catch{return;}
     if(data.type==='welcome'){
       const incompatible=compatibilityError(data);if(incompatible){hud.toast(incompatible);$('menu-status').textContent=incompatible;activeSocket.close();return;}
@@ -356,7 +356,7 @@ function handleSnapshot(data){
   const relocated=!!self&&(p.team!==self.team||p.lifeId!==self.lifeId||previousRound!==data.round.number);
   if(relocated||!self)remotePlayers.clear();remotePlayers.push(data,performance.now());
   matchPresentation.update(data,connectionId);
-  if($('host-bot-controls')){$('host-bot-controls').hidden=data.hostId!==connectionId;if(displayedHostBots!==data.desiredBots){displayedHostBots=data.desiredBots;$('host-bots').value=String(data.desiredBots??0);}$('host-bots-status').textContent=`当前 ${data.botCount??0} 个机器人 · 房间最多 10 人`;}
+  if($('host-bot-controls'))$('host-bot-controls').hidden=true;
   const life=matchView.update(p,data,performance.now());
   if(life.died||life.respawned){utilityEffects.resetFlash();clearGameInput();mouseFire=false;shotPrediction.triggered=false;resetScope();fireTimer=0;shotPrediction.pending=[];diagnostics.event(life.died?'death':'respawn');}
   if(previousWeapon!==p.weapon||!p.alive||!lastSnapshotAlive||!Number.isSafeInteger(p.shotAck)&&p.ammo>serverAmmo)shotPrediction.pending=[];
