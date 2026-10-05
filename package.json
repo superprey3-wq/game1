@@ -11,7 +11,7 @@
     "test": "node --test tests/*.mjs",
     "assets:fetch": "node scripts/fetch-assets.mjs",
     "assets:check": "node scripts/fetch-assets.mjs --check",
-    "build:render": "node scripts/fetch-render-runtime.mjs && vite build && node scripts/fetch-render-mobile-assets.mjs"
+    "build:render": "node scripts/fetch-render-runtime.mjs && node scripts/fetch-render-mobile-assets.mjs && vite build"
   },
   "dependencies": {
     "three": "0.185.1",
