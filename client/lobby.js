@@ -8,10 +8,10 @@ export function mountLobby({connection,onJoin}){
  const status=element.querySelector('[data-status]'),list=element.querySelector('.public-rooms'),recover=element.querySelector('[data-recover]');
  function join(code){document.getElementById('room-code').value=code;onJoin(code);}
  function render(rooms){
-  list.replaceChildren();entry.textContent=rooms.length?`联机大厅 (${rooms.length})`:'联机大厅';status.textContent=rooms.length?'优先加入已有玩家的房间；加入时会自动腾出人机席位。':'暂无玩家在线，可以创建一个房间。';
+  list.replaceChildren();entry.textContent=rooms.length?`联机大厅 (${rooms.length})`:'联机大厅';status.textContent=rooms.length?'选择朋友的 1v1 房间；第二名玩家会自动加入空缺阵营。':'暂无玩家在线，可以创建一个房间。';
   for(const room of rooms){const row=document.createElement('button');row.className='public-room';row.disabled=!room.joinable;
    const title=document.createElement('b');title.textContent=room.code+' · '+(room.mode==='defuse'?'竞技爆破':'团队死斗');
-   const info=document.createElement('span');info.textContent=`${room.humans} 名玩家 · ${room.bots} 名人机 · ${room.scores.CT}:${room.scores.T} · ${room.joinable?'加入 →':'已满 / 已结束'}`;
+   const info=document.createElement('span');info.textContent=`${room.humans}/2 名玩家 · ${room.scores.CT}:${room.scores.T} · ${room.joinable?'加入 1v1 →':'已满 / 已结束'}`;
    row.append(title,info);row.onclick=()=>join(room.code);list.append(row);
   }
   const last=preferences.readJSON('dust2.last-session');recover.hidden=!rooms.some(r=>r.code===last.room&&r.joinable);recover.onclick=()=>join(last.room);
