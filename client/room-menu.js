@@ -37,6 +37,6 @@ export class RoomMenu {
       }
       container.append(column);
     }
-    this.element.querySelector('.room-status').textContent=host?'你是房主 · 邀请 друга加入另一阵营':'1v1 · 点击空位可换队';
+    this.element.querySelector('.room-status').textContent=host?'你是房主 · 邀请朋友加入另一阵营':'1v1 · 点击空位可换队';
   }
 }
