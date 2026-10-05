@@ -2,6 +2,7 @@ import {snapshotForSide} from './snapshot-view.js';
 import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import { createReadStream } from 'node:fs';
+import { Readable } from 'node:stream';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { randomBytes } from 'node:crypto';
@@ -89,8 +90,30 @@ export async function startGameServer({ port = Number(process.env.PORT || 3000),
     if (!found && requestPath.startsWith('/assets/')) {
       const remote = new URL(requestPath, 'https://cs2.duskrain.cn/');
       if (req.url?.includes('?')) remote.search = new URL(req.url, 'http://localhost').search;
-      res.writeHead(302, { Location: remote.href, 'Cache-Control': 'public, max-age=3600' });
-      res.end();
+      try {
+        const upstream = await fetch(remote, { redirect: 'follow' });
+        if (!upstream.ok) {
+          res.writeHead(upstream.status, { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' });
+          res.end('Upstream asset unavailable');
+          return;
+        }
+        const headers = {
+          'Content-Type': upstream.headers.get('content-type') || TYPES[path.extname(requestPath).toLowerCase()] || 'application/octet-stream',
+          'Cache-Control': 'public, max-age=3600',
+          'Access-Control-Allow-Origin': '*',
+        };
+        const lastModified = upstream.headers.get('last-modified');
+        const etag = upstream.headers.get('etag');
+        if (lastModified) headers['Last-Modified'] = lastModified;
+        if (etag) headers.ETag = etag;
+        res.writeHead(200, headers);
+        if (req.method === 'HEAD' || !upstream.body) res.end();
+        else Readable.fromWeb(upstream.body).on('error', () => res.destroy()).pipe(res);
+      } catch (assetError) {
+        console.error('[asset proxy]', requestPath, assetError?.message || assetError);
+        res.writeHead(502, { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' });
+        res.end('Asset proxy failed');
+      }
       return;
     }
     if (!found) { res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' }); res.end('文件不存在。请先运行 npm run build，然后打开游戏首页。'); return; }
