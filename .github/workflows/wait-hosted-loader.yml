@@ -1,0 +1,32 @@
+name: Wait for hosted loader deploy
+
+on:
+  push:
+    branches:
+      - dust2-1v1
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  wait-live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Wait for local-mobile-direct-v2
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://dust2-1v1.onrender.com"
+          for i in {1..60}; do
+            body="$(curl -fsSL --max-time 30 "$base/health" 2>/dev/null || true)"
+            echo "attempt $i: $body"
+            if echo "$body" | grep -q '"assetMode":"local-mobile-direct-v2"'; then
+              echo "NEW_DEPLOY_LIVE"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "New Render deploy was not observed in time" >&2
+          exit 1
