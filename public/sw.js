@@ -1,7 +1,7 @@
 /* Only this /dust2/ installation is controlled. No API response is cached. */
 const SCOPE=new URL(self.registration.scope);
-const SHELL=`dust2-shell-v1:${SCOPE.pathname}`;
-const ASSETS=`dust2-assets-v1:${SCOPE.pathname}`,META=`dust2-meta-v1:${SCOPE.pathname}`;
+const SHELL=`dust2-shell-v2:${SCOPE.pathname}`;
+const ASSETS=`dust2-assets-v2:${SCOPE.pathname}`,META=`dust2-meta-v2:${SCOPE.pathname}`;
 const HOME=new URL('./',SCOPE).href,MANIFEST=new URL('assets/asset-manifest.json',SCOPE).href;
 const local=url=>url.origin===SCOPE.origin&&url.pathname.startsWith(SCOPE.pathname);
 const hashKey=hash=>new URL(`__asset_cache__/sha256/${hash}`,SCOPE).href;
@@ -72,11 +72,9 @@ self.addEventListener('fetch',event=>{
       catch{const cache=await caches.open(SHELL);return await cache.match(HOME)||new Response('<!doctype html><meta charset="utf-8"><title>Dust II</title><h1>尚未保存离线大厅</h1><p>请联网打开一次；多人对战需要网络。</p>',{status:503,headers:{'content-type':'text/html; charset=utf-8'}});}
     })());return;
   }
-  // The page owns integrity verification and writes large assets once. The
-  // worker serves those bytes offline without creating a second map cache.
-  if(relative.startsWith('assets/')&&!/\.(?:m?js|css)$/.test(url.pathname)){
-    event.respondWith((async()=>await cachedAsset(url)||await (await caches.open(SHELL)).match(request)||fetch(request))());return;
-  }
+  // Online 1v1 serves game assets directly from the same origin. Do not place
+  // a service-worker cache layer in front of large map/model/audio requests.
+  if(relative.startsWith('assets/'))return;
   event.respondWith((async()=>{
     const cache=await caches.open(SHELL),hit=await cache.match(request);
     if(hit)return hit;
