@@ -47,3 +47,10 @@ jobs:
             wc -c /tmp/a.bin
             grep -Ei 'HTTP/|content-type|content-length|cache-control|location' /tmp/a.headers || true
           done </tmp/paths.txt
+          echo "== SCENE STARTUP ASSETS =="
+          for p in             assets/map-mobile/dust2-clear.gltf             assets/map/positions.f32             assets/sky/daylight.hdr             assets/viewmodel/animations.glb             assets/characters-cs2/arms/ct-sas.glb             assets/characters-cs2/ct-sas.glb             assets/weapons/cs2-loadout/m4a1-printstream.glb             assets/weapons/cs2-loadout/usp-kill-confirmed.glb             assets/weapons/cs2-loadout/karambit-sapphire.glb
+          do
+            echo "-- $p"
+            curl -fSsL --max-time 180 -w "status=%{http_code} bytes=%{size_download} time=%{time_total}\n" "$base/$p" -o /tmp/scene.bin
+            test -s /tmp/scene.bin
+          done
