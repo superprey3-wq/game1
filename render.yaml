@@ -16,3 +16,5 @@ services:
         value: "--max-old-space-size=384"
       - key: DUST2_RELEASE
         value: "dust2-1v1"
+      - key: ASSET_FETCH_CONCURRENCY
+        value: "10"
