@@ -15,6 +15,7 @@ const assetUrl=path=>new URL(path.replace(/^\//,''),document.baseURI).href;
  * render/collision alignment is checked by map-render-validate.mjs.
  */
 export async function createMapScene(scene,{onProgress=()=>{}}={}) {
+  const mobile=mobileDevice();
   onProgress('载入 CS2 原版 Dust II 场景…');
   const manager=new THREE.LoadingManager();
   useDownloadedAssets(manager);
@@ -23,9 +24,9 @@ export async function createMapScene(scene,{onProgress=()=>{}}={}) {
   };
   const loader=gameGLTFLoader(manager).setMeshoptDecoder(MeshoptDecoder);
   const [gltf,response,sky]=await Promise.all([
-    loader.loadAsync(assetUrl(mobileDevice()?'assets/map-mobile/dust2-clear.gltf':'assets/map-cs2/dust2-web.gltf?v=e4f2b2d3903c')),
+    loader.loadAsync(assetUrl(mobile?'assets/map-mobile/dust2-clear.gltf':'assets/map-cs2/dust2-web.gltf?v=e4f2b2d3903c')),
     fetch(assetURL(assetUrl(MAP.geometryUrl))),
-    new HDRLoader(manager).loadAsync(assetUrl('assets/sky/daylight.hdr?v=5244534e9cf5')),
+    mobile?Promise.resolve(null):new HDRLoader(manager).loadAsync(assetUrl('assets/sky/daylight.hdr?v=5244534e9cf5')),
   ]);
   if(!response.ok)throw new Error(`地图碰撞下载失败 (${response.status})`);
   const positions=new Float32Array(await response.arrayBuffer());
@@ -46,7 +47,7 @@ export async function createMapScene(scene,{onProgress=()=>{}}={}) {
     if(!object.isMesh)return;
     meshCount++;
     triangles+=(object.geometry.index?.count||object.geometry.attributes.position.count)/3;
-    object.castShadow=!object.userData.overlayAligned;object.receiveShadow=true;
+    object.castShadow=!mobile&&!object.userData.overlayAligned;object.receiveShadow=!mobile;
     object.frustumCulled=true;
     for(const material of Array.isArray(object.material)?object.material:[object.material]){
       const shaderFlags=material.userData?.vmat?.IntParams||{};
@@ -67,7 +68,7 @@ export async function createMapScene(scene,{onProgress=()=>{}}={}) {
       }
     }
   });
-  for(const texture of textures)texture.anisotropy=4;
+  for(const texture of textures)texture.anisotropy=mobile?1:4;
 
   // Keep the exported sun direction. Web lighting approximates Source 2's
   // baked lighting; original surface textures and their UVs stay untouched.
@@ -83,19 +84,24 @@ export async function createMapScene(scene,{onProgress=()=>{}}={}) {
   // The map is static: retain its already-computed transforms instead of
   // multiplying every imported object matrix on every animation frame.
   group.traverse(object=>{object.matrixAutoUpdate=false;object.matrixWorldAutoUpdate=false;});
-  sky.mapping=THREE.EquirectangularReflectionMapping;
-  scene.background=sky;scene.backgroundIntensity=.8;
-  scene.backgroundRotation.y=1.2;
-  scene.userData.sky={source:'Poly Haven / Kloofendal 48d Partly Cloudy',resolution:'2048 × 1024',downloadBytes:5451493};
-  scene.fog=new THREE.Fog(0xc9d8de,140,300);
-  const hemisphere=new THREE.HemisphereLight(0xd5e9ff,0x99805f,2.15);
+  if(sky){
+    sky.mapping=THREE.EquirectangularReflectionMapping;
+    scene.background=sky;scene.backgroundIntensity=.8;
+    scene.backgroundRotation.y=1.2;
+    scene.userData.sky={source:'Poly Haven / Kloofendal 48d Partly Cloudy',resolution:'2048 × 1024',downloadBytes:5451493};
+  }else{
+    scene.background=new THREE.Color(0xb8c7cf);
+    scene.userData.sky={source:'mobile-flat-sky',resolution:'none',downloadBytes:0};
+  }
+  scene.fog=mobile?null:new THREE.Fog(0xc9d8de,140,300);
+  const hemisphere=new THREE.HemisphereLight(0xd5e9ff,0x99805f,mobile?1.45:2.15);
   hemisphere.name='dust2-web-sky';
-  const sun=new THREE.DirectionalLight(0xfff0d7,3.3);
+  const sun=new THREE.DirectionalLight(0xfff0d7,mobile?1.9:3.3);
   sun.name='dust2-web-sun';
   const center=new THREE.Vector3(-5,0,-25);
   sun.target.position.copy(center);
   sun.position.copy(center).addScaledVector(sunDirection,-110);
-  sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
+  sun.castShadow=!mobile;if(!mobile)sun.shadow.mapSize.set(2048,2048);
   Object.assign(sun.shadow.camera,{left:-78,right:78,top:78,bottom:-78,near:1,far:230});
   sun.shadow.normalBias=.035;sun.shadow.bias=-.00012;
   scene.add(hemisphere,sun,sun.target);
