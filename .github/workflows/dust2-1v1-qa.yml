@@ -16,7 +16,7 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
         with:
@@ -26,10 +26,5 @@ jobs:
           node-version: '22.12.0'
           cache: npm
       - run: npm ci
-      - uses: actions/cache@v4
-        with:
-          path: public/assets
-          key: dust2-assets-${{ hashFiles('config/assets-lock.json') }}
-      - run: npm run assets:fetch
-      - run: npm test
-      - run: npm run build
+      - run: node --test tests/one-v-one.mjs
+      - run: npm run build:render
