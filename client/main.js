@@ -59,15 +59,16 @@ import { connectionTarget } from './connection-target.js';
 import {knifeInterval} from '../shared/melee.js';
 
 const connection = connectionTarget(location.href, globalThis.__DUST2_PORTABLE__);
+const hostedMobilePerf=mobileDevice()&&location.hostname==='dust2-1v1.onrender.com';
 
 const $=id=>document.getElementById(id);
 const canvas=$('game-canvas');
 canvas.tabIndex=-1;
 let renderer;
-try{renderer=new THREE.WebGLRenderer({canvas,antialias:mobileDevice(),powerPreference:'high-performance'});}catch(e){$('menu-status').textContent='无法启动 3D：请启用浏览器硬件加速后重试。';throw e;}
-renderer.setPixelRatio(1);renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=false;renderer.shadowMap.type=THREE.PCFShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.03;renderer.info.autoReset=false;
+try{renderer=new THREE.WebGLRenderer({canvas,antialias:mobileDevice()&&!hostedMobilePerf,powerPreference:'high-performance'});}catch(e){$('menu-status').textContent='无法启动 3D：请启用浏览器硬件加速后重试。';throw e;}
+renderer.setPixelRatio(1);renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=false;renderer.shadowMap.type=THREE.PCFShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=hostedMobilePerf?THREE.LinearToneMapping:THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.03;renderer.info.autoReset=false;
 const scene=new THREE.Scene();
-const camera=new THREE.PerspectiveCamera(cs2FovToVertical(CS2_BASE_FOV),innerWidth/innerHeight,.045,400);camera.rotation.order='YXZ';
+const camera=new THREE.PerspectiveCamera(cs2FovToVertical(CS2_BASE_FOV),innerWidth/innerHeight,.045,hostedMobilePerf?180:400);camera.rotation.order='YXZ';
 const gunScene=new THREE.Scene();
 const gunCamera=new THREE.PerspectiveCamera(62,innerWidth/innerHeight,.025,10);gunCamera.rotation.order='YXZ';gunScene.add(gunCamera);
 const weaponLighting=createWeaponLighting(renderer,gunScene);
@@ -106,14 +107,14 @@ let modelsReady=false,mapResultCache=null;
 const shotPrediction=new ShotPrediction();
 let serverAmmo=0,lastSnapshotAt=0,lastShotWarning=0,lastSentInputSeq=-1,shotId=0,lastShotEvidence=null;
 let storedSettings=preferences.readJSON('dust2.cs-settings.v1');
-let mobileClarity=normalizeClarity(storedSettings.mobileClarity);
+let mobileClarity=hostedMobilePerf?'performance':normalizeClarity(storedSettings.mobileClarity);
 let preferredBotDifficulty=normalizeBotDifficulty(storedSettings.botDifficulty);
 function saveBotPreference(value){preferredBotDifficulty=normalizeBotDifficulty(value);preferences.setItem('dust2.cs-settings.v1',JSON.stringify({...preferences.readJSON('dust2.cs-settings.v1'),botDifficulty:preferredBotDifficulty}));}
 let video=normalizeVideo(storedSettings),viewport=viewportSize(innerWidth,innerHeight,video);
 let sensitivity=Math.max(.05,Math.min(20,Number(storedSettings.sensitivity)||1));
 let zoomSensitivity=Math.max(.05,Math.min(5,Number(storedSettings.zoomSensitivity)||1));
 let crosshairSettings=normalizeCrosshair(storedSettings.crosshair||DEFAULT_CROSSHAIR);
-let quality=preferences.getItem('dust2.quality.v2')||'low';
+let quality=hostedMobilePerf?'low':preferences.getItem('dust2.quality.v2')||'low';
 let brightness=Math.max(60,Math.min(160,Number(preferences.getItem('dust2.brightness'))||100));
 let utilityId='hegrenade';
 let zoomLevel=0, resumeZoom=0, zoomResumeAt=0, lastSlot=2, jumpId=0, reloadId=0;
@@ -461,7 +462,7 @@ function toggleBuy(){if(!connected)return;if(!self?.alive&&$('buy-menu').hidden)
 async function invite(){if(!room)return;if(connection.offline){hud.toast('当前是本机练习；与朋友对战请使用“在线联机”启动入口');return;}let url=new URL(location.href);url.searchParams.set('room',room);if(inviteBase){url=new URL(inviteBase);url.searchParams.set('room',room);}try{await navigator.clipboard.writeText(url.href);hud.toast('邀请链接已复制，发送给朋友即可加入');}catch{hud.toast(`房间 ${room} · ${url.href}`);}}
 function setQuality(value){quality=value==='high'?'high':'low';preferences.setItem('dust2.quality.v2',quality);$('quality').value=quality;applyQuality();}
 function setBrightness(value){brightness=Math.max(60,Math.min(160,Number(value)||100));preferences.setItem('dust2.brightness',brightness);renderer.toneMappingExposure=1.03*brightness/100;}
-function applyQuality(){renderer.toneMappingExposure=1.03*brightness/100;renderer.shadowMap.enabled=quality!=='low';resizeViewport();scene.traverse(o=>{if(o.isLight&&o.shadow)o.shadow.needsUpdate=true;});}
+function applyQuality(){renderer.toneMappingExposure=1.03*brightness/100;renderer.shadowMap.enabled=!hostedMobilePerf&&quality!=='low';resizeViewport();scene.traverse(o=>{if(o.isLight&&o.shadow)o.shadow.needsUpdate=true;});}
 
 function choosePrimary(id,explicit=true){
   primary=id;if(explicit)primaryExplicit=true;
@@ -508,7 +509,7 @@ function resizeViewport(){
  const width=Math.max(1,Math.round(globalThis.visualViewport?.width||innerWidth)),height=Math.max(1,Math.round(globalThis.visualViewport?.height||innerHeight));
  document.body.style.setProperty('--app-height',height+'px');
  viewport=viewportSize(width,height,{...video,mobile:mobileDevice()});camera.aspect=gunCamera.aspect=viewport.aspect;camera.updateProjectionMatrix();gunCamera.updateProjectionMatrix();
- renderer.setPixelRatio(renderPixelRatio({...viewport,dpr:devicePixelRatio,mobile:mobileDevice(),quality,clarity:mobileClarity}));
+ renderer.setPixelRatio(hostedMobilePerf?Math.min(.72,devicePixelRatio):renderPixelRatio({...viewport,dpr:devicePixelRatio,mobile:mobileDevice(),quality,clarity:mobileClarity}));
  renderer.setSize(viewport.width,viewport.height,false);canvas.style.inset='auto';canvas.style.left='50%';canvas.style.top='50%';canvas.style.width=viewport.displayWidth+'px';canvas.style.height=viewport.displayHeight+'px';
  for(const [key,value]of Object.entries({'--game-width':viewport.width+'px','--game-height':viewport.height+'px','--game-scale-x':viewport.displayWidth/viewport.width,'--game-scale-y':viewport.displayHeight/viewport.height}))document.body.style.setProperty(key,String(value));
 }
@@ -532,7 +533,7 @@ function frame(now){
   if(pingAcc>=2){pingAcc=0;send({type:'ping',time:performance.now()});}
   if(self.grounded&&controlsEnabled()&&Math.hypot(self.vx,self.vz)>.8&&(self.stepDistance||0)-lastStep>(self.crouch?2.6:1.8)){audio.step();lastStep=self.stepDistance;}
   // Simulation, shot prediction and 30 Hz input above always run, even on skipped render frames.
-  if(!framePacer.due(now,frameLimit))return;
+  if(!framePacer.due(now,hostedMobilePerf?30:frameLimit))return;
   const renderSeconds=(now-lastRenderTime)/1000,renderDt=Math.min(.1,Math.max(0,renderSeconds));lastRenderTime=now;
   if(renderSeconds>1){fpsFrames=0;fpsSeconds=0;}else{fpsFrames++;fpsSeconds+=renderSeconds;if(fpsSeconds>=.5){fps=fpsFrames/fpsSeconds;fpsFrames=0;fpsSeconds=0;}}
   const renderedPosition=movementSupported?movementPrediction.render(self,fixed*60,renderDt):self;
@@ -563,7 +564,7 @@ function frame(now){
   frameSamples.push({frame:renderSeconds*1000,cpu:performance.now()-cpuStart,actors:actorMs,render:performance.now()-renderStart});if(frameSamples.length>300)frameSamples.shift();
 }
 requestAnimationFrame(frame);
-function resourceMetrics(){return {clientBuild:CLIENT_BUILD,motion:mobileAim.diagnostics(),graphics:{webgl:renderer.getContext().getParameter(renderer.getContext().VERSION),maxTextureSize:renderer.capabilities.maxTextureSize,maxTextures:renderer.capabilities.maxTextures},frameLimit,shooting:shotPrediction.status(),snapshotAgeMs:Math.round(performance.now()-lastSnapshotAt),renderWidth:canvas.width,renderHeight:canvas.height,pixelRatio:renderer.getPixelRatio(),antialias:renderer.getContext().getContextAttributes()?.antialias,clarity:mobileClarity,fps:Math.round(fps),ping,connected,contextLost,geometries:renderer.info.memory.geometries,textures:renderer.info.memory.textures,programs:renderer.info.programs?.length||0,actors:actors.size,effects:effects.items.length,audioVoices:audio.voices.size,audioDecodedMiB:Math.round((audio.decodedBytes||0)/1048576),viewWeapons:viewWeapon?.cache.size||0,heapMiB:performance.memory?Math.round(performance.memory.usedJSHeapSize/1048576):null,timing:frameStats()};}
+function resourceMetrics(){return {clientBuild:CLIENT_BUILD,motion:mobileAim.diagnostics(),graphics:{webgl:renderer.getContext().getParameter(renderer.getContext().VERSION),maxTextureSize:renderer.capabilities.maxTextureSize,maxTextures:renderer.capabilities.maxTextures},frameLimit:hostedMobilePerf?30:frameLimit,mobilePerf:hostedMobilePerf,shooting:shotPrediction.status(),snapshotAgeMs:Math.round(performance.now()-lastSnapshotAt),renderWidth:canvas.width,renderHeight:canvas.height,pixelRatio:renderer.getPixelRatio(),antialias:renderer.getContext().getContextAttributes()?.antialias,clarity:mobileClarity,fps:Math.round(fps),ping,connected,contextLost,geometries:renderer.info.memory.geometries,textures:renderer.info.memory.textures,programs:renderer.info.programs?.length||0,actors:actors.size,effects:effects.items.length,audioVoices:audio.voices.size,audioDecodedMiB:Math.round((audio.decodedBytes||0)/1048576),viewWeapons:viewWeapon?.cache.size||0,heapMiB:performance.memory?Math.round(performance.memory.usedJSHeapSize/1048576):null,timing:frameStats()};}
 setInterval(()=>{if(loaded)diagnostics.sample(resourceMetrics());},10000);
 window.addEventListener('error',event=>diagnostics.event('javascript-error',{message:String(event.message).slice(0,300)}));
 window.addEventListener('unhandledrejection',event=>diagnostics.event('unhandled-rejection',{message:String(event.reason?.message||event.reason).slice(0,300)}));
