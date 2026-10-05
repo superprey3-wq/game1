@@ -97,6 +97,14 @@ async function collectAssets({signal,onProgress,makeBlobs=false}={}){
 }
 export async function downloadAssets(options={}){
   if(bundled){const manifest=await loadManifest({signal:options.signal});const installed=await bundledManifest();const files=new Map(installed.files.map(f=>[f.path,f]));if(!manifest.files.every(f=>files.get(f.path)?.sha256===f.sha256))throw Error('基础资源不完整，请下载完整客户端。');options.onProgress?.({bytes:manifest.totalBytes,total:manifest.totalBytes,complete:manifest.files.length,count:manifest.files.length,rate:0,current:'读取已安装资源'});return manifest;}
+  // The private Render prototype already stages the complete mobile asset pack
+  // beside the Node server. Do not copy all 948 files into Cache Storage before
+  // entering the match; Three.js can request the required assets directly.
+  if(typeof location==='object'&&location.hostname==='dust2-1v1.onrender.com'){
+    const manifest=await loadManifest({signal:options.signal});
+    options.onProgress?.({bytes:manifest.totalBytes,total:manifest.totalBytes,complete:manifest.files.length,count:manifest.files.length,rate:0,current:'服务器资源已就绪'});
+    return manifest;
+  }
   // A controlling worker can serve verified cache entries directly. Retaining
   // every compressed file as a second set of Blob URLs only increases the peak.
   const controlled=!!globalThis.navigator?.serviceWorker?.controller;
