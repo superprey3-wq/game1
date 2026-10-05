@@ -9,7 +9,7 @@ export async function initOffline({onStatus}={}){
   window.addEventListener('online',()=>{state.online=true;publish();});window.addEventListener('offline',()=>{state.online=false;publish();});
   window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();installPrompt=event;state.canInstall=true;publish();});
   window.addEventListener('appinstalled',()=>{installPrompt=null;state.canInstall=false;state.installed=true;publish();});
-  if(state.supported&&!bundled){try{const b=new URL('.',document.baseURI);registration=await navigator.serviceWorker.register(new URL('sw.js',b),{scope:b.pathname,updateViaCache:'none'});await navigator.serviceWorker.ready;state.ready=true;}catch(error){state.error=error.message;}}
+  if(state.supported&&!bundled){try{const b=new URL('.',document.baseURI);registration=await navigator.serviceWorker.register(new URL('sw.js?v=2',b),{scope:b.pathname,updateViaCache:'none'});await navigator.serviceWorker.ready;state.ready=true;}catch(error){state.error=error.message;}}
   publish();return{...state};
 }
 // Explicit button gesture only: browsers may decline persistent storage.
