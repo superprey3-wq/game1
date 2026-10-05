@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: dust2-1v1
+    runtime: node
+    plan: free
+    region: frankfurt
+    branch: dust2-1v1
+    buildCommand: npm ci && npm run assets:fetch && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+    envVars:
+      - key: MAX_ROOMS
+        value: "2"
+      - key: NODE_OPTIONS
+        value: "--max-old-space-size=384"
+      - key: DUST2_RELEASE
+        value: "dust2-1v1"
