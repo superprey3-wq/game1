@@ -1,3 +1,4 @@
+import {mobileDevice} from './device-profile.js';
 import * as THREE from 'three';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
 
@@ -7,10 +8,12 @@ import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
  * even a correctly baked finish appear darker than the scene around it.
  */
 export function createWeaponLighting(renderer,weaponScene){
+ const mobile=mobileDevice();
  const sky=new THREE.HemisphereLight(0xd5e9ff,0x99805f,2.15),sun=new THREE.DirectionalLight(0xfff0d7,3.3);
  sky.name='viewmodel-sky';sun.name='viewmodel-sun';weaponScene.add(sky,sun,sun.target);
  const inverseView=new THREE.Quaternion(),direction=new THREE.Vector3(),position=new THREE.Vector3(),target=new THREE.Vector3();let environment=null,sourceScene=null,worldSky=null,worldSun=null;
  function rebuild(){
+  if(mobile){weaponScene.environment=null;weaponScene.environmentIntensity=0;environment?.dispose();environment=null;return;}
   const generator=new THREE.PMREMGenerator(renderer),room=new RoomEnvironment();
   try{const next=generator.fromScene(room,.04);weaponScene.environment=next.texture;weaponScene.environmentIntensity=.45;environment?.dispose();environment=next;}
   finally{room.dispose();generator.dispose();}
