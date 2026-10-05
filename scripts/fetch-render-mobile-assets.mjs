@@ -2,12 +2,14 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import path from 'node:path';
+import { SKINS } from '../shared/skins.js';
+import { UTILITY_ASSETS } from '../shared/utility-assets.js';
 
 const BASE = 'https://cs2.duskrain.cn/';
 const MANIFEST = 'assets/asset-manifest-mobile.json';
 const CONCURRENCY = Math.max(1, Math.min(12, Number(process.env.ASSET_FETCH_CONCURRENCY || 8)));
 
-async function fetchFile(relative, expectedBytes) {
+async function fetchFile(relative, expectedBytes, expectedHash) {
   const target = path.join('public', relative);
   await mkdir(path.dirname(target), { recursive: true });
   let lastError;
@@ -20,9 +22,10 @@ async function fetchFile(relative, expectedBytes) {
     throw new Error(`Size mismatch for ${relative}: expected ${expectedBytes}, got ${bytes.length}`);
   }
   const entry = manifest?.files?.find?.(file => file.path === relative);
-  if (entry?.sha256) {
+  const wantedHash = expectedHash || entry?.sha256;
+  if (wantedHash) {
     const actual = createHash('sha256').update(bytes).digest('hex');
-    if (actual !== entry.sha256) throw new Error(`SHA-256 mismatch for ${relative}`);
+    if (actual !== wantedHash) throw new Error(`SHA-256 mismatch for ${relative}`);
   }
       await writeFile(target, bytes);
       return bytes.length;
@@ -68,3 +71,23 @@ const workers = Array.from({length: Math.min(CONCURRENCY,total)}, async () => {
 });
 await Promise.all(workers);
 console.log('Mobile asset pack is stored locally on the Render service.');
+
+const extras = [];
+for (const skin of SKINS.filter(skin => skin.isDefault)) {
+  extras.push({ path: skin.model, bytes: skin.bytes, sha256: skin.sha256 });
+  if (skin.animation) extras.push({ path: skin.animation.model, bytes: skin.animation.bytes, sha256: skin.animation.sha256 });
+}
+for (const asset of Object.values(UTILITY_ASSETS)) {
+  if (asset?.model && asset?.bytes && asset?.sha256) extras.push({ path: asset.model, bytes: asset.bytes, sha256: asset.sha256 });
+}
+const uniqueExtras = [...new Map(extras.map(item => [item.path, item])).values()]
+  .filter(item => !manifest.files.some(file => file.path === item.path));
+let extraBytes = 0;
+console.log(`Fetching ${uniqueExtras.length} startup/gameplay models in addition to the mobile manifest`);
+for (let i = 0; i < uniqueExtras.length; i += CONCURRENCY) {
+  const batch = uniqueExtras.slice(i, i + CONCURRENCY);
+  const sizes = await Promise.all(batch.map(item => fetchFile(item.path, item.bytes, item.sha256)));
+  extraBytes += sizes.reduce((n, value) => n + value, 0);
+  console.log(`extra ${Math.min(i + batch.length, uniqueExtras.length)}/${uniqueExtras.length} · ${(extraBytes/1048576).toFixed(1)} MiB`);
+}
+console.log(`Render local asset set ready: ${(totalBytes/1048576).toFixed(1)} MiB base + ${(extraBytes/1048576).toFixed(1)} MiB gameplay models`);
