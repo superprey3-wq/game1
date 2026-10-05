@@ -113,8 +113,11 @@ export function applyArmorDamage(rawDamage, player, { headshot=false, armorRatio
 }
 
 export class GameRoom {
-  constructor(code, { mode = 'defuse', bots = 6, botDifficulty = 'normal', clock = () => Date.now(), rules = {}, traceBullet=defaultTraceBullet } = {}) {
-    this.code = code; this.mode = mode==='deathmatch'?'deathmatch':'defuse'; this.desiredBots = botCount(bots);
+  constructor(code, { mode = 'defuse', bots = 6, botDifficulty = 'normal', clock = () => Date.now(), rules = {}, traceBullet=defaultTraceBullet, maxHumans = MAX_PLAYERS, teamHumanLimit = 5, allowBots = true } = {}) {
+    this.code = code; this.mode = mode==='deathmatch'?'deathmatch':'defuse';
+    this.maxHumans=Math.max(2,Math.min(MAX_PLAYERS,Number(maxHumans)||MAX_PLAYERS));
+    this.teamHumanLimit=Math.max(1,Math.min(5,Number(teamHumanLimit)||5));
+    this.allowBots=allowBots!==false;this.desiredBots=this.allowBots?botCount(bots):0;
     mode=this.mode;this.traceBullet=traceBullet;this.hostId=null;this.botDifficulty=normalizeBotDifficulty(botDifficulty);
     this.clock = clock; this.rules = { ...RULES, ...rules }; this.players = new Map(); this.clients = new Map();
     this.scores = { T: 0, CT: 0 }; this.events = []; this.eventCounter = 0; this.botCounter = 0; this.spawnCounter = { T: 0, CT: 0 };
@@ -141,6 +144,7 @@ export class GameRoom {
   matchSnapshot(){return {...this.match,teams:Object.fromEntries(Object.entries(this.teamSides).map(([id,side])=>[id,{side,score:this.scores[side]}]))};}
   setBots(id,value){
     if(id!==this.hostId)return {ok:false,message:'只有房主可以设置机器人数量。'};
+    if(!this.allowBots)return {ok:false,message:'1v1 房间已关闭机器人。'};
     if(!Number.isInteger(value)||value<0||value>9)return {ok:false,message:'机器人数量必须为 0–9 的整数。'};
     this.desiredBots=value;this.ensureBots();this.maybeStart();
     const result={ok:true,bots:value,desiredBots:value,botCount:this.botCount,hostId:this.hostId};
@@ -159,14 +163,15 @@ export class GameRoom {
   takeBot(id,botId){return takeBot(this,id,botId);}
   releaseBot(id){releaseBot(this,id);}
 
-  freeSeat(team){return [0,1,2,3,4].find(seat=>![...this.players.values()].some(p=>p.team===team&&p.seat===seat))??-1;}
-  roomSeats(){return Object.fromEntries(['CT','T'].map(team=>[team,Array.from({length:5},(_,seat)=>{
+  freeSeat(team){return Array.from({length:this.teamHumanLimit},(_,seat)=>seat).find(seat=>![...this.players.values()].some(p=>p.team===team&&p.seat===seat))??-1;}
+  roomSeats(){return Object.fromEntries(['CT','T'].map(team=>[team,Array.from({length:this.teamHumanLimit},(_,seat)=>{
     const p=[...this.players.values()].find(p=>p.team===team&&p.seat===seat);
     return {team,seat,playerId:p?.id||null,name:p?.name||'',bot:!!p?.bot,alive:!!p?.alive,host:p?.id===this.hostId};
   })]));}
   takeSeat(id,team,seat){
     const p=this.players.get(id);
-    if(!p||p.bot||!['T','CT'].includes(team)||!Number.isInteger(seat)||seat<0||seat>4)return {ok:false,message:'无效的房间位置。'};
+    if(!p||p.bot||!['T','CT'].includes(team)||!Number.isInteger(seat)||seat<0||seat>=this.teamHumanLimit)return {ok:false,message:'无效的房间位置。'};
+    if(p.team!==team&&this.count(team,true)>=this.teamHumanLimit)return {ok:false,message:'1v1 每个阵营只能有 1 名玩家。'};
     if([...this.players.values()].some(other=>other.id!==id&&other.team===team&&other.seat===seat))return {ok:false,message:'这个位置已有人，请选择空位。'};
     if(p.team!==team){
       this.releaseBot(id);
@@ -183,7 +188,8 @@ export class GameRoom {
   }
   setSeatBot(id,team,seat,enabled){
     if(id!==this.hostId)return {ok:false,message:'只有房主可以添加或移除人机。'};
-    if(!['T','CT'].includes(team)||!Number.isInteger(seat)||seat<0||seat>4||typeof enabled!=='boolean')return {ok:false,message:'无效的房间位置。'};
+    if(!this.allowBots)return {ok:false,message:'1v1 房间已关闭机器人。'};
+    if(!['T','CT'].includes(team)||!Number.isInteger(seat)||seat<0||seat>=this.teamHumanLimit||typeof enabled!=='boolean')return {ok:false,message:'无效的房间位置。'};
     const occupant=[...this.players.values()].find(p=>p.team===team&&p.seat===seat);
     if(occupant&&!occupant.bot)return {ok:false,message:'玩家位置不能替换为人机。'};
     if(enabled&&!occupant){
@@ -195,12 +201,13 @@ export class GameRoom {
   }
 
   addHuman(socket, { name, team = 'auto', primary = 'auto', skins, agents, movementProtocol, shotProtocol }) {
-    if (this.humanCount >= MAX_PLAYERS) throw new Error('房间已满，最多 10 名玩家。');
+    if (this.humanCount >= this.maxHumans) throw new Error(`房间已满，最多 ${this.maxHumans} 名玩家。`);
     let assigned = team;
     if (!['T', 'CT'].includes(assigned)) assigned = this.count('T', true) <= this.count('CT', true) ? 'T' : 'CT';
-    if (this.count(assigned, true) >= 5) { if (team !== 'auto') throw new Error('该阵营已有 5 名玩家，请选择另一队。'); assigned = opposite(assigned); }
+    if (this.count(assigned, true) >= this.teamHumanLimit) { if (team !== 'auto') throw new Error('1v1 每个阵营只能有 1 名玩家。'); assigned = opposite(assigned); }
+    if (this.count(assigned, true) >= this.teamHumanLimit) throw new Error('1v1 两个阵营都已有玩家。');
     const replaceable=[...this.players.values()].filter(p=>p.bot).sort((a,b)=>Number(!!a.controllerId)-Number(!!b.controllerId)||Number(a.alive)-Number(b.alive));
-    const botToReplace=(this.count(assigned)>=5||this.players.size>=10)?replaceable.find(p=>p.team===assigned)||replaceable[0]:null;
+    const botToReplace=(this.count(assigned)>=this.teamHumanLimit||this.players.size>=MAX_PLAYERS)?replaceable.find(p=>p.team===assigned)||replaceable[0]:null;
     if (botToReplace) this.removePlayer(botToReplace.id);
     const id = `p_${randomBytes(6).toString('hex')}`;
     const player = this.makePlayer(id, name, assigned, false, primary);
@@ -238,6 +245,11 @@ export class GameRoom {
   pickSpawn(team,self=null) {return selectSpawn(this,team,self);}
 
   ensureBots() {
+    if(!this.allowBots){
+      this.desiredBots=0;
+      for(const bot of [...this.players.values()].filter(p=>p.bot))this.removePlayer(bot.id);
+      return;
+    }
     const wanted = Math.min(this.desiredBots, MAX_PLAYERS - this.humanCount);
     let bots = [...this.players.values()].filter(p => p.bot).sort((a,b)=>Number(!!b.controllerId)-Number(!!a.controllerId)||Number(b.alive)-Number(a.alive));
     while (bots.length > wanted) { this.removePlayer(bots.pop().id); }
