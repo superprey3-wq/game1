@@ -28,3 +28,19 @@ jobs:
       - run: npm ci
       - run: node --test tests/one-v-one.mjs
       - run: npm run build:render
+      - name: Smoke test same-origin asset proxy
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm start >/tmp/dust2.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true' EXIT
+          ok=0
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:3000/health >/tmp/health.json; then ok=1; break; fi
+            sleep 1
+          done
+          if [ "$ok" -ne 1 ]; then cat /tmp/dust2.log; exit 1; fi
+          curl -fsS --max-time 60 http://127.0.0.1:3000/assets/ui-cs2/CT.svg -o /tmp/ct.svg
+          test -s /tmp/ct.svg
+          cat /tmp/health.json
