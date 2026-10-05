@@ -6,6 +6,10 @@ on:
       - dust2-1v1
   workflow_dispatch:
 
+concurrency:
+  group: dust2-1v1-qa
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -22,6 +26,10 @@ jobs:
           node-version: '22.12.0'
           cache: npm
       - run: npm ci
+      - uses: actions/cache@v4
+        with:
+          path: public/assets
+          key: dust2-assets-${{ hashFiles('config/assets-lock.json') }}
       - run: npm run assets:fetch
       - run: npm test
       - run: npm run build
