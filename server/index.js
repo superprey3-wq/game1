@@ -86,6 +86,13 @@ export async function startGameServer({ port = Number(process.env.PORT || 3000),
       const index = path.join(staticDir, 'index.html');
       try { const candidateInfo = await stat(index); if (candidateInfo.isFile()) { found = index; info = candidateInfo; } } catch { /* The frontend has not been built yet. */ }
     }
+    if (!found && requestPath.startsWith('/assets/')) {
+      const remote = new URL(requestPath, 'https://cs2.duskrain.cn/');
+      if (req.url?.includes('?')) remote.search = new URL(req.url, 'http://localhost').search;
+      res.writeHead(302, { Location: remote.href, 'Cache-Control': 'public, max-age=3600' });
+      res.end();
+      return;
+    }
     if (!found) { res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' }); res.end('文件不存在。请先运行 npm run build，然后打开游戏首页。'); return; }
     // Reuse the lookup's metadata. A second awaited stat could reject outside
     // the lookup's catch if an asset is replaced/deleted during deployment.
