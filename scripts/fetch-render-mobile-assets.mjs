@@ -3,7 +3,6 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { SKINS } from '../shared/skins.js';
-import { UTILITY_ASSETS } from '../shared/utility-assets.js';
 
 const BASE = 'https://cs2.duskrain.cn/';
 const MANIFEST = 'assets/asset-manifest-mobile.json';
@@ -72,13 +71,11 @@ const workers = Array.from({length: Math.min(CONCURRENCY,total)}, async () => {
 await Promise.all(workers);
 console.log('Mobile asset pack is stored locally on the Render service.');
 
+const STARTUP_WEAPONS = new Set(['m4a1','ak47','usp','pistol','knife']);
 const extras = [];
-for (const skin of SKINS.filter(skin => skin.isDefault)) {
+for (const skin of SKINS.filter(skin => skin.isDefault && STARTUP_WEAPONS.has(skin.weapon))) {
   extras.push({ path: skin.model, bytes: skin.bytes, sha256: skin.sha256 });
   if (skin.animation) extras.push({ path: skin.animation.model, bytes: skin.animation.bytes, sha256: skin.animation.sha256 });
-}
-for (const asset of Object.values(UTILITY_ASSETS)) {
-  if (asset?.model && asset?.bytes && asset?.sha256) extras.push({ path: asset.model, bytes: asset.bytes, sha256: asset.sha256 });
 }
 const uniqueExtras = [...new Map(extras.map(item => [item.path, item])).values()]
   .filter(item => !manifest.files.some(file => file.path === item.path));
